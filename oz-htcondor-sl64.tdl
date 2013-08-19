@@ -1,0 +1,99 @@
+<template>
+
+  <name>sl_64_x86_64_htcondor</name>
+  <description>Scientific Linux 6.4 base OS image for osg-test</description>
+
+  <os>
+    <name>ScientificLinux-6</name>
+    <version>4</version>
+    <arch>x86_64</arch>
+    <install type="iso">
+      <iso>file:///home/cat/SL-64-x86_64-2013-03-18-Install-DVD.iso</iso>
+    </install>
+    <rootpw>B27X3vM8Huttl</rootpw>
+  </os>
+
+  <disk><size>4G</size></disk>
+
+  <files>
+
+    <file name="/etc/sysconfig/network-scripts/ifcfg-eth0">
+DEVICE=eth0
+TYPE=Ethernet
+BOOTPROTO=dhcp
+ONBOOT=yes
+    </file>
+
+    <file name="/etc/rc.d/rc.local"><![CDATA[#!/bin/sh
+
+MOUNT_DIR=/mnt/user
+LOGPATH=/var/log/htcondor-rc.local.log
+
+log_command()
+{
+    log_msg=$1
+    shift
+    if [ -s $LOGPATH ]; then
+        echo >> $LOGPATH
+    fi
+    echo '----------------------------------------------------------------------' >> $LOGPATH
+    echo `date '+%Y-%m-%d %T'`: $log_msg >> $LOGPATH
+    echo '----------------------------------------------------------------------' >> $LOGPATH
+    "$@" >> $LOGPATH 2>&1
+    exit_status=$?
+    if [ $exit_status -ne 0 ]; then
+        echo "==> FAILED with exit status $exit_status" >> $LOGPATH
+    else
+        echo '==> OK' >> $LOGPATH
+    fi
+    return $exit_status
+}
+
+# rc.local always starts this way
+touch /var/lock/subsys/local
+
+# Try to set the clock correctly
+log_command 'Set date and time' ntpdate -u ntp1.cs.wisc.edu ntp2.cs.wisc.edu ntp3.cs.wisc.edu
+
+# Mount the user image
+if [ ! -e $MOUNT_DIR ]; then
+    mkdir $MOUNT_DIR
+fi
+log_command 'Mount user image' mount -t ext2 /dev/vdb $MOUNT_DIR
+if [ $? -eq 0 ]; then
+    NEW_LOGPATH=$MOUNT_DIR/rc.local.log
+    mv $LOGPATH $NEW_LOGPATH
+    LOGPATH=$NEW_LOGPATH
+fi
+
+# Run job
+if [ -f $MOUNT_DIR/run-job -a -x $MOUNT_DIR/run-job ]; then
+    log_command 'Run job' $MOUNT_DIR/run-job
+fi
+
+# Shutdown
+/sbin/poweroff
+]]>
+    </file>
+
+  </files>
+
+  <commands>
+    <command name='post-install'>
+yum clean all
+yum -y update
+
+mv /etc/localtime /etc/localtime-old
+ln -sf /usr/share/zoneinfo/America/Chicago /etc/localtime
+rm -rf /etc/sysconfig/clock
+echo 'ZONE="America/Chicago"' >> /etc/sysconfig/clock
+echo 'UTC=true' >> /etc/sysconfig/clock
+/sbin/chkconfig ntpd on
+
+chmod 0755 /etc/rc.d/rc.local
+
+rm -f /etc/udev/rules.d/70-persistent-net.rules
+    </command>
+  </commands>
+
+</template>
