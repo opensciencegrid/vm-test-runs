@@ -1,0 +1,21 @@
+executable              = cat-osg-test
+
+universe                = vm
+vm_type                 = kvm
+vm_memory               = 4048
+vm_networking           = true
+vm_no_output_vm         = false
+vm_vnc                  = true
+
+vm_disk                 = cat-base-sl64-amd64-htcondor.dsk:vda:w:raw,cat-user-disk.raw:vdb:w:raw
+
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+transfer_input_files    = cat-base-sl64-amd64-htcondor.dsk,cat-user-disk.raw
+transfer_output_files   = cat-user-disk.raw
+transfer_output_remaps  = "cat-user-disk.raw = output-disk-$(Cluster).raw"
+
+queue
+
+# condor_submit will complain about some attributes not being used;
+# ignore it until further notice
