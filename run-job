@@ -39,6 +39,7 @@ osg-test `cat $MOUNT_DIR/input/options.txt` > $OUTPUT_DIR/osg-test-`date '+%Y%m%
 rpm --query --all > $OUTPUT_DIR/rpm-qa-final.log 2>&1
 
 # Debugging
+log_command echo $PATH
 log_command hostname
 log_command hostname --fqdn
 log_command mount
@@ -46,7 +47,8 @@ log_command cat /proc/net/dev
 log_command cat /proc/sys/kernel/hostname
 log_command df -h
 log_command ls -lF /etc/sysconfig/network-scripts
-log_command ip addr show
+log_command /sbin/ifconfig -a
+log_command /sbin/ip addr show
 log_command rpm --query openssl
 log_command openssl version
 if [ ! -e $SYSTEM_LOG_DIR ]; then
