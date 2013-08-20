@@ -10,7 +10,7 @@ def print_now(message):
     print message,
     sys.stdout.flush()
 
-g = guestfs.GuestFS(python_return_dict=True)
+g = guestfs.GuestFS()
 
 # add careful checking of argv
 image_filename = sys.argv[1]
