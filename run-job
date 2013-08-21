@@ -2,35 +2,32 @@
 
 MOUNT_DIR=/mnt/user
 OUTPUT_DIR=$MOUNT_DIR/output
-LOGPATH=$OUTPUT_DIR/run-job.log
 SYSTEM_LOG_DIR=$OUTPUT_DIR/system-files
 
 log_command()
 {
-    if [ -s $LOGPATH ]; then
-        echo >> $LOGPATH
-    fi
-    echo '----------------------------------------------------------------------' >> $LOGPATH
-    echo `date '+%Y-%m-%d %T'`: "$@" >> $LOGPATH
-    "$@" >> $LOGPATH 2>&1
+    echo '----------------------------------------------------------------------'
+    echo `date '+%Y-%m-%d %T'`: "$@"
+    "$@"
     exit_status=$?
     if [ $exit_status -ne 0 ]; then
-        echo "==> FAILED with exit status $exit_status" >> $LOGPATH
+        echo "==> FAILED with exit status $exit_status"
     else
-        echo '==> OK' >> $LOGPATH
+        echo '==> OK'
     fi
+    echo
     return $exit_status
 }
 
 # Install repositories
 # See, e.g., https://twiki.opensciencegrid.org/bin/view/Documentation/Release3/YumRepositories
 log_command rpm --upgrade http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
-log_command yum --quiet --assumeyes install yum-priorities
+log_command yum --assumeyes install yum-priorities
 log_command sed -i -e 's/^plugins=.*$/plugins=1/' /etc/yum.conf
 log_command rpm --upgrade http://repo.grid.iu.edu/osg-el6-release-latest.rpm
 
 # Install osg-test
-log_command yum --quiet --assumeyes --enablerepo=osg-testing install osg-test
+log_command yum --assumeyes --enablerepo=osg-testing install osg-test
 log_command rpm --verify osg-test
 
 # Run osg-test
@@ -39,16 +36,17 @@ osg-test `cat $MOUNT_DIR/input/options.txt` > $OUTPUT_DIR/osg-test-`date '+%Y%m%
 rpm --query --all > $OUTPUT_DIR/rpm-qa-final.log 2>&1
 
 # Debugging
-log_command echo $PATH
-log_command hostname
-log_command hostname --fqdn
+log_command printenv
 log_command mount
 log_command cat /proc/net/dev
 log_command cat /proc/sys/kernel/hostname
 log_command df -h
 log_command ls -lF /etc/sysconfig/network-scripts
-log_command /sbin/ifconfig -a
-log_command /sbin/ip addr show
+log_command hostname
+log_command hostname --fqdn
+log_command ifconfig -a
+log_command ip addr show
+log_command ip link list
 log_command rpm --query openssl
 log_command openssl version
 if [ ! -e $SYSTEM_LOG_DIR ]; then
@@ -62,4 +60,5 @@ cp /etc/hosts \
    /var/log/boot.log \
    /var/log/dmesg \
    /var/log/messages \
+   /var/log/rc.local.log \
    $SYSTEM_LOG_DIR/
