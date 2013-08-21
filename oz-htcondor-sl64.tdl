@@ -27,7 +27,7 @@ ONBOOT=yes
     <file name="/etc/rc.d/rc.local"><![CDATA[#!/bin/sh
 
 MOUNT_DIR=/mnt/user
-LOGPATH=/var/log/htcondor-rc.local.log
+LOGPATH=/var/log/rc.local.log
 
 log_command()
 {
@@ -60,15 +60,10 @@ if [ ! -e $MOUNT_DIR ]; then
     mkdir $MOUNT_DIR
 fi
 log_command 'Mount user image' mount -t ext2 /dev/vdb $MOUNT_DIR
-if [ $? -eq 0 ]; then
-    NEW_LOGPATH=$MOUNT_DIR/rc.local.log
-    mv $LOGPATH $NEW_LOGPATH
-    LOGPATH=$NEW_LOGPATH
-fi
 
 # Run job
 if [ -f $MOUNT_DIR/run-job -a -x $MOUNT_DIR/run-job ]; then
-    log_command 'Run job' $MOUNT_DIR/run-job
+    $MOUNT_DIR/run-job > $MOUNT_DIR/run-job.log 2>&1
 fi
 
 # Shutdown
