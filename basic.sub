@@ -13,7 +13,7 @@ should_transfer_files   = YES
 when_to_transfer_output = ON_EXIT
 transfer_input_files    = cat-base-sl64-amd64-htcondor.dsk,cat-user-disk.raw
 transfer_output_files   = cat-user-disk.raw
-transfer_output_remaps  = "cat-user-disk.raw = output-disk-$(Cluster).raw"
+transfer_output_remaps  = "cat-user-disk.raw = output-disk-$(CLUSTER).$(PROCESS).raw"
 
 queue
 
