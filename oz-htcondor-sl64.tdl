@@ -26,40 +26,35 @@ ONBOOT=yes
 
     <file name="/etc/rc.d/rc.local"><![CDATA[#!/bin/sh
 
-MOUNT_DIR=/mnt/user
-LOGPATH=/var/log/rc.local.log
-
-log_command()
-{
-    log_msg=$1
-    shift
-    if [ -s $LOGPATH ]; then
-        echo >> $LOGPATH
-    fi
-    echo '----------------------------------------------------------------------' >> $LOGPATH
-    echo `date '+%Y-%m-%d %T'`: $log_msg >> $LOGPATH
-    echo '----------------------------------------------------------------------' >> $LOGPATH
-    "$@" >> $LOGPATH 2>&1
-    exit_status=$?
-    if [ $exit_status -ne 0 ]; then
-        echo "==> FAILED with exit status $exit_status" >> $LOGPATH
-    else
-        echo '==> OK' >> $LOGPATH
-    fi
-    return $exit_status
-}
-
 # rc.local always starts this way
 touch /var/lock/subsys/local
 
+# Run payload runner in background
+chmod 0744 /root/run-user-job
+nohup /root/run-user-job > /var/log/run-user-job.log 2>&1 &
+]]>
+    </file>
+
+    <file name="/root/run-user-job"><![CDATA[#!/bin/sh
+
+log_command()
+{
+    echo '==>' `date '+%Y-%m-%d %T'`: "$@"
+    "$@"
+    exit_status=$?
+    echo "--> Exit status: $exit_status"
+    return $exit_status
+}
+
 # Try to set the clock correctly
-log_command 'Set date and time' ntpdate -u ntp1.cs.wisc.edu ntp2.cs.wisc.edu ntp3.cs.wisc.edu
+log_command ntpdate -u ntp1.cs.wisc.edu ntp2.cs.wisc.edu ntp3.cs.wisc.edu
 
 # Mount the user image
+MOUNT_DIR=/mnt/user
 if [ ! -e $MOUNT_DIR ]; then
-    mkdir $MOUNT_DIR
+    log_command mkdir $MOUNT_DIR
 fi
-log_command 'Mount user image' mount -t ext2 /dev/vdb $MOUNT_DIR
+log_command mount --types ext2 /dev/vdb $MOUNT_DIR
 
 # Run job
 if [ -f $MOUNT_DIR/run-job -a -x $MOUNT_DIR/run-job ]; then
@@ -85,7 +80,8 @@ echo 'ZONE="America/Chicago"' >> /etc/sysconfig/clock
 echo 'UTC=true' >> /etc/sysconfig/clock
 /sbin/chkconfig ntpd on
 
-chmod 0755 /etc/rc.d/rc.local
+chmod 0744 /etc/rc.d/rc.local
+chmod 0744 /root/run-user-job
 
 rm -f /etc/udev/rules.d/70-persistent-net.rules
     </command>

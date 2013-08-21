@@ -60,5 +60,5 @@ cp /etc/hosts \
    /var/log/boot.log \
    /var/log/dmesg \
    /var/log/messages \
-   /var/log/rc.local.log \
+   /var/log/run-user-job.log \
    $SYSTEM_LOG_DIR/
