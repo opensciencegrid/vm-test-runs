@@ -19,6 +19,8 @@ log_command()
     return $exit_status
 }
 
+log_command printenv
+
 # Install repositories
 # See, e.g., https://twiki.opensciencegrid.org/bin/view/Documentation/Release3/YumRepositories
 log_command rpm --upgrade http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
@@ -60,5 +62,4 @@ cp /etc/hosts \
    /var/log/boot.log \
    /var/log/dmesg \
    /var/log/messages \
-   /var/log/run-user-job.log \
    $SYSTEM_LOG_DIR/
