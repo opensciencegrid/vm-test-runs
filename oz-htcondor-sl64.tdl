@@ -26,38 +26,40 @@ ONBOOT=yes
 
     <file name="/etc/rc.d/rc.local"><![CDATA[#!/bin/sh
 
-# rc.local always starts this way
-touch /var/lock/subsys/local
-
-# Run payload runner in background
-chmod 0744 /root/run-user-job
-nohup /root/run-user-job > /var/log/run-user-job.log 2>&1 &
-]]>
-    </file>
-
-    <file name="/root/run-user-job"><![CDATA[#!/bin/sh
-
-log_command()
-{
-    echo `date '+%Y-%m-%d %T'`: "$@"
-}
-
 # Try to set the clock correctly
-log_command 'Set date and time'
 ntpdate -u ntp1.cs.wisc.edu ntp2.cs.wisc.edu ntp3.cs.wisc.edu
 
 # Mount the user image
+# No type specified; user provides their filesystem type of choice
 MOUNT_DIR=/mnt/user
-if [ ! -e $MOUNT_DIR ]; then
-    mkdir $MOUNT_DIR
-fi
-log_command 'Mount user image'
-mount --types ext2 /dev/vdb $MOUNT_DIR
+mount /dev/vdb $MOUNT_DIR
 
-# Run job
-if [ -f $MOUNT_DIR/run-job -a -x $MOUNT_DIR/run-job ]; then
-    $MOUNT_DIR/run-job > $MOUNT_DIR/run-job.log 2>&1
+# If the mount failed, we cannot run the payload, nor log why
+if [ $? -ne 0 ]; then
+    /sbin/poweroff
 fi
+
+# If no user executable, then we cannot run it, but we can log why
+if [ ! -f $MOUNT_DIR/run-job ]; then
+    echo "No file named '$MOUNT_DIR/run-job'." >> $MOUNT_DIR/run-job-failure.log
+    /sbin/poweroff
+fi
+
+# Prepare user payload to run
+chmod 0744 $MOUNT_DIR/run-job
+at -f /root/run-user-payload now + 1 minute
+]]>
+    </file>
+
+    <file name="/root/run-user-payload"><![CDATA[#!/bin/sh
+
+# Run job with clean environment
+/bin/env - \
+    PATH=/sbin:/usr/sbin:/bin:/usr/bin \
+    USER=root \
+    PWD=/ \
+    LANG=en_US.UTF-8 \
+    /mnt/user/run-job >> /mnt/user/run-job.log 2>&1
 
 # Shutdown
 /sbin/poweroff
@@ -78,8 +80,10 @@ echo 'ZONE="America/Chicago"' >> /etc/sysconfig/clock
 echo 'UTC=true' >> /etc/sysconfig/clock
 /sbin/chkconfig ntpd on
 
+mkdir /mnt/user
+
 chmod 0744 /etc/rc.d/rc.local
-chmod 0744 /root/run-user-job
+chmod 0744 /root/run-user-payload
 
 rm -f /etc/udev/rules.d/70-persistent-net.rules
     </command>
