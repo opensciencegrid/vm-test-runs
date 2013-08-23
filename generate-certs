@@ -1,0 +1,45 @@
+#!/bin/sh
+
+INDEX_FILE=index.txt
+SERIAL_FILE=serial
+PRIVATE_KEY_FILE=osg-test-rsa-private.pem
+CA_FILE=OSG-Test-CA.pem
+OPENSSL_CONFIG=openssl.config
+CA_SUBJECT='/DC=org/DC=Open Science Grid/O=OSG Test/CN=OSG Test CA'
+HOST_REQUEST=host-cert-request.pem
+HOST_REQ_PRIV=hostkey.pem
+HOST_CERT_SUBJECT='/DC=org/DC=Open Science Grid/O=OSG Test/OU=Services/CN=osg-test.localdomain'
+SERIAL_NUMBER=A1B2C3D4E5F6
+
+# Clean up from previous run
+rm -f $INDEX_FILE
+rm -f $PRIVATE_KEY_FILE
+rm -f $CA_FILE
+rm -fr certs
+
+# Patch /etc/pki/tls/openssl.cnf
+rm -f $OPENSSL_CONFIG
+cp -p /etc/pki/tls/openssl.cnf $OPENSSL_CONFIG
+patch -p0 < openssl-config.patch
+HERE=`pwd`
+sed -i -e 's,^dir\([[:space:]]\+\)= [[:graph:]]\+\([[:space:]]\+# Where.*\),dir\1= '$HERE'\2,' $OPENSSL_CONFIG
+
+# Prepare OpenSSL directories
+touch $INDEX_FILE
+echo $SERIAL_NUMBER > $SERIAL_FILE
+
+# Create CA certificate
+openssl genrsa -out $PRIVATE_KEY_FILE 2048
+openssl req -out $CA_FILE -new -key $PRIVATE_KEY_FILE -config $OPENSSL_CONFIG -subj "$CA_SUBJECT" -x509 -days 10
+
+# Create host certificate
+openssl req -new -nodes -out $HOST_REQUEST -keyout $HOST_REQ_PRIV -subj "$HOST_CERT_SUBJECT"
+openssl ca -config $OPENSSL_CONFIG -cert $CA_FILE -keyfile $PRIVATE_KEY_FILE \
+    -days 10 -policy policy_anything -preserveDN -extfile host-cert-extensions.conf \
+    -in $HOST_REQUEST -notext -out hostcert.pem -outdir . -batch
+if [ $? -eq 0 ]; then
+    rm -f $HOST_REQUEST
+    rm -f $SERIAL_NUMBER.pem
+    rm -f index.*
+    rm -f serial*
+fi
