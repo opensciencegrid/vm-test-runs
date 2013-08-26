@@ -34,7 +34,7 @@ TEMP_BUNDLE_PATH=/etc/grid-security/osg-test-cert-bundle.tar.bz2
 log_command ls -lF /etc
 log_command mkdir -p /etc/grid-security
 log_command cp $INPUT_DIR/osg-test-cert-bundle.tar.bz2 $TEMP_BUNDLE_PATH
-log_command tar xf $TEMP_BUNDLE_PATH
+log_command tar xf $TEMP_BUNDLE_PATH --directory /etc/grid-security
 log_command ls -lF /etc/grid-security
 log_command chmod 0400 /etc/grid-security/hostkey.pem
 log_command chmod 0644 /etc/grid-security/hostcert.pem
