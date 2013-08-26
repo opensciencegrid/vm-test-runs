@@ -1,6 +1,7 @@
 #!/bin/sh
 
-BUNDLE_DIR=bundle
+START_DIR=`pwd`
+BUNDLE_DIR=certificates
 CA_NAME=OSG-Test-CA
 
 rm -fr $BUNDLE_DIR
@@ -20,3 +21,8 @@ for h in $h1 $h2; do
  ln -s $CA_NAME.signing_policy $h.signing_policy
  ln -s $CA_NAME.namespaces $h.namespaces
 done
+
+cd $START_DIR
+rm -f osg-test-cert-bundle.tar.bz2
+tar cjf osg-test-cert-bundle.tar.bz2 hostcert.pem hostkey.pem $BUNDLE_DIR
+tar tvf osg-test-cert-bundle.tar.bz2
