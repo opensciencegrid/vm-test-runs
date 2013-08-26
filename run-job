@@ -1,6 +1,7 @@
 #!/bin/sh
 
 MOUNT_DIR=/mnt/user
+INPUT_DIR=$MOUNT_DIR/input
 OUTPUT_DIR=$MOUNT_DIR/output
 SYSTEM_LOG_DIR=$OUTPUT_DIR/system-files
 
@@ -19,7 +20,26 @@ log_command()
     return $exit_status
 }
 
-log_command printenv
+# Set a hostname
+log_command ip addr show eth0 | awk 'match($0, /inet ([0-9.]+)/, a) { print a[1] }'
+ip_address=`ip addr show eth0 | awk 'match($0, /inet ([0-9.]+)/, a) { print a[1] }'`
+echo "$ip_address osg-test.localdomain osg-test" >> /etc/hosts
+log_command cat /etc/hosts
+log_command hostname
+log_command hostname osg-test.localdomain
+log_command hostname
+
+# Install CA and host certificates
+TEMP_BUNDLE_PATH=/etc/grid-security/osg-test-cert-bundle.tar.bz2
+log_command ls -lF /etc
+log_command mkdir -p /etc/grid-security
+log_command cp $INPUT_DIR/osg-test-cert-bundle.tar.bz2 $TEMP_BUNDLE_PATH
+log_command tar xf $TEMP_BUNDLE_PATH
+log_command ls -lF /etc/grid-security
+log_command chmod 0400 /etc/grid-security/hostkey.pem
+log_command chmod 0644 /etc/grid-security/hostcert.pem
+log_command rm -f $TEMP_BUNDLE_PATH
+log_command find /etc/grid-security -ls
 
 # Install repositories
 # See, e.g., https://twiki.opensciencegrid.org/bin/view/Documentation/Release3/YumRepositories
