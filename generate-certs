@@ -34,6 +34,7 @@ openssl req -out $CA_FILE -new -key $PRIVATE_KEY_FILE -config $OPENSSL_CONFIG -s
 
 # Create host certificate
 openssl req -new -nodes -out $HOST_REQUEST -keyout $HOST_REQ_PRIV -subj "$HOST_CERT_SUBJECT"
+chmod 0400 $HOST_REQ_PRIV
 openssl ca -config $OPENSSL_CONFIG -cert $CA_FILE -keyfile $PRIVATE_KEY_FILE \
     -days 10 -policy policy_anything -preserveDN -extfile host-cert-extensions.conf \
     -in $HOST_REQUEST -notext -out hostcert.pem -outdir . -batch
