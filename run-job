@@ -30,15 +30,8 @@ log_command hostname osg-test.localdomain
 log_command hostname
 
 # Install CA and host certificates
-TEMP_BUNDLE_PATH=/etc/grid-security/osg-test-cert-bundle.tar.bz2
-log_command ls -lF /etc
 log_command mkdir -p /etc/grid-security
-log_command cp $INPUT_DIR/osg-test-cert-bundle.tar.bz2 $TEMP_BUNDLE_PATH
-log_command tar xf $TEMP_BUNDLE_PATH --directory /etc/grid-security
-log_command ls -lF /etc/grid-security
-log_command chmod 0400 /etc/grid-security/hostkey.pem
-log_command chmod 0644 /etc/grid-security/hostcert.pem
-log_command rm -f $TEMP_BUNDLE_PATH
+log_command tar xf $INPUT_DIR/osg-test-cert-bundle.tar.bz2 --directory /etc/grid-security --no-same-owner
 log_command find /etc/grid-security -ls
 
 # Install repositories
@@ -68,18 +61,19 @@ log_command hostname
 log_command hostname --fqdn
 log_command ifconfig -a
 log_command ip addr show
-log_command ip link list
 log_command rpm --query openssl
 log_command openssl version
 if [ ! -e $SYSTEM_LOG_DIR ]; then
     mkdir $SYSTEM_LOG_DIR
 fi
-cp /etc/hosts \
-   /etc/nsswitch.conf \
-   /etc/resolv.conf \
-   /etc/sysconfig/network-scripts/ifcfg-* \
-   /etc/udev/rules.d/70-persistent-net.rules \
-   /var/log/boot.log \
-   /var/log/dmesg \
-   /var/log/messages \
-   $SYSTEM_LOG_DIR/
+cp -r \
+    /etc/hosts \
+    /etc/nsswitch.conf \
+    /etc/resolv.conf \
+    /etc/sysconfig/network-scripts/ifcfg-* \
+    /etc/udev/rules.d/70-persistent-net.rules \
+    /var/log/boot.log \
+    /var/log/dmesg \
+    /var/log/messages \
+    /var/log/tomcat6 \
+    $SYSTEM_LOG_DIR/
