@@ -1,5 +1,5 @@
 --- openssl.config-ORIGINAL	2013-02-25 04:45:45.000000000 -0600
-+++ openssl.config-MINE	2013-08-28 15:38:18.465565898 -0500
++++ openssl.config	2013-08-28 15:38:18.465565898 -0500
 @@ -68,7 +68,7 @@
  # Extensions to add to a CRL. Note: Netscape communicator chokes on V2 CRLs
  # so this is commented out by default to leave a V1 CRL.
