@@ -8,7 +8,7 @@ rm -fr $BUNDLE_DIR
 mkdir $BUNDLE_DIR
 cd $BUNDLE_DIR
 
-cp ../$CA_NAME.pem .
+cp ../$CA_NAME.pem ../$CA_NAME.r0 ./
 h1=`openssl x509 -in $CA_NAME.pem -noout -subject_hash`
 h2=`openssl x509 -in $CA_NAME.pem -noout -subject_hash_old`
 
@@ -16,13 +16,11 @@ cp ../$CA_NAME.signing_policy .
 
 sed -e "s/xyxyxyxy/$h1/g" ../$CA_NAME.namespaces > $CA_NAME.namespaces
 
-touch $CA_NAME.r0
-
 for h in $h1 $h2; do
     ln -s $CA_NAME.pem $h.0
     ln -s $CA_NAME.signing_policy $h.signing_policy
     ln -s $CA_NAME.namespaces $h.namespaces
-    touch $h.r0
+    ln -s $CA_NAME.r0 $h.r0
 done
 
 cd $START_DIR
