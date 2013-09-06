@@ -1,0 +1,12 @@
+Index: osgtest/tests/test_18_cvmfs.py
+===================================================================
+--- osgtest/tests/test_18_cvmfs.py	(revision 17586)
++++ osgtest/tests/test_18_cvmfs.py	(working copy)
+@@ -68,6 +68,7 @@
+         self.setup_fuse()
+         self.setup_automount()
+         self.setup_cvmfs()
++        files.append('/etc/sysconfig/autofs', 'LOGGING="debug"\n', backup=False)
+ 
+     def test_02_start_cvmfs(self):
+         core.state['cvmfs.started-server'] = False
