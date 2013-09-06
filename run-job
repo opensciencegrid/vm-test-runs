@@ -70,8 +70,8 @@ log_command yum --assumeyes --enablerepo=osg-testing install osg-test
 log_command rpm --verify osg-test
 
 # Patch osg-test
+log_command yum --assumeyes install patch
 log_command patch --directory=/usr/lib/python2.6/site-packages --input=$INPUT_DIR/test-changes.patch --strip=0
-log_command cat /usr/lib/python2.6/site-packages/osgtest/tests/test_52_bestman.py
 
 # Run osg-test
 rpm --query --all > $OUTPUT_DIR/rpm-qa-start.log 2>&1
@@ -84,6 +84,8 @@ log_command mount
 log_command cat /proc/net/dev
 log_command cat /proc/sys/kernel/hostname
 log_command df -h
+log_command ls -lF /etc/sysconfig
+log_command cat /etc/sysconfig/autofs
 log_command ls -lF /etc/sysconfig/network-scripts
 log_command hostname
 log_command hostname --fqdn
@@ -91,6 +93,10 @@ log_command ifconfig -a
 log_command ip addr show
 log_command rpm --query openssl
 log_command openssl version
+log_command ls -lF /tmp
+log_command find /tmp/cvmfs -ls
+
+# System files
 if [ ! -e $SYSTEM_LOG_DIR ]; then
     mkdir $SYSTEM_LOG_DIR
 fi
