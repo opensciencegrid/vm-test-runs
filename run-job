@@ -20,8 +20,28 @@ log_command()
     return $exit_status
 }
 
+# Runs command up to given number of tries with exponential backoff.  Maximum
+# possible sleep time is ((2 ** ($1 - 1)) - 1) seconds.
+run_command_with_retries()
+{
+    try_count=$1
+    shift
+
+    log_command "$@" && return 0
+
+    sleep_time=1
+    while [ $try_count -gt 1 ]; do
+        log_command sleep $sleep_time
+        sleep_time=`expr $sleep_time '*' 2`
+        try_count=`expr $try_count - 1`
+        log_command "$@" && return 0
+    done
+
+    return
+}
+
 # Set a hostname
-log_command ip addr show eth0 | awk 'match($0, /inet ([0-9.]+)/, a) { print a[1] }'
+log_command ip addr show eth0
 ip_address=`ip addr show eth0 | awk 'match($0, /inet ([0-9.]+)/, a) { print a[1] }'`
 echo "$ip_address osg-test.localdomain osg-test" >> /etc/hosts
 log_command cat /etc/hosts
@@ -36,14 +56,22 @@ log_command find /etc/grid-security -ls
 
 # Install repositories
 # See, e.g., https://twiki.opensciencegrid.org/bin/view/Documentation/Release3/YumRepositories
-log_command rpm --upgrade http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
+run_command_with_retries 8 rpm --upgrade http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
 log_command yum --assumeyes install yum-priorities
 log_command sed -i -e 's/^plugins=.*$/plugins=1/' /etc/yum.conf
-log_command rpm --upgrade http://repo.grid.iu.edu/osg-el6-release-latest.rpm
+run_command_with_retries 8 rpm --upgrade http://repo.grid.iu.edu/osg-el6-release-latest.rpm
+
+# Fix nsswitch.conf
+log_command sed -i -e 's/^automount:.*$/automount:  files/' /etc/nsswitch.conf
+log_command service --status-all
 
 # Install osg-test
 log_command yum --assumeyes --enablerepo=osg-testing install osg-test
 log_command rpm --verify osg-test
+
+# Patch osg-test
+log_command patch --directory=/usr/lib/python2.6/site-packages --input=$INPUT_DIR/test-changes.patch --strip=0
+log_command cat /usr/lib/python2.6/site-packages/osgtest/tests/test_52_bestman.py
 
 # Run osg-test
 rpm --query --all > $OUTPUT_DIR/rpm-qa-start.log 2>&1
@@ -72,6 +100,7 @@ cp -r \
     /etc/resolv.conf \
     /etc/sysconfig/network-scripts/ifcfg-* \
     /etc/udev/rules.d/70-persistent-net.rules \
+    /var/log/bestman2 \
     /var/log/boot.log \
     /var/log/dmesg \
     /var/log/messages \
