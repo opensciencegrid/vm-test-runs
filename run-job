@@ -104,6 +104,7 @@ cp -r \
     /etc/hosts \
     /etc/nsswitch.conf \
     /etc/resolv.conf \
+    /etc/selinux/config \
     /etc/sysconfig/network-scripts/ifcfg-* \
     /etc/udev/rules.d/70-persistent-net.rules \
     /var/log/bestman2 \
