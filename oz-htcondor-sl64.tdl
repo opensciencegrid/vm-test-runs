@@ -86,6 +86,8 @@ chmod 0744 /etc/rc.d/rc.local
 chmod 0744 /root/run-user-payload
 
 rm -f /etc/udev/rules.d/70-persistent-net.rules
+
+sed -i -e 's/^SELINUX=.*$/SELINUX=disabled/' /etc/selinux/config.ozbackup
     </command>
   </commands>
 
