@@ -1,0 +1,57 @@
+Index: osg-test
+===================================================================
+--- osg-test	(revision 17634)
++++ osg-test	(working copy)
+@@ -4,9 +4,10 @@
+ from optparse import OptionParser
+ import ConfigParser
+ import os
++import re
++import signal
+ import sys
+ import unittest
+-import re
+ 
+ from osgtest.library import core
+ from osgtest.library import osgunittest
+@@ -172,7 +173,22 @@
+     runner = osgunittest.OSGTextTestRunner(verbosity=verb)
+     runner.run(test_suite)
+ 
++def wrap_up():
++    core.end_log()
++    if core.options.dumpout:
++        core.dump_log()
++    if core.options.dumpfile:
++        core.dump_log(core.options.dumpfile)
++    core.remove_log()
+ 
++def signal_alarm_handler(signal_number, stack_frame):
++    signal.alarm(0)
++    if stack_frame is not None:
++        core.log_message('Caught alarm:\n' + ''.join(traceback.format_stack(None)))
++    wrap_up()
++    os.abort()
++
++
+ # ------------------------------------------------------------------------------
+ # MAIN
+ # ------------------------------------------------------------------------------
+@@ -185,12 +201,11 @@
+     core.start_log()
+     tests = discover_tests()
+     if len(tests) > 1:
++        signal.signal(signal.SIGALRM, signal_alarm_handler)
++        signal.alarm(5400) # 1.5 hours
+         run_tests(tests)
++        signal.alarm(0)
++        signal.signal(signal.SIGALRM, signal.SIG_DFL)
+     else:
+         print 'No tests to run.'
+-    core.end_log()
+-    if core.options.dumpout:
+-        core.dump_log()
+-    if core.options.dumpfile:
+-        core.dump_log(core.options.dumpfile)
+-    core.remove_log()
++    wrap_up()
