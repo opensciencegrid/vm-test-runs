@@ -44,7 +44,7 @@ openssl rsa -in initial-$HOST_REQ_PRIV -outform PEM -out $HOST_REQ_PRIV
 rm -f initial-$HOST_REQ_PRIV
 chmod 0400 $HOST_REQ_PRIV
 openssl ca -config $OPENSSL_CONFIG -cert $CA_FILE -keyfile $PRIVATE_KEY_FILE \
-    -days $DAYS -policy policy_anything -preserveDN -extfile host-cert-extensions.conf \
+    -days $DAYS -policy policy_anything -preserveDN -extfile openssl-cert-extensions.conf \
     -in $HOST_REQUEST -notext -out hostcert.pem -outdir . -batch
 if [ $? -eq 0 ]; then
     rm -f $HOST_REQUEST
