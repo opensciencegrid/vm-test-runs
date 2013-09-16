@@ -1,0 +1,32 @@
+#!/bin/sh
+
+HOME_DIR=/home/cat
+SVN_DIR=$HOME_DIR/vm-test-runs
+
+if [ "$1" = "yes" ]; then
+    LIBVIRT_DIR=/var/lib/libvirt/images
+    BASE_IMAGE_FILENAME=cat-base-sl64-amd64-htcondor.dsk
+    rm -f $HOME_DIR/$BASE_IMAGE_FILENAME
+    sudo rm -f $LIBVIRT_DIR/sl_64_x86_64_htcondor.dsk
+    sudo oz-install -d 2 -p -u -x $HOME_DIR/oz-generated-libvirt-htcondor.xml $SVN_DIR/oz-htcondor-sl64.tdl
+    sudo cp $LIBVIRT_DIR/sl_64_x86_64_htcondor.dsk $HOME_DIR/$BASE_IMAGE_FILENAME
+    sudo chown cat:cat $HOME_DIR/$BASE_IMAGE_FILENAME
+fi
+
+USER_IMAGE_FILENAME=cat-user-disk.raw
+
+rm -f $HOME_DIR/$USER_IMAGE_FILENAME
+rm -fr $HOME_DIR/image
+
+mkdir $HOME_DIR/image
+cp -p vm-test-runs/run-job $HOME_DIR/image/
+
+mkdir $HOME_DIR/image/input
+cp -p vm-test-runs/osg-test.conf        $HOME_DIR/image/input/
+cp -p ca/osg-test-cert-bundle.tar.bz2   $HOME_DIR/image/input/
+cp -p vm-test-runs/osg-test.patch       $HOME_DIR/image/input/
+cp -p vm-test-runs/test-changes.patch   $HOME_DIR/image/input/
+
+mkdir $HOME_DIR/image/output
+
+virt-make-fs --size=1M $HOME_DIR/image $HOME_DIR/$USER_IMAGE_FILENAME
