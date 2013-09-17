@@ -26,6 +26,12 @@ cp -p vm-test-runs/osg-test.conf        $HOME_DIR/image/input/
 cp -p ca/osg-test-cert-bundle.tar.bz2   $HOME_DIR/image/input/
 cp -p vm-test-runs/osg-test.patch       $HOME_DIR/image/input/
 cp -p vm-test-runs/test-changes.patch   $HOME_DIR/image/input/
+cp -p vm-test-runs/osg-release.patch    $HOME_DIR/image/input/
+
+rpm_filename=`ls -1 osg-test-*.rpm 2>/dev/null | tail -n 1`
+if [ "x$rpm_filename" != 'x' ]; then
+    cp -p $rpm_filename $HOME_DIR/image/input/
+fi
 
 mkdir $HOME_DIR/image/output
 
