@@ -65,13 +65,19 @@ run_command_with_retries 8 rpm --upgrade http://repo.grid.iu.edu/osg-el6-release
 log_command sed -i -e 's/^automount:.*$/automount:  files/' /etc/nsswitch.conf
 
 # Install osg-test
-log_command yum --assumeyes --enablerepo=osg-testing install osg-test
+RPM_LOCATION=`ls -1 $INPUT_DIR/osg-test-*.rpm 2>/dev/null | tail -n 1`
+if [ "x$RPM_LOCATION" != 'x' ]; then
+    log_command rpm --install $RPM_LOCATION
+else
+    log_command yum --assumeyes --enablerepo=osg-testing install osg-test
+fi
 log_command rpm --verify osg-test
 
 # Patch osg-test
 log_command yum --assumeyes install patch
 log_command patch --directory=/usr/sbin --input=$INPUT_DIR/osg-test.patch --strip=0
 log_command patch --directory=/usr/lib/python2.6/site-packages --input=$INPUT_DIR/test-changes.patch --strip=0
+log_command patch --directory=/etc/yum.repos.d --input=$INPUT_DIR/osg-release.patch --strip=0
 
 # Run osg-test
 rpm --query --all > $OUTPUT_DIR/rpm-qa-start.log 2>&1
