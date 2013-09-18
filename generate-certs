@@ -1,5 +1,12 @@
 #!/bin/sh
 
+if [ $# -ge 2 ]; then
+    echo "usage: `basename $0` [hostname]" 1>&2
+    exit 1
+fi
+hostname=${1:-'osg-test.localdomain'}
+echo "Generating CA certificate and host certificate for '$hostname'"
+
 INDEX_FILE=index.txt
 SERIAL_FILE=serial
 PRIVATE_KEY_FILE=OSG-Test-CA-private.pem
@@ -8,7 +15,7 @@ OPENSSL_CONFIG=openssl.config
 CA_SUBJECT='/DC=org/DC=Open Science Grid/O=OSG Test/CN=OSG Test CA'
 HOST_REQUEST=host-cert-request.pem
 HOST_REQ_PRIV=hostkey.pem
-HOST_CERT_SUBJECT='/DC=org/DC=Open Science Grid/O=OSG Test/OU=Services/CN=osg-test.localdomain'
+HOST_CERT_SUBJECT="/DC=org/DC=Open Science Grid/O=OSG Test/OU=Services/CN=$hostname"
 SERIAL_NUMBER=A1B2C3D4E5F6
 DAYS=10
 CRL_NUMBER_FILE=crlnumber
@@ -43,6 +50,8 @@ openssl req -new -nodes -out $HOST_REQUEST -keyout initial-$HOST_REQ_PRIV -subj 
 openssl rsa -in initial-$HOST_REQ_PRIV -outform PEM -out $HOST_REQ_PRIV
 rm -f initial-$HOST_REQ_PRIV
 chmod 0400 $HOST_REQ_PRIV
+
+sed --expression="s/##HOSTNAME##/$hostname/" openssl-cert-extensions-template.conf > openssl-cert-extensions.conf
 openssl ca -config $OPENSSL_CONFIG -cert $CA_FILE -keyfile $PRIVATE_KEY_FILE \
     -days $DAYS -policy policy_anything -preserveDN -extfile openssl-cert-extensions.conf \
     -in $HOST_REQUEST -notext -out hostcert.pem -outdir . -batch
