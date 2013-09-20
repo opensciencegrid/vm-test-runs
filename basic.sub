@@ -14,7 +14,7 @@ log                     = run-cluster-$(CLUSTER).log
 
 should_transfer_files   = YES
 when_to_transfer_output = ON_EXIT
-transfer_input_files    = http://submit-1.chtc.wisc.edu/SQUID/cat/cat-base-sl64-amd64-htcondor.dsk,cat-user-disk.raw
+transfer_input_files    = http://proxy.chtc.wisc.edu/SQUID/cat/cat-base-sl64-amd64-htcondor.dsk,cat-user-disk.raw
 transfer_output_files   = cat-user-disk.raw
 transfer_output_remaps  = "cat-user-disk.raw = output-disk-$(CLUSTER).$(PROCESS).raw"
 
