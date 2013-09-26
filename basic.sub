@@ -20,7 +20,7 @@ transfer_output_remaps  = "cat-user-disk.raw = output-disk-$(CLUSTER).$(PROCESS)
 
 # next_job_start_delay = 90
 
-queue 10
+queue 16
 
 # condor_submit will complain about some attributes not being used;
 # ignore it until further notice
