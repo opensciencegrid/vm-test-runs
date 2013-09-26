@@ -1,0 +1,11 @@
+universe                = vm
+executable              = cat-osg-test
+vm_type                 = kvm
+vm_memory               = 2048
+vm_networking           = true
+vm_no_output_vm         = false
+vm_vnc                  = true
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+periodic_release        = (HoldReasonCode == 6) && regexp(HoldReason, "VMGAHP_ERR_INTERNAL")
+log                     = run-cluster-$(CLUSTER).log
