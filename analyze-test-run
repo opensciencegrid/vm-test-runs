@@ -1,0 +1,108 @@
+#!/usr/bin/python
+
+import glob
+from operator import itemgetter
+import os
+import re
+import sys
+
+OUTPUT_DIR = '/home/cat/output'
+
+# add careful checking of argv
+cluster_id = sys.argv[1]
+
+def test_run_dir_key(a):
+    return '%s.%04s' % re.search(r'-(\d+)\.(\d+)$', a).group(1, 2)
+
+def read_file(path):
+    data_file = open(path, 'r')
+    data = data_file.read()
+    data_file.close()
+    return data
+
+def re_extract(regexp, data, flags=0, default=None, group=None):
+    m = re.search(regexp, data, flags)
+    if m is None:
+        return default
+    elif group is None:
+        return m.groups()
+    else:
+        return m.group(group)
+
+envra_re = re.compile(r'Verifying\s+:\s+(osg-test-[^-]+-[^.]+)\.osg\.el\d\.\S+')
+summary_re = re.compile(r'(Ran \d+ tests in .*)\s+((?:OK|FAILED)\s*\([^)]+\))')
+
+test_run_dirs = sorted(glob.glob(os.path.join(OUTPUT_DIR, 'output-%s.*' % cluster_id)), key=test_run_dir_key)
+for test_run_dir in test_run_dirs:
+    job_id = re_extract(r'-(\d+\.\d+)$', test_run_dir, group=1)
+
+    # Get osg-test NVR
+    run_job_log = read_file(os.path.join(test_run_dir, 'run-job.log'))
+    osg_test_envra = re_extract(envra_re, run_job_log, default='unknown version of osg-test', group=1)
+
+    # Read osg-test output
+    osg_test_logfile = glob.glob(os.path.join(test_run_dir, 'output', 'osg-test-*.log'))[0]
+    print 'TEST JOB %s (%s)' % (job_id, osg_test_logfile)
+    osg_test_log = read_file(osg_test_logfile)
+    if re.search(r'/mnt/user/run-job: .* osg-test: command not found', osg_test_log):
+        print '  - osg-test not installed'
+        print
+        continue
+
+    # Extract yum repositories
+    extra_repo = re_extract(r'^\s+-\s+Extra repos: +(\S+)$', osg_test_log, re.MULTILINE, group=1)
+    if extra_repo is None:
+        yum_repo = 'osg repo'
+    else:
+        yum_repo = '%s and osg repos' % (extra_repo)
+
+    # Extract package list
+    installed_string = re_extract(r'^\s+-\s+Install:\s+(.*)$', osg_test_log, re.MULTILINE, group=1)
+    installed_list = re.split(r'\s*,\s*', installed_string)
+    if len(installed_list) == 2:
+        installed_string = ' and '.join(installed_list)
+    elif len(installed_list) > 2:
+        installed_string = ', '.join(installed_list[0:-1]) + ', and ' + installed_list[-1]
+
+    # Extract summary statistics
+    summary_lines = re_extract(summary_re, osg_test_log)
+    tests_total, run_time = re_extract(r'Ran (\d+) tests in ([\d.]+)s', summary_lines[0])
+    tests_total = int(tests_total)
+    run_time = float(run_time)
+    summary = summary_lines[1]
+    overall, details = re_extract(r'(OK|FAILED)\s*\(([^)]+)\)', summary_lines[1])
+    if overall == 'OK':
+        overall = 'PASSED'
+    tests_failed = tests_error = tests_bad_skip = tests_ok_skip = 0
+    for detailed_count in re.split(r'\s*,\s*', details):
+        label, value = detailed_count.split('=')
+        if label == 'failures': tests_failed = int(value)
+        elif label == 'errors': tests_error = int(value)
+        elif label == 'badSkips': tests_bad_skip = int(value)
+        elif label == 'okSkips': tests_ok_skip = int(value)
+        else: raise ValueError()
+    tests_ok = tests_total - (tests_failed + tests_error + tests_bad_skip + tests_ok_skip)
+
+    # Extract start time
+    start_time = re_extract(r'^Start time: (.*)$', osg_test_log, re.MULTILINE, group=1)
+
+    # Extract problems
+    problems = []
+    for m in re.finditer(r'^(ERROR|FAIL): (\w+) \(osgtest\.tests\.(\w+)\.(\w+)\)', osg_test_log, re.MULTILINE):
+        status, function, module, module_name = m.groups()
+        problems.append((module, function, module_name, status, '-'))
+    m = re.search(r'^=+\nBAD SKIPS:\n-+\n(.*?)\n\n', osg_test_log, re.MULTILINE | re.DOTALL)
+    if m is not None:
+        for n in re.finditer(r'^(\w+) \(osgtest\.tests\.(\w+)\.(\w+)\) (.*)$', m.group(1), re.MULTILINE):
+            function, module, module_name, comment = n.groups()
+            problems.append((module, function, module_name, 'SKIP', comment))
+
+    # Print stuff
+    print 'Ran %s on %s from the %s' % (osg_test_envra, installed_string, yum_repo)
+    print 'Started at %s and ran for %.1f seconds' % (start_time, run_time)
+    print '%s: %d tests: %d ok, %d skip; %d fail, %d error, %d skip' % \
+          (overall, tests_total, tests_ok, tests_ok_skip, tests_failed, tests_error, tests_bad_skip)
+    for problem in sorted(problems, key=itemgetter(0, 1)):
+        print '  - %-5s %s (%s) - %s (%s)' % (problem[3], problem[0], problem[2], problem[1], problem[4])
+        
+    print
