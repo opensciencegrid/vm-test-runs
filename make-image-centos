@@ -1,0 +1,12 @@
+#!/bin/sh
+
+HOME_DIR=/home/cat
+SVN_DIR=$HOME_DIR/vm-test-runs
+
+LIBVIRT_DIR=/var/lib/libvirt/images
+BASE_IMAGE_FILENAME=cat-base-centos64-amd64-htcondor.dsk
+rm -f $HOME_DIR/$BASE_IMAGE_FILENAME
+sudo rm -f $LIBVIRT_DIR/centos_64_x86_64_htcondor.dsk
+sudo oz-install -d 2 -p -u -x $HOME_DIR/oz-generated-libvirt-centos64.xml $SVN_DIR/oz-htcondor-centos64.tdl
+sudo cp $LIBVIRT_DIR/centos_64_x86_64_htcondor.dsk $HOME_DIR/$BASE_IMAGE_FILENAME
+sudo chown cat:cat $HOME_DIR/$BASE_IMAGE_FILENAME
