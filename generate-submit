@@ -9,16 +9,18 @@ import tempfile
 # ==============================================================================
 # Test run variables:
 
+OSES = ('sl', 'centos')
+
 REPOS = ('osg', 'osg-testing')
 
 PACKAGES = (
-                ('osg-tested-internal',),
-                ('condor', 'osg-ce-condor', 'rsv'),
-                ('osg-gridftp', 'edg-mkgridmap', 'rsv'),
-                ('osg-se-bestman', 'rsv'),
-                ('osg-voms', 'rsv'),
-                ('osg-gums', 'rsv'),
-               )
+             ('osg-tested-internal',),
+             ('condor', 'osg-ce-condor', 'rsv'),
+             ('osg-gridftp', 'edg-mkgridmap', 'rsv'),
+             ('osg-se-bestman', 'rsv'),
+             ('osg-voms', 'rsv'),
+             ('osg-gums', 'rsv'),
+           )
 
 # ==============================================================================
 
@@ -46,9 +48,12 @@ def construct_io_image_filename(process):
     return 'cat-user-disk-%03d.raw' % (process)
 
 def write_submit_lines_for(process, combo):
-    repo, packages = combo
+    os, repo, packages = combo
 
-    os_image = 'cat-base-sl64-amd64-htcondor.dsk'
+    if os == 'sl': os_image = 'cat-base-sl64-amd64-htcondor.dsk'
+    elif os == 'centos': os_image = 'cat-base-centos64-amd64-htcondor.dsk'
+    else: raise ValueError('Unknown OS name "%s"' % (os))
+        
     io_image = construct_io_image_filename(process)
 
     contents = '\n'
@@ -62,7 +67,7 @@ def write_submit_lines_for(process, combo):
     append_to_submit_file(contents)
 
 def generate_osg_test_conf(process, combo):
-    repo, packages = combo
+    os, repo, packages = combo
     contents = '[Config]\n'
     contents += 'adduser = True\n'
     contents += 'dumpout = True\n'
@@ -106,7 +111,7 @@ if __name__ == '__main__':
     set_up_run_directory()
     start_submit_file()
     process = 0
-    for combo in itertools.product(REPOS, PACKAGES):
+    for combo in itertools.product(OSES, REPOS, PACKAGES):
         write_submit_lines_for(process, combo)
         create_io_image(process, combo)
         process += 1
