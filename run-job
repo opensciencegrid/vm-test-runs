@@ -82,6 +82,7 @@ osg-test --config=$MOUNT_DIR/input/osg-test.conf > $OUTPUT_DIR/osg-test-`date '+
 rpm --query --all > $OUTPUT_DIR/rpm-qa-final.log 2>&1
 
 # Debugging
+log_command cat /etc/redhat-release
 log_command printenv
 log_command mount
 log_command cat /proc/net/dev
