@@ -11,7 +11,7 @@ import tempfile
 
 OSES = ('sl', 'centos')
 
-REPOS = ('osg', 'osg-testing')
+REPOS = ('osg', 'osg-testing', 'osg-upcoming', 'osg-testing, osg-upcoming-testing', 'osg:osg-testing')
 
 PACKAGES = (
              ('osg-tested-internal',),
@@ -57,7 +57,7 @@ def write_submit_lines_for(process, combo):
     io_image = construct_io_image_filename(process)
 
     contents = '\n'
-    contents += '# Process %d: %s; %s\n' % (process, repo, ', '.join(packages))
+    contents += '# Process %d: %s - %s - %s\n' % (process, os, repo, ', '.join(packages))
     contents += 'vm_disk                 = %s:vda:w:raw,%s:vdb:w:raw\n' % (os_image, io_image)
     contents += 'request_disk            = 5.5GB\n'
     contents += 'transfer_input_files    = http://proxy.chtc.wisc.edu/SQUID/cat/%s,%s\n' % (os_image, io_image)
@@ -72,8 +72,11 @@ def generate_osg_test_conf(process, combo):
     contents += 'adduser = True\n'
     contents += 'dumpout = True\n'
     contents += 'verbose = True\n'
-    if repo != 'osg':
-        contents += 'extrarepos = %s\n' % (repo)
+    repo_parts = repo.split(':')
+    if repo_parts[0] != 'osg':
+        contents += 'extrarepos = %s\n' % (repo_parts[0])
+    if len(repo_parts) > 1:
+        contents += 'updaterepo = %s\n' % (repo_parts[1])
     contents += 'packages = %s\n' % (', '.join(packages))
     return contents
     
