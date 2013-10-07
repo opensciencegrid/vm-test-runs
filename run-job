@@ -37,11 +37,17 @@ run_command_with_retries()
         log_command "$@" && return 0
     done
 
-    return
+    return 1
 }
 
+# Debugging (here, in case of early exit)
+log_command cat /etc/redhat-release
+log_command ip addr show
+log_command printenv
+log_command mount
+log_command cat /proc/net/dev
+
 # Set a hostname
-log_command ip addr show eth0
 ip_address=`ip addr show eth0 | awk 'match($0, /inet ([0-9.]+)/, a) { print a[1] }'`
 echo "$ip_address osg-test.localdomain osg-test" >> /etc/hosts
 log_command cat /etc/hosts
@@ -57,9 +63,17 @@ log_command find /etc/grid-security -ls
 # Install repositories
 # See, e.g., https://twiki.opensciencegrid.org/bin/view/Documentation/Release3/YumRepositories
 run_command_with_retries 8 rpm --upgrade http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
+if [ $? -ne 0 ]; then
+    echo 'Could not install EPEL repository'
+    exit 1
+fi
 log_command yum --assumeyes install yum-priorities
 log_command sed -i -e 's/^plugins=.*$/plugins=1/' /etc/yum.conf
 run_command_with_retries 8 rpm --upgrade http://repo.grid.iu.edu/osg-el6-release-latest.rpm
+if [ $? -ne 0 ]; then
+    echo 'Could not install OSG repository'
+    exit 1
+fi
 
 # Install osg-test
 RPM_LOCATION=`ls -1 $INPUT_DIR/osg-test-*.rpm 2>/dev/null | tail -n 1`
@@ -82,10 +96,6 @@ osg-test --config=$MOUNT_DIR/input/osg-test.conf > $OUTPUT_DIR/osg-test-`date '+
 rpm --query --all > $OUTPUT_DIR/rpm-qa-final.log 2>&1
 
 # Debugging
-log_command cat /etc/redhat-release
-log_command printenv
-log_command mount
-log_command cat /proc/net/dev
 log_command df -h
 log_command ls -lF /etc/sysconfig
 log_command ls -lF /etc/sysconfig/network-scripts
