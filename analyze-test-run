@@ -6,11 +6,6 @@ import os
 import re
 import sys
 
-OUTPUT_DIR = '/home/cat/output'
-
-# add careful checking of argv
-cluster_id = sys.argv[1]
-
 def test_run_dir_key(a):
     return '%s.%04s' % re.search(r'-(\d+)\.(\d+)$', a).group(1, 2)
 
@@ -29,23 +24,57 @@ def re_extract(regexp, data, flags=0, default=None, group=None):
     else:
         return m.group(group)
 
-envra_re = re.compile(r'Verifying\s+:\s+(osg-test-[^-]+-[^.]+)\.osg\.el\d\.\S+')
+def cache_job_mappings(main_log):
+    # Associate serial numbers with job IDs
+    serial_to_job_id = {}
+    for m in re.finditer(r'^000 \((\d{3}\.\d{3})\.\d+\) .*\n\s+DAG Node: TestRun(\d+)', main_log, re.MULTILINE):
+        serial_to_job_id[m.group(2)] = m.group(1)
+
+    # Associate job IDs with execute host IPs
+    job_id_to_host_ip = {}
+    for m in re.finditer(r'^001 \((\d{3}\.\d{3})\.\d+\) .* Job executing on host: <([^:]+):', main_log, re.MULTILINE):
+        job_id_to_host_ip[m.group(1)] = m.group(2)
+
+    return serial_to_job_id, job_id_to_host_ip
+
+def extract_yum_repositories(osg_test_log):
+    extra_repo = re_extract(r'^\s+-\s+Extra repos: +(\S+)$', osg_test_log, re.MULTILINE, group=1)
+    if extra_repo is None:
+        return 'osg repo'
+    else:
+        return '%s and osg repos' % (extra_repo)
+
+def analyze_network():
+    pass
+
+# ------------------------------------------------------------------------------
+
+# [TODO] add checking of argv
+run_directory = sys.argv[1]
+
+# Parse job log
+main_log = read_file(os.path.join(run_directory, 'osg-test-cat.log'))
+serial_to_job_id, job_id_to_host_ip = cache_job_mappings(main_log)
+
 summary_re = re.compile(r'(Ran \d+ tests in .*)\s+((?:OK|FAILED)\s*\([^)]+\))')
 
-test_run_dirs = sorted(glob.glob(os.path.join(OUTPUT_DIR, 'output-%s.*' % cluster_id)), key=test_run_dir_key)
+test_run_dirs = sorted(glob.glob(os.path.join(run_directory, 'output-[0-9][0-9][0-9]')))
 for test_run_dir in test_run_dirs:
-    job_id = re_extract(r'-(\d+\.\d+)$', test_run_dir, group=1)
+    job_serial = re_extract(r'-(\d+)$', test_run_dir, group=1)
 
     # Get osg-test NVR
     run_job_log = read_file(os.path.join(test_run_dir, 'run-job.log'))
+    envra_re = r'Verifying\s+:\s+(osg-test-[^-]+-[^.]+)\.osg\.el\d\.\S+'
     osg_test_envra = re_extract(envra_re, run_job_log, default='unknown version of osg-test', group=1)
+
+    # Get and simplify OS release string
     os_long_string = re_extract(r'cat /etc/redhat-release\n(.*?)\n==> OK', run_job_log, group=1)
     os_string = re.sub(r'release\s+', '', os_long_string)
     os_string = re.sub(r'\s*\(.*\)$', '', os_string)
 
     # Read osg-test output
     osg_test_logfile = glob.glob(os.path.join(test_run_dir, 'output', 'osg-test-*.log'))[0]
-    print 'TEST JOB %s (%s)' % (job_id, osg_test_logfile)
+    print 'TEST JOB %s (%s)' % (job_serial, osg_test_logfile)
     osg_test_log = read_file(osg_test_logfile)
     if re.search(r'/mnt/user/run-job: .* osg-test: command not found', osg_test_log):
         print '  - osg-test not installed'
@@ -53,11 +82,7 @@ for test_run_dir in test_run_dirs:
         continue
 
     # Extract yum repositories
-    extra_repo = re_extract(r'^\s+-\s+Extra repos: +(\S+)$', osg_test_log, re.MULTILINE, group=1)
-    if extra_repo is None:
-        yum_repo = 'osg repo'
-    else:
-        yum_repo = '%s and osg repos' % (extra_repo)
+    yum_repo = extract_yum_repositories(osg_test_log)
 
     # Extract package list
     installed_string = re_extract(r'^\s+-\s+Install:\s+(.*)$', osg_test_log, re.MULTILINE, group=1)
