@@ -1,0 +1,11 @@
+universe   = local
+executable = analyze-test-run
+arguments  = "."
+
+output = analyze-test-run.out
+error  = analyze-test-run.err
+log    = analyze-test-run.log
+
+should_transfer_files = NO
+
+queue

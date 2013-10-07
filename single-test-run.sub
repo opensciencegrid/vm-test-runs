@@ -1,0 +1,22 @@
+universe                = vm
+executable              = osg-test-cat
+
+vm_type                 = kvm
+vm_memory               = 2048
+vm_networking           = true
+vm_no_output_vm         = false
+vm_vnc                  = true
+periodic_release        = (HoldReasonCode == 6) && regexp("VMGAHP_ERR_INTERNAL", HoldReason)
+
+request_disk            = 5.5GB
+
+log                     = osg-test-cat.log
+
+should_transfer_files   = YES
+transfer_input_files    = http://host-3.chtc.wisc.edu/cat/cat-base-$(platform)-htcondor.dsk,cat-user-disk-$(serial).raw
+vm_disk                 = cat-base-$(platform)-htcondor.dsk:vda:w:raw,cat-user-disk-$(serial).raw:vdb:w:raw
+when_to_transfer_output = ON_EXIT
+transfer_output_files   = cat-user-disk-$(serial).raw
+transfer_output_remaps  = "cat-user-disk-$(serial).raw = output-disk-$(serial).raw"
+
+queue

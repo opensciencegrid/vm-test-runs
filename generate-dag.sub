@@ -1,0 +1,11 @@
+universe   = local
+executable = generate-dag
+arguments  = "test-parameters.yaml"
+
+output = generate-dag.out
+error  = generate-dag.err
+log    = generate-dag.log
+
+should_transfer_files = NO
+
+queue

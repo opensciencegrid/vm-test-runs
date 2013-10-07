@@ -1,0 +1,96 @@
+#!/usr/bin/python
+
+import itertools
+import os
+import re
+import shutil
+import sys
+import time
+
+import yaml
+
+
+def die(message, code=1):
+    sys.stderr.write(message + '\n')
+    sys.exit(code)
+
+def write_file(contents, file_path):
+    f = open(file_path, 'w')
+    f.write(contents)
+    f.close()
+
+def format_process_number(process):
+    return '%03d' % (process)
+
+def generate_dag_fragment(process, combo):
+    platform, repo, packages = combo
+    serial = format_process_number(process)
+    node_name = 'TestRun' + serial
+    extractor = '/home/cat/vm-test-runs/extract-job-output'
+
+    contents = '\n'
+    contents += '# Node %s: %s - %s - %s\n' % (serial, platform, repo, ', '.join(packages))
+    contents += 'JOB %s single-test-run.sub\n' % (node_name)
+    contents += 'VARS %s serial="%s" platform="%s"\n' % (node_name, serial, platform)
+    contents += 'SCRIPT POST %s %s output-disk-%s.raw output-%s\n' % (node_name, extractor, serial, serial)
+    return contents
+
+def write_osg_test_configuration(process, combo, directory):
+    platform, repo, packages = combo
+    contents = '[Config]\n'
+    contents += 'adduser = True\n'
+    contents += 'dumpout = True\n'
+    contents += 'verbose = True\n'
+    repo_parts = re.split(r'\s*>\s*', repo)
+    if repo_parts[0] != 'osg':
+        contents += 'extrarepos = %s\n' % (repo_parts[0])
+    if len(repo_parts) > 1:
+        contents += 'updaterepo = %s\n' % (repo_parts[1])
+    contents += 'packages = %s\n' % (', '.join(packages))
+    write_file(contents, os.path.join(directory, 'osg-test-%s.conf' % (format_process_number(process))))
+
+
+# ------------------------------------------------------------------------------
+# MAIN
+# ------------------------------------------------------------------------------
+
+if __name__ == '__main__':
+
+    # Define paths
+    # target_dir = '/home/cat/test-runs'
+    svn_dir = '/home/cat/vm-test-runs'
+    script_name = os.path.basename(sys.argv[0])
+
+    # Process command-line arguments
+    if len(sys.argv) != 2:
+        die('usage: %s PARAMETER-FILE' % (script_name))
+    parameter_path = sys.argv[1]
+    if not os.path.exists(parameter_path):
+        die('%s: parameter file "%s" does not exist' % (script_name, parameter_path))
+
+    # Load run parameters
+    yaml_file = open(parameter_path)
+    yaml_contents = yaml_file.read()
+    yaml_file.close()
+    run_params = yaml.load(yaml_contents)
+
+    # Set up test run directory
+    # if not os.path.exists(target_dir):
+    #     die('%s: missing target directory "%s"' % (script_name, target_dir))
+    # test_run_directory = os.path.join(target_dir, time.strftime('%Y%m%d-%H%M'))
+    # if os.path.exists(test_run_directory):
+    #     die('%s: run directory "%s" already exists' % (script_name, test_run_directory))
+    # os.mkdir(test_run_directory)
+    test_run_directory = os.getcwd()
+
+    dag_contents = '# osg-test run generated %s\n' % (time.strftime('%Y-%m-%d %H:%M'))
+
+    process = 0
+    for combo in itertools.product(run_params['platform'], run_params['repository'], run_params['packages']):
+        dag_contents += generate_dag_fragment(process, combo)
+        write_osg_test_configuration(process, combo, test_run_directory)
+        process += 1
+    write_file(dag_contents, os.path.join(test_run_directory, 'test-run.dag'))
+
+    shutil.copy(os.path.join(svn_dir, 'job-create-images.sub'), test_run_directory)
+    shutil.copy(os.path.join(svn_dir, 'single-test-run.sub'), test_run_directory)

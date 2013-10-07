@@ -1,0 +1,18 @@
+# Master DAG for osg-test runs
+
+# First node: Generate the test-run DAG and configuration files
+JOB GenerateDAG generate-dag.sub
+
+# Second node: Create the test-run images
+JOB CreateImages create-io-images.sub
+
+# Second "node": Run the generated DAG
+SUBDAG EXTERNAL RunTests test-run.dag
+
+# Third node: Analyze the output
+JOB AnalyzeOutput analyze-test-run.sub
+
+# Connections - simple linear DAG (at this level)
+PARENT GenerateDAG CHILD CreateImages
+PARENT CreateImages CHILD RunTests
+PARENT RunTests CHILD AnalyzeOutput

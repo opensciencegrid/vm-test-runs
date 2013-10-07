@@ -1,0 +1,10 @@
+universe   = local
+executable = create-io-images
+
+output = create-io-images.out
+error  = create-io-images.err
+log    = create-io-images.log
+
+should_transfer_files = NO
+
+queue
