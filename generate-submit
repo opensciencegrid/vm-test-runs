@@ -5,11 +5,12 @@ import os
 import shutil
 import sys
 import tempfile
+import time
 
 # ==============================================================================
 # Test run variables:
 
-OSES = ('sl', 'centos')
+OSES = ('sl64-amd64', 'centos64-amd64')
 
 REPOS = ('osg', 'osg-testing', 'osg-upcoming', 'osg-testing, osg-upcoming-testing', 'osg:osg-testing')
 
@@ -26,48 +27,38 @@ PACKAGES = (
 
 SOURCE_DIR = '/home/cat/vm-test-runs'
 CERT_TARBALL = '/home/cat/ca/osg-test-cert-bundle.tar.bz2'
-TARGET_DIR = '/home/cat/test-run'
+TARGET_DIR = '/home/cat/test-runs'
+IMAGES = {}
 
-def set_up_run_directory():
-    if os.path.exists(TARGET_DIR):
-        print 'Target directory %s already exists' % (TARGET_DIR)
-        print 'Please remove or rename target directory, then run again'
-        sys.exit(1)
-    os.mkdir(TARGET_DIR)
+# ==============================================================================
 
-def start_submit_file():
-    shutil.copy(os.path.join(SOURCE_DIR, 'template.sub'), os.path.join(TARGET_DIR, 'osg-test.sub'))
 
-def append_to_submit_file(contents):
-    submit_file_path = os.path.join(TARGET_DIR, 'osg-test.sub')
-    submit_file = open(submit_file_path, 'a')
-    submit_file.write(contents)
-    submit_file.close()
+def write_file(file_path, contents):
+    f = open(file_path, 'w')
+    f.write(contents)
+    f.close()
+
+def format_process_number(process):
+    return '%03d' % (process)
 
 def construct_io_image_filename(process):
-    return 'cat-user-disk-%03d.raw' % (process)
+    return 'cat-user-disk-%s.raw' % (format_process_number(process))
 
-def write_submit_lines_for(process, combo):
-    os, repo, packages = combo
-
-    if os == 'sl': os_image = 'cat-base-sl64-amd64-htcondor.dsk'
-    elif os == 'centos': os_image = 'cat-base-centos64-amd64-htcondor.dsk'
-    else: raise ValueError('Unknown OS name "%s"' % (os))
-        
-    io_image = construct_io_image_filename(process)
+def generate_dag_fragment(process, combo):
+    platform, repo, packages = combo
+    serial = format_process_number(process)
+    node_name = 'TestRun' + serial
+    extractor = '/home/cat/vm-test-runs/extract-job-output'
 
     contents = '\n'
-    contents += '# Process %d: %s - %s - %s\n' % (process, os, repo, ', '.join(packages))
-    contents += 'vm_disk                 = %s:vda:w:raw,%s:vdb:w:raw\n' % (os_image, io_image)
-    contents += 'request_disk            = 5.5GB\n'
-    contents += 'transfer_input_files    = http://proxy.chtc.wisc.edu/SQUID/cat/%s,%s\n' % (os_image, io_image)
-    contents += 'transfer_output_files   = %s\n' % (io_image)
-    contents += 'transfer_output_remaps  = "%s = output-disk-$(CLUSTER).$(PROCESS).raw"\n' % (io_image)
-    contents += 'queue\n'
-    append_to_submit_file(contents)
-
+    contents += '# Node %s: %s - %s - %s\n' % (serial, platform, repo, ', '.join(packages))
+    contents += 'JOB %s single-test-run.sub\n' % (node_name)
+    contents += 'VARS %s serial="%s" platform="%s"\n' % (node_name, serial, platform)
+    contents += 'SCRIPT POST %s %s output-disk-%s.raw output-%s\n' % (node_name, extractor, serial, serial)
+    return contents
+    
 def generate_osg_test_conf(process, combo):
-    os, repo, packages = combo
+    platform, repo, packages = combo
     contents = '[Config]\n'
     contents += 'adduser = True\n'
     contents += 'dumpout = True\n'
@@ -79,42 +70,62 @@ def generate_osg_test_conf(process, combo):
         contents += 'updaterepo = %s\n' % (repo_parts[1])
     contents += 'packages = %s\n' % (', '.join(packages))
     return contents
-    
-def create_io_image(process, combo):
-    image_directory = tempfile.mkdtemp()
 
-    shutil.copy(os.path.join(SOURCE_DIR, 'run-job'), image_directory)
-
-    input_directory = os.path.join(image_directory, 'input')
-    os.mkdir(input_directory)
-    shutil.copy(CERT_TARBALL, input_directory)
-    shutil.copy(os.path.join(SOURCE_DIR, 'osg-test.patch'), input_directory)
-    shutil.copy(os.path.join(SOURCE_DIR, 'test-changes.patch'), input_directory)
-    shutil.copy(os.path.join(SOURCE_DIR, 'osg-release.patch'), input_directory)
-
-    conf_path = os.path.join(input_directory, 'osg-test.conf')
-    conf_file = open(conf_path, 'w')
-    conf_file.write(generate_osg_test_conf(process, combo))
-    conf_file.close()
-
-    os.mkdir(os.path.join(image_directory, 'output'))
-
+def create_io_image(process, combo, directory):
+    platform, repo, packages = combo
+    image_key = (repo, packages)
     image_filename = construct_io_image_filename(process)
-    image_path = os.path.join(TARGET_DIR, image_filename)
-    print 'Making "%s" from "%s"' % (image_filename, image_directory)
-    os.system('virt-make-fs --size=1M %s %s 2>/dev/null' % (image_directory, image_path))
-    shutil.rmtree(image_directory)
 
+    if IMAGES.has_key(image_key):
+        print 'Copying "%s" from "%s"' % (IMAGES[image_key], image_filename)
+        shutil.copy(os.path.join(directory, IMAGES[image_key]), os.path.join(directory, image_filename))
+
+    else:
+        image_directory = tempfile.mkdtemp()
+
+        shutil.copy(os.path.join(SOURCE_DIR, 'run-job'), image_directory)
+
+        input_directory = os.path.join(image_directory, 'input')
+        os.mkdir(input_directory)
+        shutil.copy(CERT_TARBALL, input_directory)
+        shutil.copy(os.path.join(SOURCE_DIR, 'osg-test.patch'), input_directory)
+        shutil.copy(os.path.join(SOURCE_DIR, 'test-changes.patch'), input_directory)
+        shutil.copy(os.path.join(SOURCE_DIR, 'osg-release.patch'), input_directory)
+
+        conf_path = os.path.join(input_directory, 'osg-test.conf')
+        conf_file = open(conf_path, 'w')
+        conf_file.write(generate_osg_test_conf(process, combo))
+        conf_file.close()
+
+        os.mkdir(os.path.join(image_directory, 'output'))
+
+        image_path = os.path.join(directory, image_filename)
+        print 'Making "%s" from "%s"' % (image_filename, image_directory)
+        os.system('virt-make-fs --size=1.2M %s %s 2>/dev/null' % (image_directory, image_path))
+        shutil.rmtree(image_directory)
+
+        IMAGES[image_key] = image_filename
 
 # ------------------------------------------------------------------------------
 # MAIN
 # ------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    set_up_run_directory()
-    start_submit_file()
+    if not os.path.exists(TARGET_DIR):
+        print 'Missing "%s" directory' % (TARGET_DIR)
+        sys.exit(1)
+    test_run_directory = os.path.join(TARGET_DIR, time.strftime('%Y-%m-%d'))
+    if os.path.exists(test_run_directory):
+        print 'Run directory "%s" already exists' % (test_run_directory)
+        sys.exit(1)
+    os.mkdir(test_run_directory)
+
+    dagman = '# osg-test run generated %s\n' % (time.strftime('%Y-%m-%d %H:%M'))
     process = 0
     for combo in itertools.product(OSES, REPOS, PACKAGES):
-        write_submit_lines_for(process, combo)
-        create_io_image(process, combo)
+        dagman += generate_dag_fragment(process, combo)
+        create_io_image(process, combo, test_run_directory)
         process += 1
+    write_file(os.path.join(test_run_directory, 'test-run.dag'), dagman)
+
+    shutil.copy(os.path.join(SOURCE_DIR, 'single-test-run.sub'), test_run_directory)
