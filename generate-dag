@@ -33,6 +33,8 @@ def generate_dag_fragment(process, combo):
     contents += 'JOB %s single-test-run.sub\n' % (node_name)
     contents += 'VARS %s serial="%s" platform="%s"\n' % (node_name, serial, platform)
     contents += 'SCRIPT POST %s %s output-disk-%s.raw output-%s\n' % (node_name, extractor, serial, serial)
+    if 'osg-tested-internal' in packages:
+        contents += 'PRIORITY %s 1\n' % (node_name)
     return contents
 
 def write_osg_test_configuration(process, combo, directory):
@@ -75,22 +77,15 @@ if __name__ == '__main__':
     run_params = yaml.load(yaml_contents)
 
     # Set up test run directory
-    # if not os.path.exists(target_dir):
-    #     die('%s: missing target directory "%s"' % (script_name, target_dir))
-    # test_run_directory = os.path.join(target_dir, time.strftime('%Y%m%d-%H%M'))
-    # if os.path.exists(test_run_directory):
-    #     die('%s: run directory "%s" already exists' % (script_name, test_run_directory))
-    # os.mkdir(test_run_directory)
     test_run_directory = os.getcwd()
 
+    # Start DAG file
     dag_contents = '# osg-test run generated %s\n' % (time.strftime('%Y-%m-%d %H:%M'))
 
+    # Run parameter sweep
     process = 0
     for combo in itertools.product(run_params['platform'], run_params['repository'], run_params['packages']):
         dag_contents += generate_dag_fragment(process, combo)
         write_osg_test_configuration(process, combo, test_run_directory)
         process += 1
     write_file(dag_contents, os.path.join(test_run_directory, 'test-run.dag'))
-
-    shutil.copy(os.path.join(svn_dir, 'job-create-images.sub'), test_run_directory)
-    shutil.copy(os.path.join(svn_dir, 'single-test-run.sub'), test_run_directory)
