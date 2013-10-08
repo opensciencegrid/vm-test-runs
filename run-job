@@ -40,8 +40,12 @@ run_command_with_retries()
     return 1
 }
 
+# Extract OS major version number
+os_major_version=`sed -e 's/^[^0-9]*//' -e 's/\..*$//' /etc/redhat-release`
+
 # Debugging (here, in case of early exit)
 log_command cat /etc/redhat-release
+log_command echo $os_major_version
 log_command ip addr show
 log_command printenv
 log_command mount
@@ -62,14 +66,30 @@ log_command find /etc/grid-security -ls
 
 # Install repositories
 # See, e.g., https://twiki.opensciencegrid.org/bin/view/Documentation/Release3/YumRepositories
-run_command_with_retries 8 rpm --upgrade http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
+case $os_major_version in
+    5 )
+        epel_url='http://download.fedoraproject.org/pub/epel/5/i386/epel-release-5-4.noarch.rpm'
+        osg_url='http://repo.grid.iu.edu/osg-el5-release-latest.rpm'
+        priorities_rpm='yum-priorities'
+        ;;
+    6 )
+        epel_url='http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm'
+        osg_url='http://repo.grid.iu.edu/osg-el6-release-latest.rpm'
+        priorities_rpm='yum-plugin-priorities'
+        ;;
+    * )
+        echo "Could not determine OS major version from '$os_major_version'"
+        exit 2
+        ;;
+esac
+run_command_with_retries 8 rpm --upgrade $epel_url
 if [ $? -ne 0 ]; then
     echo 'Could not install EPEL repository'
     exit 1
 fi
-log_command yum --assumeyes install yum-priorities
+log_command yum --assumeyes install $priorities_rpm
 log_command sed -i -e 's/^plugins=.*$/plugins=1/' /etc/yum.conf
-run_command_with_retries 8 rpm --upgrade http://repo.grid.iu.edu/osg-el6-release-latest.rpm
+run_command_with_retries 8 rpm --upgrade $osg_url
 if [ $? -ne 0 ]; then
     echo 'Could not install OSG repository'
     exit 1
