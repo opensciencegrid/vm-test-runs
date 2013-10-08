@@ -1,6 +1,8 @@
 platform:
-  - sl64-amd64
-  - centos64-amd64
+  - centos_59_x86_64
+  - centos_64_x86_64
+  - sl_58_x86_64
+  - sl_64_x86_64
 
 repository:
   - osg
