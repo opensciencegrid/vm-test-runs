@@ -40,8 +40,26 @@ run_command_with_retries()
     return 1
 }
 
-# Extract OS major version number
+# Set variables based on OS major version
 os_major_version=`sed -e 's/^[^0-9]*//' -e 's/\..*$//' /etc/redhat-release`
+case $os_major_version in
+    5 )
+        epel_url='http://dl.fedoraproject.org/pub/epel/5/i386/epel-release-5-4.noarch.rpm'
+        osg_url='http://repo.grid.iu.edu/osg-el5-release-latest.rpm'
+        priorities_rpm='yum-priorities'
+        python_lib_dir='/usr/lib/python2.4'
+        ;;
+    6 )
+        epel_url='http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm'
+        osg_url='http://repo.grid.iu.edu/osg-el6-release-latest.rpm'
+        priorities_rpm='yum-plugin-priorities'
+        python_lib_dir='/usr/lib/python2.6'
+        ;;
+    * )
+        echo "Could not determine OS major version from '$os_major_version'"
+        exit 2
+        ;;
+esac
 
 # Debugging (here, in case of early exit)
 log_command cat /etc/redhat-release
@@ -66,28 +84,12 @@ log_command find /etc/grid-security -ls
 
 # Install repositories
 # See, e.g., https://twiki.opensciencegrid.org/bin/view/Documentation/Release3/YumRepositories
-case $os_major_version in
-    5 )
-        epel_url='http://download.fedoraproject.org/pub/epel/5/i386/epel-release-5-4.noarch.rpm'
-        osg_url='http://repo.grid.iu.edu/osg-el5-release-latest.rpm'
-        priorities_rpm='yum-priorities'
-        ;;
-    6 )
-        epel_url='http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm'
-        osg_url='http://repo.grid.iu.edu/osg-el6-release-latest.rpm'
-        priorities_rpm='yum-plugin-priorities'
-        ;;
-    * )
-        echo "Could not determine OS major version from '$os_major_version'"
-        exit 2
-        ;;
-esac
 run_command_with_retries 8 rpm --upgrade $epel_url
 if [ $? -ne 0 ]; then
     echo 'Could not install EPEL repository'
     exit 1
 fi
-log_command yum --assumeyes install $priorities_rpm
+log_command yum -y install $priorities_rpm
 log_command sed -i -e 's/^plugins=.*$/plugins=1/' /etc/yum.conf
 run_command_with_retries 8 rpm --upgrade $osg_url
 if [ $? -ne 0 ]; then
@@ -96,18 +98,18 @@ if [ $? -ne 0 ]; then
 fi
 
 # Install osg-test
-RPM_LOCATION=`ls -1 $INPUT_DIR/osg-test-*.rpm 2>/dev/null | tail -n 1`
+RPM_LOCATION=`ls -1 $INPUT_DIR/osg-test-*.el$os_major_version.noarch.rpm 2>/dev/null | tail -n 1`
 if [ "x$RPM_LOCATION" != 'x' ]; then
     log_command rpm --install $RPM_LOCATION
 else
-    log_command yum --assumeyes --enablerepo=osg-testing install osg-test
+    log_command yum -y --enablerepo=osg-testing install osg-test
 fi
 log_command rpm --verify osg-test
 
 # Patch osg-test
-log_command yum --assumeyes install patch
+log_command yum -y install patch
 log_command patch --directory=/usr/sbin --input=$INPUT_DIR/osg-test.patch --strip=0
-log_command patch --directory=/usr/lib/python2.6/site-packages --input=$INPUT_DIR/test-changes.patch --strip=0
+log_command patch --directory=$python_lib_dir/site-packages --input=$INPUT_DIR/test-changes.patch --strip=0
 log_command patch --directory=/etc/yum.repos.d --input=$INPUT_DIR/osg-release.patch --strip=0
 
 # Run osg-test
@@ -127,6 +129,7 @@ log_command rpm --query openssl
 log_command openssl version
 log_command ls -lF /tmp
 log_command find /tmp/cvmfs -ls
+log_command find /etc/udev/rules.d -ls
 
 # System files
 if [ ! -e $SYSTEM_LOG_DIR ]; then
@@ -143,5 +146,5 @@ cp -r \
     /var/log/boot.log \
     /var/log/dmesg \
     /var/log/messages \
-    /var/log/tomcat6 \
+    /var/log/tomcat[56] \
     $SYSTEM_LOG_DIR/
