@@ -26,15 +26,18 @@ def generate_dag_fragment(process, combo):
     platform, repo, packages = combo
     serial = format_process_number(process)
     node_name = 'TestRun' + serial
-    extractor = '/home/cat/vm-test-runs/extract-job-output'
+
+    priority = 0
+    if 'osg-tested-internal' in packages:
+        priority = 1
 
     contents = '\n'
     contents += '# Node %s: %s - %s - %s\n' % (serial, platform, repo, ', '.join(packages))
     contents += 'JOB %s single-test-run.sub\n' % (node_name)
-    contents += 'VARS %s serial="%s" platform="%s"\n' % (node_name, serial, platform)
-    contents += 'SCRIPT POST %s %s output-disk-%s.raw output-%s\n' % (node_name, extractor, serial, serial)
+    contents += 'VARS %s serial="%s" platform="%s" jobpriority="%d"\n' % (node_name, serial, platform, priority)
+    contents += 'SCRIPT POST %s extract-job-output output-disk-%s.raw output-%s\n' % (node_name, serial, serial)
     if 'osg-tested-internal' in packages:
-        contents += 'PRIORITY %s 1\n' % (node_name)
+        contents += 'PRIORITY %s %d\n' % (node_name, priority)
     return contents
 
 def write_osg_test_configuration(process, combo, directory):
@@ -43,6 +46,7 @@ def write_osg_test_configuration(process, combo, directory):
     contents += 'adduser = True\n'
     contents += 'dumpout = True\n'
     contents += 'verbose = True\n'
+    contents += 'timeout = 10800\n'  # 3 hours
     repo_parts = re.split(r'\s*>\s*', repo)
     if repo_parts[0] != 'osg':
         contents += 'extrarepos = %s\n' % (repo_parts[0])
@@ -59,7 +63,6 @@ def write_osg_test_configuration(process, combo, directory):
 if __name__ == '__main__':
 
     # Define paths
-    # target_dir = '/home/cat/test-runs'
     svn_dir = '/home/cat/vm-test-runs'
     script_name = os.path.basename(sys.argv[0])
 
@@ -81,6 +84,7 @@ if __name__ == '__main__':
 
     # Start DAG file
     dag_contents = '# osg-test run generated %s\n' % (time.strftime('%Y-%m-%d %H:%M'))
+    dag_contents += 'CONFIG inner-dag.config\n'
 
     # Run parameter sweep
     process = 0
