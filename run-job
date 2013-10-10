@@ -78,8 +78,8 @@ log_command hostname osg-test.localdomain
 log_command hostname
 
 # Install CA and host certificates
-log_command mkdir -p /etc/grid-security
-log_command tar xf $INPUT_DIR/osg-test-cert-bundle.tar.bz2 --directory /etc/grid-security --no-same-owner
+# log_command mkdir -p /etc/grid-security
+# log_command tar xf $INPUT_DIR/osg-test-cert-bundle.tar.bz2 --directory /etc/grid-security --no-same-owner
 log_command find /etc/grid-security -ls
 
 # Install repositories

@@ -39,7 +39,7 @@ def create_io_image(config_filename):
 
         input_directory = os.path.join(image_directory, 'input')
         os.mkdir(input_directory)
-        shutil.copy('/home/cat/ca/osg-test-cert-bundle.tar.bz2', input_directory)
+        # shutil.copy('/home/cat/ca/osg-test-cert-bundle.tar.bz2', input_directory)
         shutil.copy(os.path.join(svn_dir, 'osg-test.patch'), input_directory)
         shutil.copy(os.path.join(svn_dir, 'test-changes.patch'), input_directory)
         shutil.copy(os.path.join(svn_dir, 'osg-release.patch'), input_directory)
