@@ -64,8 +64,9 @@ for test_run_dir in test_run_dirs:
 
     # Get osg-test NVR
     run_job_log = read_file(os.path.join(test_run_dir, 'run-job.log'))
-    envra_re = r'Verifying\s+:\s+(osg-test-[^-]+-[^.]+)\.osg\.el\d\.\S+'
-    osg_test_envra = re_extract(envra_re, run_job_log, default='unknown version of osg-test', group=1)
+    envra_re = r'osg-test\.noarch\s+\d:([^-]+-[^.]+)\.osg\.el\d'
+    osg_test_envra = re_extract(envra_re, run_job_log, default='(version unknown)', group=1)
+    osg_test_version = 'osg-test ' + osg_test_envra
 
     # Get and simplify OS release string
     os_long_string = re_extract(r'cat /etc/redhat-release\n(.*?)\n==> OK', run_job_log, group=1)
@@ -94,21 +95,25 @@ for test_run_dir in test_run_dirs:
 
     # Extract summary statistics
     summary_lines = re_extract(summary_re, osg_test_log)
-    tests_total, run_time = re_extract(r'Ran (\d+) tests in ([\d.]+)s', summary_lines[0])
-    tests_total = int(tests_total)
-    run_time = float(run_time)
-    summary = summary_lines[1]
-    overall, details = re_extract(r'(OK|FAILED)\s*\(([^)]+)\)', summary_lines[1])
-    if overall == 'OK':
-        overall = 'PASSED'
-    tests_failed = tests_error = tests_bad_skip = tests_ok_skip = 0
-    for detailed_count in re.split(r'\s*,\s*', details):
-        label, value = detailed_count.split('=')
-        if label == 'failures': tests_failed = int(value)
-        elif label == 'errors': tests_error = int(value)
-        elif label == 'badSkips': tests_bad_skip = int(value)
-        elif label == 'okSkips': tests_ok_skip = int(value)
-        else: raise ValueError()
+    tests_total = tests_failed = tests_error = tests_bad_skip = tests_ok_skip = 0
+    if summary_lines is None:
+        run_time = 0.0
+        overall = 'KILLED'
+    else:
+        tests_total, run_time = re_extract(r'Ran (\d+) tests in ([\d.]+)s', summary_lines[0])
+        tests_total = int(tests_total)
+        run_time = float(run_time)
+        summary = summary_lines[1]
+        overall, details = re_extract(r'(OK|FAILED)\s*\(([^)]+)\)', summary_lines[1])
+        if overall == 'OK':
+            overall = 'PASSED'
+        for detailed_count in re.split(r'\s*,\s*', details):
+            label, value = detailed_count.split('=')
+            if label == 'failures': tests_failed = int(value)
+            elif label == 'errors': tests_error = int(value)
+            elif label == 'badSkips': tests_bad_skip = int(value)
+            elif label == 'okSkips': tests_ok_skip = int(value)
+            else: raise ValueError()
     tests_ok = tests_total - (tests_failed + tests_error + tests_bad_skip + tests_ok_skip)
 
     # Extract start time
@@ -126,7 +131,7 @@ for test_run_dir in test_run_dirs:
             problems.append((module, function, module_name, 'SKIP', comment))
 
     # Print stuff
-    print 'Ran %s on %s from the %s' % (osg_test_envra, installed_string, yum_repo)
+    print 'Ran %s on %s from the %s' % (osg_test_version, installed_string, yum_repo)
     print 'Ran on %s starting at %s and ran for %.1f seconds' % (os_string, start_time, run_time)
     print '%s: %d tests: %d ok, %d skip; %d fail, %d error, %d skip' % \
           (overall, tests_total, tests_ok, tests_ok_skip, tests_failed, tests_error, tests_bad_skip)
