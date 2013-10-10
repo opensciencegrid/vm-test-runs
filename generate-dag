@@ -47,6 +47,7 @@ def write_osg_test_configuration(process, combo, directory):
     contents += 'dumpout = True\n'
     contents += 'verbose = True\n'
     contents += 'timeout = 10800\n'  # 3 hours
+    contents += 'hostcert = True\n'
     repo_parts = re.split(r'\s*>\s*', repo)
     if repo_parts[0] != 'osg':
         contents += 'extrarepos = %s\n' % (repo_parts[0])
