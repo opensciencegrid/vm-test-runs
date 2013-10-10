@@ -44,9 +44,8 @@ def create_io_image(config_filename):
         shutil.copy(os.path.join(svn_dir, 'test-changes.patch'), input_directory)
         shutil.copy(os.path.join(svn_dir, 'osg-release.patch'), input_directory)
         shutil.copy(config_filename, os.path.join(input_directory, 'osg-test.conf'))
-        rpms = sorted(glob.glob(os.path.join(svn_dir, 'osg-test-*.rpm')))
-        if len(rpms) > 0:
-            shutil.copy(rpms[-1], input_directory)
+        for rpm in glob.glob(os.path.join(svn_dir, 'osg-test-*.rpm')):
+            shutil.copy(rpm, input_directory)
 
         os.mkdir(os.path.join(image_directory, 'output'))
 
