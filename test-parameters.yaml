@@ -13,7 +13,7 @@ repository:
 
 packages:
   - [osg-tested-internal]
-  - [condor, osg-ce-condor, rsv]
+  - [condor.x86_64, osg-ce-condor, rsv]
   - [osg-gridftp, edg-mkgridmap, rsv]
   - [osg-se-bestman, rsv]
   - [osg-voms, rsv]
