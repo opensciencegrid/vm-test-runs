@@ -14,10 +14,10 @@ request_disk            = 5.5GB
 log                     = osg-test-cat.log
 
 should_transfer_files   = YES
-transfer_input_files    = http://host-3.chtc.wisc.edu/kvm_images/$(platform)_htcondor.qcow2,cat-user-disk-$(serial).raw
-vm_disk                 = $(platform)_htcondor.qcow2:vda:w:qcow2,cat-user-disk-$(serial).raw:vdb:w:raw
+transfer_input_files    = http://host-3.chtc.wisc.edu/kvm_images/$(platform)_htcondor.qcow2,input-image-$(serial).qcow2
+vm_disk                 = $(platform)_htcondor.qcow2:vda:w:qcow2,input-image-$(serial).qcow2:vdb:w:qcow2
 when_to_transfer_output = ON_EXIT
-transfer_output_files   = cat-user-disk-$(serial).raw
-transfer_output_remaps  = "cat-user-disk-$(serial).raw = output-disk-$(serial).raw"
+transfer_output_files   = input-image-$(serial).qcow2
+transfer_output_remaps  = "input-image-$(serial).qcow2 = result-image-$(serial).qcow2"
 
 queue
