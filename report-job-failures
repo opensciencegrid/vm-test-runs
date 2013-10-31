@@ -1,0 +1,48 @@
+#!/usr/bin/python
+
+import re
+
+f = open('osg-test-cat.log', 'r')
+job_log = f.read()
+f.close()
+
+messages = {}
+
+for m in re.finditer(r'^(007 .*?)^\.\.\.', job_log, re.MULTILINE | re.DOTALL):
+    error_lines = m.group(1).split('\n')
+    banner_match = re.search(r'^007 \((\d+\.\d+.\d+)\) (.*?) Shadow exception!', error_lines[0].strip())
+    job_id, timestamp = banner_match.group(1, 2)
+    text_match = re.search(r'Error from slot\d+@(.*?): (.*)', error_lines[1].strip())
+    hostname, message = text_match.group(1, 2)
+    message = re.sub(r'STARTER at [\d.]+', 'STARTER at [[HOST]]', message)
+    message = re.sub(r'file /var/lib/condor/execute/[^:]+_htcondor.dsk:', 'file [[OS_IMAGE]]:', message)
+    message = re.sub(r': FILETRANSFER', ': \\\nFILESTRANSFER', message)
+
+    event = (job_id, timestamp)
+    if messages.has_key(message):
+        if messages[message].has_key(hostname):
+            messages[message][hostname].append(event)
+        else:
+            messages[message][hostname] = [event]
+    else:
+        messages[message] = {hostname: [event]}
+
+if messages:
+    print 'In my VM universe test run today, I received the shadow exceptions below.'
+    print 'Usually, these errors indicate a broken libvirt, dnsmasq, firewall, or'
+    print 'other hypervisor configuration issue.  The counts are total exceptions per'
+    print 'hostname.'
+    print
+        
+    for message, failures in messages.items():
+        print 'Failure:', message
+        for hostname in failures:
+            times = 'times'
+            if len(failures[hostname]) == 1:
+                times = 'time'
+            print '  * %d %s on %s' % (len(failures[hostname]), times, hostname)
+        print
+
+    print 'Have a nice day! (^_^)'
+    print
+    print '-- Tim C.'
