@@ -58,3 +58,4 @@ if __name__ == '__main__':
     contents_to_filename = {}
     for config_file in sorted(glob.glob('osg-test-*.conf')):
         create_image(config_file)
+        os.remove(config_file)
