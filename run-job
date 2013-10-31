@@ -73,14 +73,19 @@ log_command cat /proc/net/dev
 ip_address=`ip addr show eth0 | awk 'match($0, /inet ([0-9.]+)/, a) { print a[1] }'`
 echo "$ip_address osg-test.localdomain osg-test" >> /etc/hosts
 log_command cat /etc/hosts
+log_command cat /etc/host.conf
 log_command hostname
 log_command hostname osg-test.localdomain
 log_command hostname
 
-# Install CA and host certificates
-# log_command mkdir -p /etc/grid-security
-# log_command tar xf $INPUT_DIR/osg-test-cert-bundle.tar.bz2 --directory /etc/grid-security --no-same-owner
-log_command find /etc/grid-security -ls
+# Prevent IBM Java from being installed
+echo >> /etc/yum.conf
+echo 'exclude=java-1.7.0-ibm*' >> /etc/yum.conf
+log_command cat /etc/yum.conf
+
+# Do initial check of gethostbyname()
+# log_command yum -y install strace
+# log_command strace -s 8192 -v $INPUT_DIR/check-hostname osg-test.localdomain
 
 # Install repositories
 # See, e.g., https://twiki.opensciencegrid.org/bin/view/Documentation/Release3/YumRepositories
@@ -89,7 +94,7 @@ if [ $? -ne 0 ]; then
     echo 'Could not install EPEL repository'
     exit 1
 fi
-log_command yum -y install $priorities_rpm
+run_command_with_retries 8 yum -y install $priorities_rpm
 log_command sed -i -e 's/^plugins=.*$/plugins=1/' /etc/yum.conf
 run_command_with_retries 8 rpm --upgrade $osg_url
 if [ $? -ne 0 ]; then
@@ -105,6 +110,7 @@ else
     log_command yum -y --enablerepo=osg-testing install osg-test
 fi
 log_command rpm --verify osg-test
+log_command rpm --query osg-test # Primarily for analyze-test-run
 
 # Patch osg-test
 log_command yum -y install patch
@@ -123,6 +129,7 @@ log_command ls -lF /etc/sysconfig
 log_command ls -lF /etc/sysconfig/network-scripts
 log_command hostname
 log_command hostname --fqdn
+# log_command strace -s 8192 -v $INPUT_DIR/check-hostname osg-test.localdomain
 log_command ifconfig -a
 log_command ip addr show
 log_command rpm --query openssl
@@ -136,6 +143,7 @@ if [ ! -e $SYSTEM_LOG_DIR ]; then
     mkdir $SYSTEM_LOG_DIR
 fi
 cp -r \
+    /etc/host.conf \
     /etc/hosts \
     /etc/nsswitch.conf \
     /etc/resolv.conf \
@@ -147,4 +155,5 @@ cp -r \
     /var/log/dmesg \
     /var/log/messages \
     /var/log/tomcat[56] \
+    /var/log/yum.log \
     $SYSTEM_LOG_DIR/
