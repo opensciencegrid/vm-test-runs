@@ -21,7 +21,7 @@ if os.path.exists(output_dir):
     sys.exit(1)
 os.makedirs(output_dir)
 
-g.add_drive_opts(image_filename, readonly=1, format="raw")
+g.add_drive_opts(image_filename, readonly=1)
 
 print_now("Extracting files from '%s'..." % (image_filename))
 # print
@@ -43,5 +43,7 @@ for image_path in paths:
             os.makedirs(local_dir)
             # print "  - extracting"
         g.download(full_image_path, os.path.join(output_dir, image_path))
+
+os.remove(image_filename)
 
 print "ok"
