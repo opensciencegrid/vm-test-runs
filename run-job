@@ -40,18 +40,21 @@ run_command_with_retries()
     return 1
 }
 
+# Figure out OSG release series
+osg_series=`grep series $INPUT_DIR/osg-test.conf | sed -e 's/series *= *//'`
+
 # Set variables based on OS major version
 os_major_version=`sed -e 's/^[^0-9]*//' -e 's/\..*$//' /etc/redhat-release`
 case $os_major_version in
     5 )
         epel_url='http://dl.fedoraproject.org/pub/epel/5/i386/epel-release-5-4.noarch.rpm'
-        osg_url='http://repo.grid.iu.edu/osg-el5-release-latest.rpm'
+        osg_url="http://repo.grid.iu.edu/osg/$osg_series/osg-$osg_series-el5-release-latest.rpm"
         priorities_rpm='yum-priorities'
         python_lib_dir='/usr/lib/python2.4'
         ;;
     6 )
         epel_url='http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm'
-        osg_url='http://repo.grid.iu.edu/osg-el6-release-latest.rpm'
+        osg_url="http://repo.grid.iu.edu/osg/$osg_series/osg-$osg_series-el6-release-latest.rpm"
         priorities_rpm='yum-plugin-priorities'
         python_lib_dir='/usr/lib/python2.6'
         ;;
@@ -137,6 +140,7 @@ log_command openssl version
 log_command ls -lF /tmp
 log_command find /tmp/cvmfs -ls
 log_command find /etc/udev/rules.d -ls
+log_command find /var/log -ls
 
 # System files
 if [ ! -e $SYSTEM_LOG_DIR ]; then
@@ -153,6 +157,8 @@ cp -r \
     /var/log/bestman2 \
     /var/log/boot.log \
     /var/log/dmesg \
+    /var/log/gridftp-auth.log \
+    /var/log/gridftp.log \
     /var/log/messages \
     /var/log/tomcat[56] \
     /var/log/yum.log \

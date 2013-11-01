@@ -44,12 +44,14 @@ def write_osg_test_configuration(serial, combo, directory):
     contents += 'verbose = True\n'
     contents += 'timeout = 14400\n'  # 4 hours
     contents += 'hostcert = True\n'
-    repo_parts = re.split(r'\s*>\s*', repo)
+    release_series, repositories = re.split(r'\s*;\s*', repo)
+    repo_parts = re.split(r'\s*>\s*', repositories)
     if repo_parts[0] != 'osg':
         contents += 'extrarepos = %s\n' % (repo_parts[0])
     if len(repo_parts) > 1:
         contents += 'updaterepo = %s\n' % (repo_parts[1])
     contents += 'packages = %s\n' % (', '.join(packages))
+    contents += 'series = %s\n' % (release_series)
     write_file(contents, os.path.join(directory, 'osg-test-%s.conf' % (serial)))
 
 
