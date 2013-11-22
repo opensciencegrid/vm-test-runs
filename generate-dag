@@ -55,7 +55,7 @@ def write_osg_test_configuration(serial, combo, directory):
         else:
             contents += 'updaterelease = %s\n' % (update_parts[0])
             if update_parts[1] != 'osg':
-            contents += 'updaterepo = %s\n' % (update_parts[1])
+                contents += 'updaterepo = %s\n' % (update_parts[1])
     contents += 'packages = %s\n' % (', '.join(packages))
     contents += 'series = %s\n' % (release_series)
     write_file(contents, os.path.join(directory, 'osg-test-%s.conf' % (serial)))
