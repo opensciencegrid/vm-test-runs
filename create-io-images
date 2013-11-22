@@ -47,7 +47,7 @@ def create_image(config_filename):
 if __name__ == '__main__':
 
     # Define paths
-    svn_dir = '/home/cat/vm-test-runs'
+    svn_dir = getcwd()
     script_name = os.path.basename(sys.argv[0])
 
     # Process command-line arguments
