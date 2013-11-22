@@ -1,0 +1,25 @@
+Index: osgtest/tests/special_install.py
+===================================================================
+--- osgtest/tests/special_install.py	(revision 18125)
++++ osgtest/tests/special_install.py	(working copy)
+@@ -1,6 +1,8 @@
+ import osgtest.library.core as core
+ import osgtest.library.osgunittest as osgunittest
++import osgtest.library.files as files
+ import re
++import os
+ import unittest
+ 
+ class TestInstall(osgunittest.OSGTestCase):
+@@ -85,3 +87,11 @@
+             command = ('yum', 'reinstall', '-y', java7, java7_devel)
+             core.check_system(command, 'Reinstall java7')
+         
++    def test_06_fix_java_security(self):
++        path = '/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.45.x86_64/jre/lib/security/java.security'
++        if os.path.exists(path):
++            files.replace(path,
++                          'jdk.certpath.disabledAlgorithms=MD2, RSA keySize < 1024',
++                          'jdk.certpath.disabledAlgorithms=MD2, RSA keySize < 512',
++                          backup=False)
++        
