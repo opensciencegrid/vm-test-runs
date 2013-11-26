@@ -110,7 +110,11 @@ RPM_LOCATION=`ls -1 $INPUT_DIR/osg-test-*.el$os_major_version.noarch.rpm 2>/dev/
 if [ "x$RPM_LOCATION" != 'x' ]; then
     log_command rpm --install $RPM_LOCATION
 else
-    log_command yum -y --enablerepo=osg-testing install osg-test
+    run_command_with_retries 8 yum -y --enablerepo=osg-testing install osg-test
+    if [ $? -ne 0 ]; then
+        echo 'Could not install osg-test'
+        exit 1
+    fi
 fi
 log_command rpm --verify osg-test
 log_command rpm --query osg-test # Primarily for analyze-test-run
