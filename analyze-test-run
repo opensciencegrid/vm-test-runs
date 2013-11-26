@@ -6,7 +6,13 @@ import os
 import re
 import socket
 import sys
+import time
 
+
+# Stupid globals, because I am lazy
+total_jobs = 0
+jobs_died = 0
+deaths_by_host = {}
 
 def start_error():
     sys.stdout.write('\x1b[1;31m')
@@ -61,6 +67,38 @@ def extract_yum_repositories(osg_test_log):
     else:
         return '%s and osg repos' % (extra_repo)
 
+def extract_last(run_job_log, regexp):
+    all_installs = re.findall(regexp, run_job_log, re.MULTILINE)
+    if len(all_installs) == 0:
+        return None
+    return all_installs[-1]
+
+def indent_block(block, indent=4):
+    output = ''
+    for line in block.rstrip('\n').split('\n'):
+        output += (' ' * indent) + line + '\n'
+    return output
+
+def report_death(serial, logfile, eth0, host_ip, hostname, message, extra=None):
+    report = 'TEST JOB %s (%s)\n' % (serial, logfile)
+    if eth0 is not None:
+        report += 'Guest IP address: %s\n' % (eth0)
+    report += 'DIED: %s (%s = %s)\n' % (message, host_ip, hostname)
+    if extra is not None:
+        report += indent_block(extra)
+
+    if hostname in deaths_by_host:
+        deaths_by_host[hostname].append(report)
+    else:
+        deaths_by_host[hostname] = [report]
+
+    global jobs_died
+    jobs_died += 1
+
+    start_error()
+    print report
+    end_color()
+
 def analyze_network():
     pass
 
@@ -77,30 +115,42 @@ summary_re = re.compile(r'(Ran \d+ tests in .*)\s+((?:OK|FAILED)\s*\([^)]+\))')
 
 test_run_dirs = sorted(glob.glob(os.path.join(run_directory, 'output-[0-9][0-9][0-9]')))
 for test_run_dir in test_run_dirs:
+    total_jobs += 1
     job_serial = re_extract(r'-(\d+)$', test_run_dir, group=1)
 
     # Read run-job.log and look for whole-run failures
     run_job_logfile = os.path.join(test_run_dir, 'run-job.log')
     run_job_log = read_file(run_job_logfile)
     eth0_inet_address = extract_eth0_inet_address(run_job_log)
+    host_ip = job_id_to_host_ip[serial_to_job_id[job_serial]]
+    hostname = socket.gethostbyaddr(host_ip)[0]
     if eth0_inet_address is None:
-        host_ip = job_id_to_host_ip[serial_to_job_id[job_serial]]
-        hostname = socket.gethostbyaddr(host_ip)[0]
-        start_error()
-        print 'TEST JOB %s (%s)' % (job_serial, run_job_logfile)
-        print 'DIED: (%s = %s) No apparent eth0 IP address' % (host_ip, hostname)
-        print
-        end_color()
+        report_death(job_serial, run_job_logfile, eth0_inet_address, host_ip, hostname,
+                     'No apparent eth0 IP address')
         continue
-    if re.search(r'Could not install EPEL repository$', run_job_log):
-        host_ip = job_id_to_host_ip[serial_to_job_id[job_serial]]
-        hostname = socket.gethostbyaddr(host_ip)[0]
-        start_error()
-        print 'TEST JOB %s (%s)' % (job_serial, run_job_logfile)
-        print 'Guest IP address: %s' % (eth0_inet_address)
-        print 'DIED: (%s = %s) Failed to install EPEL repository' % (host_ip, hostname)
-        print
-        end_color()
+
+    # See if the final rpm install of epel-release failed
+    final_epel_install = extract_last(run_job_log, r'^.*rpm --upgrade.*epel-release(?:.*\n)*?^==>.*$')
+    if final_epel_install is None:
+        report_death(job_serial, run_job_logfile, eth0_inet_address, host_ip, hostname,
+                     'Could not find an rpm install of epel-release')
+        continue
+    install_result = re_extract(r'^==> (\w+)', final_epel_install, re.MULTILINE, group=1)
+    if install_result != 'OK':
+        report_death(job_serial, run_job_logfile, eth0_inet_address, host_ip, hostname,
+                     'rpm install of epel-release failed', final_epel_install)
+        continue
+
+    # See if the final yum install of osg-test failed
+    final_osgtest_install = extract_last(run_job_log, r'^.*install osg-test(?:.*\n)*?^==>.*$')
+    if final_osgtest_install is None:
+        report_death(job_serial, run_job_logfile, eth0_inet_address, host_ip, hostname,
+                     'Could not find a yum install of osg-test')
+        continue
+    install_result = re_extract(r'^==> (\w+)', final_osgtest_install, re.MULTILINE, group=1)
+    if install_result != 'OK':
+        report_death(job_serial, run_job_logfile, eth0_inet_address, host_ip, hostname,
+                     'yum install of osg-test failed', final_osgtest_install)
         continue
 
     # Extract osg-test NEVRA (Name-Epoch:Version-Release.Arch)
@@ -116,12 +166,13 @@ for test_run_dir in test_run_dirs:
     # Read osg-test output
     osg_test_logfile_list = glob.glob(os.path.join(test_run_dir, 'output', 'osg-test-*.log'))
     if len(osg_test_logfile_list) == 0:
-        host_ip = job_id_to_host_ip[serial_to_job_id[job_serial]]
-        hostname = socket.gethostbyaddr(host_ip)[0]
+        start_error()
         print 'TEST JOB %s (%s)' % (job_serial, run_job_logfile)
         print 'DIED: (%s = %s) No osg-test-DATE.log file produced' % (host_ip, hostname)
         print
+        end_color()
         continue
+
     osg_test_logfile = osg_test_logfile_list[0]
     print 'TEST JOB %s (%s)' % (job_serial, osg_test_logfile)
     osg_test_log = read_file(osg_test_logfile)
@@ -187,4 +238,21 @@ for test_run_dir in test_run_dirs:
     print
     end_color()
 
-    # Print machines that died
+
+# Print machines that died
+if len(deaths_by_host) > 0:
+    print >> sys.stderr, 'We are running VM universe test runs starting at 0:05 every day now.  The'
+    print >> sys.stderr, 'following jobs failed today, for the reasons shown below.  The jobs are'
+    print >> sys.stderr, 'grouped by hypervisor host.'
+    print >> sys.stderr
+    print >> sys.stderr, 'Run date: %s' % (time.strftime('%d %B %Y (%A)'))
+    print >> sys.stderr, 'Failures: %d out of %d (%.0f%%)' % (jobs_died, total_jobs, 100.0 * jobs_died / total_jobs)
+    print >> sys.stderr
+
+    for host in sorted(deaths_by_host.keys()):
+        print >> sys.stderr, '-' * 75
+        print >> sys.stderr, host
+        print >> sys.stderr, '-' * 75
+        print >> sys.stderr
+        print >> sys.stderr, '\n'.join(deaths_by_host[host])
+        print >> sys.stderr
