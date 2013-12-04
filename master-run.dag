@@ -11,6 +11,7 @@ SUBDAG EXTERNAL RunTests test-run.dag
 
 # Third node: Analyze the output
 JOB AnalyzeOutput analyze-test-run.sub
+SCRIPT POST AnalyzeOutput email-analysis
 
 # Connections - simple linear DAG (at this level)
 PARENT GenerateDAG CHILD CreateImages
