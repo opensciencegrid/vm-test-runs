@@ -1,0 +1,47 @@
+#!/bin/sh
+
+safe_run()
+{
+    "$@"
+    exit_status=$?
+    if [ $exit_status -ne 0 ]; then
+        echo "==> FAILED with exit status $exit_status"
+        exit $exit_status
+    fi
+}
+
+TEST_HOME=/osgtest/runs
+if [ ! -d $TEST_HOME ]; then
+    safe_run mkdir $TEST_HOME
+fi
+
+RUN_DIR_NAME=`date '+run-%Y%m%d-%H%M'`
+RUN_DIRECTORY=$TEST_HOME/$RUN_DIR_NAME
+echo "Run directory: $RUN_DIRECTORY"
+
+# Make the new run directory
+safe_run mkdir $RUN_DIRECTORY
+
+# Check out files to a temporary directory
+TEMP_DIR=`mktemp --directory`
+SVN_CHECKOUT_DIR=$TEMP_DIR/svn-files
+safe_run svn export https://vdt.cs.wisc.edu/svn/new-test/trunk/vm-test-runs $SVN_CHECKOUT_DIR --quiet
+
+# Copy needed files to the run directory
+cd $SVN_CHECKOUT_DIR
+safe_run cp \
+    master-run.dag \
+    generate-dag.sub generate-dag test-parameters.yaml \
+    create-io-images.sub create-io-images \
+    run-job osg-test.patch test-changes.patch osg-release.patch \
+    single-test-run.sub inner-dag.config extract-job-output \
+    analyze-test-run.sub analyze-test-run email-analysis \
+    $RUN_DIRECTORY/
+cp /osgtest/rpms/osg-test-*.rpm $RUN_DIRECTORY/ 2> /dev/null
+cd $RUN_DIRECTORY
+if [ "x$TEMP_DIR" != 'x' ]; then
+    rm -fr $TEMP_DIR
+fi
+
+# Submit DAG
+condor_submit_dag master-run.dag
