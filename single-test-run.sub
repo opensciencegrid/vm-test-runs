@@ -10,12 +10,12 @@ vm_vnc                  = true
 periodic_release        = (HoldReasonCode == 6) && regexp("VMGAHP_ERR_INTERNAL", HoldReason)
 
 request_disk            = 5.5GB
-requirements            = (HasVMcat == True)
+requirements            = (HasGluster == True)
 
 log                     = osg-test-cat.log
 
 should_transfer_files   = YES
-transfer_input_files    = file:///var/lib/condor/execute/data2/VMs/cat/$(platform)_htcondor.dsk,input-image-$(serial).qcow2
+transfer_input_files    = file:///mnt/gluster/chtc/VMs/$(platform)_htcondor.dsk,input-image-$(serial).qcow2
 vm_disk                 = $(platform)_htcondor.dsk:vda:w:raw,input-image-$(serial).qcow2:vdb:w:qcow2
 when_to_transfer_output = ON_EXIT
 transfer_output_files   = input-image-$(serial).qcow2
