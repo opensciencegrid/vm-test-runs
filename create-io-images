@@ -18,7 +18,7 @@ def create_image(config_filename):
 
     if contents_to_filename.has_key(config_contents):
         print 'Linking from "%s" -> "%s"' % (contents_to_filename[config_contents], image_filename)
-        os.symlink(contents_to_filename[config_contents], image_filename)
+        os.link(contents_to_filename[config_contents], image_filename)
 
     else:
         image_directory = tempfile.mkdtemp()
