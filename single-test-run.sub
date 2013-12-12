@@ -9,7 +9,7 @@ vm_no_output_vm         = false
 vm_vnc                  = true
 periodic_release        = (HoldReasonCode == 6) && regexp("VMGAHP_ERR_INTERNAL", HoldReason)
 
-request_disk            = 5.5GB
+request_disk            = 6GB
 requirements            = (HasGluster == True)
 
 log                     = osg-test-cat.log
