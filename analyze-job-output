@@ -120,8 +120,7 @@ if 'host_name' in data:
 # Read osg-test.conf
 conf_file_name = os.path.join(test_run_dir, 'input', 'osg-test.conf')
 conf_file = read_file(conf_file_name)
-data['param_platform'] = re_extract(r'^param_platform\s*=\s*(.*)$', conf_file, re.MULTILINE, group=1)
-data['param_sources'] = re_extract(r'^param_repo\s*=\s*(.*)$', conf_file, re.MULTILINE, group=1)
+data['param_sources'] = re_extract(r'^sources\s*=\s*(.*)$', conf_file, re.MULTILINE, group=1)
 data['param_packages'] = re_extract(r'^packages\s*=\s*(.*)$', conf_file, re.MULTILINE, group=1)
 
 # Read run-job.log

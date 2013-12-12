@@ -58,9 +58,7 @@ def write_osg_test_configuration(serial, combo, directory):
                 contents += 'updaterepo = %s\n' % (update_parts[1])
     contents += 'packages = %s\n' % (', '.join(packages))
     contents += 'series = %s\n' % (release_series)
-
-    contents += 'param_platform = %s\n' % (platform)
-    contents += 'param_repo = %s\n' % (repo)
+    contents += 'sources = %s\n' % (repo)
 
     write_file(contents, os.path.join(directory, 'osg-test-%s.conf' % (serial)))
 
