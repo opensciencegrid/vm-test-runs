@@ -10,8 +10,8 @@ JOB CreateImages create-io-images.sub
 SUBDAG EXTERNAL RunTests test-run.dag
 
 # 4. Analyze the output
-SCRIPT PRE AnalyzeOutput combine-job-analyses
 JOB AnalyzeOutput analyze-test-run.sub
+SCRIPT PRE AnalyzeOutput combine-job-analyses
 SCRIPT POST AnalyzeOutput email-analysis
 
 # Connections - simple linear DAG (at this level)
