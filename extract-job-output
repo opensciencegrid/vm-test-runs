@@ -27,7 +27,12 @@ print_now("Extracting files from '%s'..." % (image_filename))
 # print
 g.launch()
 
-g.mount('/dev/vda', '/')
+filesystems = g.list_filesystems()
+if len(filesystems) != 1:
+    print 'Found %d filesystems, unable to continue' % len(filesystems)
+    sys.exit(2)
+
+g.mount(filesystems[0][0], '/')
 paths = g.find('/')
 for image_path in paths:
     full_image_path = os.path.join('/', image_path)
