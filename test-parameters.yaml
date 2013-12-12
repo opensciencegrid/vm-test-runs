@@ -1,10 +1,10 @@
 platform:
-  - centos_59_x86_64
-  - centos_64_x86_64
-  - rhel_59_x86_64
-  - rhel_64_x86_64
-  - sl_58_x86_64
-  - sl_64_x86_64
+  - centos_5_x86_64
+  - centos_6_x86_64
+  - rhel_5_x86_64
+  - rhel_6_x86_64
+  - sl_5_x86_64
+  - sl_6_x86_64
 
 repository:
   - 3.1; osg
