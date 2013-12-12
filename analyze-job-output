@@ -1,0 +1,218 @@
+#!/usr/bin/python
+
+import glob
+from operator import itemgetter
+import os
+import re
+import socket
+import subprocess
+import sys
+import time
+
+
+def run_command(command, shell=False):
+    # Preprocess command
+    if shell:
+        if not isinstance(command, str):
+            command = ' '.join(command)
+    elif not (isinstance(command, list) or isinstance(command, tuple)):
+        raise TypeError, 'Need list or tuple, got %s' % (repr(command))
+
+    # Run and return command
+    p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=shell)
+    (stdout, stderr) = p.communicate()
+    return (p.returncode, stdout, stderr)
+
+def read_file(path):
+    data_file = open(path, 'r')
+    data = data_file.read()
+    data_file.close()
+    return data
+
+def re_extract(regexp, data, flags=0, default=None, group=None):
+    m = re.search(regexp, data, flags)
+    if m is None:
+        return default
+    elif group is None:
+        return m.groups()
+    else:
+        return m.group(group)
+
+def extract_eth0_inet_address(run_job_log):
+    eth0_block = re_extract(r'^\d:\s*eth0:(.*?)(?:^\d)', run_job_log, re.MULTILINE | re.DOTALL, group=1)
+    if eth0_block is None:
+        return None
+    return re_extract(r'^\s+inet\s+(.*?)\/', eth0_block, re.MULTILINE, group=1)
+
+def extract_last(run_job_log, regexp):
+    all_installs = re.findall(regexp, run_job_log, re.MULTILINE)
+    if len(all_installs) == 0:
+        return None
+    return all_installs[-1]
+
+def write_yaml_value(value):
+    if value is None:
+        result = '~'
+    elif isinstance(value, str):
+        if re.search(r"['\"\n|>,#\[\]]", value):
+            result = "'%s'" % value.replace("'", "''").replace('\n', '\\n')
+        else:
+            result = value
+    elif isinstance(value, list):
+        result = ''
+        if len(value) > 0:
+            for element in value:
+                result += '\n    -%s' % write_yaml_value(element)
+    else:
+        result = str(value)
+    if '\n' in result:
+        return result
+    return ' ' + result
+
+def write_yaml_mapping(data, key):
+    if key in data:
+        value = data[key]
+        print '  %s:%s' % (key, write_yaml_value(value))
+
+def write_yaml(data):
+    print '-'
+    for key in sorted(data.keys()):
+        write_yaml_mapping(data, key)
+
+def write_failure_and_exit(data, status, message, extra=None):
+    data['run_status'] = status
+    data['run_summary'] = message
+    if extra is not None:
+        data['run_details'] = extra
+    write_yaml(data)
+    sys.exit(0)
+
+# ======================================================================================================================
+
+# Process command-line arguments
+if len(sys.argv) != 3:
+    print 'usage: %s SERIAL JOBID' % os.path.basename(sys.argv[0])
+    sys.exit(1)
+job_serial = sys.argv[1]
+job_id = sys.argv[2]
+
+# Start hash
+data = {
+    'job_serial': job_serial,
+    'job_id': job_id,
+    'run_directory': os.getcwd()
+    }
+
+# Construct expected directory name
+test_run_dir = 'output-' + job_serial
+
+# Read condor_history output for transfer-in time (in seconds) and remote hostname
+(rc, stdout, _) = run_command(('condor_history', '-format', '%d ', 'JobCurrentStartExecutingDate - JobCurrentStartDate',
+                               '-format', '%s\\n', 'LastRemoteHost', job_id, '-match', '1'))
+if rc == 0:
+    data['transfer_in'], data['host_name'] = re_extract(r'^(\S+) \S+@(\S+)$', stdout)
+if 'host_name' in data:
+    try:
+        data['host_address'] = socket.gethostbyname(data['host_name'])
+    except socket.gaierror:
+        data['host_address'] = 'unavailable'
+
+# Read osg-test.conf
+conf_file_name = os.path.join(test_run_dir, 'input', 'osg-test.conf')
+conf_file = read_file(conf_file_name)
+data['param_platform'] = re_extract(r'^param_platform\s*=\s*(.*)$', conf_file, re.MULTILINE, group=1)
+data['param_sources'] = re_extract(r'^param_repo\s*=\s*(.*)$', conf_file, re.MULTILINE, group=1)
+data['param_packages'] = re_extract(r'^packages\s*=\s*(.*)$', conf_file, re.MULTILINE, group=1)
+
+# Read run-job.log
+run_job_logfile = os.path.join(test_run_dir, 'run-job.log')
+run_job_log = read_file(run_job_logfile)
+
+# Get and simplify OS release string
+os_long_string = re_extract(r'cat /etc/redhat-release\n(.*?)\n==> OK', run_job_log, group=1)
+os_string = re.sub(r'release\s+', '', os_long_string)
+os_string = re.sub(r'\s*\(.*\)$', '', os_string)
+data['os_release'] = os_string
+
+# Look for whole-run failures
+eth0_inet_address = extract_eth0_inet_address(run_job_log)
+if eth0_inet_address is None:
+    write_failure_and_exit(data, 1, 'No apparent eth0 IP address')
+data['guest_address'] = eth0_inet_address
+
+# See if the final rpm install of epel-release failed
+final_epel_install = extract_last(run_job_log, r'^.*rpm --upgrade.*epel-release(?:.*\n)*?^==>.*$')
+if final_epel_install is None:
+    write_failure_and_exit(data, 1, 'Could not find an rpm install of epel-release')
+install_result = re_extract(r'^==> (\w+)', final_epel_install, re.MULTILINE, group=1)
+if install_result != 'OK':
+    write_failure_and_exit(data, 1, 'rpm install of epel-release failed', final_epel_install)
+
+# See if the final yum install of osg-test failed
+final_osgtest_install = extract_last(run_job_log, r'^.*install osg-test(?:.*\n)*?^==>.*$')
+if final_osgtest_install is None:
+    write_failure_and_exit(data, 1, 'Could not find a yum install of osg-test')
+install_result = re_extract(r'^==> (\w+)', final_osgtest_install, re.MULTILINE, group=1)
+if install_result != 'OK':
+    write_failure_and_exit(data, 1, 'yum install of osg-test failed', final_osgtest_install)
+
+# Extract osg-test NEVRA (Name-Epoch:Version-Release.Arch)
+nevra_re = r'^(osg-test-[^-]+-[^.]+\.osg\d*\.el\d).*?$'
+osg_test_nevra = re_extract(nevra_re, run_job_log, re.MULTILINE, default='(unknown version)', group=1)
+data['osg_test_version'] = osg_test_nevra
+
+# Read osg-test output
+osg_test_logfile_list = glob.glob(os.path.join(test_run_dir, 'output', 'osg-test-*.log'))
+if len(osg_test_logfile_list) == 0:
+    write_failure_and_exit(data, 1, 'No osg-test-DATE.log file found')
+osg_test_logfile = osg_test_logfile_list[0]
+osg_test_log = read_file(osg_test_logfile)
+data['run_status'] = 0
+data['osg_test_logfile'] = osg_test_logfile
+
+# Extract package list
+installed_string = re_extract(r'^\s+-\s+Install:\s+(.*)$', osg_test_log, re.MULTILINE, group=1)
+installed_list = re.split(r'\s*,\s*', installed_string)
+if len(installed_list) == 2:
+    installed_string = ' and '.join(installed_list)
+elif len(installed_list) > 2:
+    installed_string = ', '.join(installed_list[0:-1]) + ', and ' + installed_list[-1]
+
+# Extract summary statistics
+summary_re = re.compile(r'(Ran \d+ tests in .*)\s+((?:OK|FAILED)\s*\([^)]+\))')
+summary_lines = re_extract(summary_re, osg_test_log)
+data['tests_total'] = data['tests_failed'] = data['tests_error'] = data['tests_bad_skip'] = data['tests_ok_skip'] = 0
+if summary_lines is None:
+    data['run_time'] = 0.0
+else:
+    tests_total, run_time = re_extract(r'Ran (\d+) tests in ([\d.]+)s', summary_lines[0])
+    data['tests_total'] = int(tests_total)
+    data['run_time'] = float(run_time)
+    summary = summary_lines[1]
+    overall, details = re_extract(r'(OK|FAILED)\s*\(([^)]+)\)', summary_lines[1])
+    for detailed_count in re.split(r'\s*,\s*', details):
+        label, value = detailed_count.split('=')
+        if label == 'failures': data['tests_failed'] = int(value)
+        elif label == 'errors': data['tests_error'] = int(value)
+        elif label == 'badSkips': data['tests_bad_skip'] = int(value)
+        elif label == 'okSkips': data['tests_ok_skip'] = int(value)
+        else: raise ValueError()
+data['tests_ok'] = data['tests_total'] - \
+  (data['tests_failed'] + data['tests_error'] + data['tests_bad_skip'] + data['tests_ok_skip'])
+
+# Extract start time
+data['start_time'] = re_extract(r'^Start time: (.*)$', osg_test_log, re.MULTILINE, group=1)
+
+# Extract problems
+problems = []
+for m in re.finditer(r'^(ERROR|FAIL): (\w+) \(osgtest\.tests\.(\w+)\.(\w+)\)', osg_test_log, re.MULTILINE):
+    status, function, module, module_name = m.groups()
+    problems.append('|'.join((module, function, module_name, status, '-')))
+m = re.search(r'^=+\nBAD SKIPS:\n-+\n(.*?)\n\n', osg_test_log, re.MULTILINE | re.DOTALL)
+if m is not None:
+    for n in re.finditer(r'^(\w+) \(osgtest\.tests\.(\w+)\.(\w+)\) (.*)$', m.group(1), re.MULTILINE):
+        function, module, module_name, comment = n.groups()
+        problems.append('|'.join((module, function, module_name, 'SKIP', comment)))
+data['tests_messages'] = problems
+
+write_yaml(data)

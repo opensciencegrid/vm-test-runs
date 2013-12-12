@@ -31,7 +31,7 @@ def generate_dag_fragment(serial, combo):
     contents += '# Node %s: %s - %s - %s\n' % (serial, platform, repo, ', '.join(packages))
     contents += 'JOB %s single-test-run.sub\n' % (node_name)
     contents += 'VARS %s serial="%s" platform="%s" jobpriority="%d"\n' % (node_name, serial, platform, priority)
-    contents += 'SCRIPT POST %s extract-job-output result-image-%s.qcow2 output-%s\n' % (node_name, serial, serial)
+    contents += 'SCRIPT POST %s process-job-output %s $JOBID\n' % (node_name, serial)
     if 'osg-tested-internal' in packages:
         contents += 'PRIORITY %s %d\n' % (node_name, priority)
     return contents
@@ -58,6 +58,10 @@ def write_osg_test_configuration(serial, combo, directory):
                 contents += 'updaterepo = %s\n' % (update_parts[1])
     contents += 'packages = %s\n' % (', '.join(packages))
     contents += 'series = %s\n' % (release_series)
+
+    contents += 'param_platform = %s\n' % (platform)
+    contents += 'param_repo = %s\n' % (repo)
+
     write_file(contents, os.path.join(directory, 'osg-test-%s.conf' % (serial)))
 
 

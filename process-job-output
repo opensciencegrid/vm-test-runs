@@ -1,0 +1,15 @@
+#!/bin/sh
+
+serial=$1
+job_id=$2
+
+# Remove this job's input image, which is no longer needed.  Because input
+# images are hardlinked, there are no race conditions among jobs and their
+# linked input images.
+unlink input-image-$serial.qcow2
+
+# Extract all files from the output image and remove the output image
+./extract-job-output result-image-$serial.qcow2 output-$serial
+
+# Analyze output files
+./analyze-job-output $serial $job_id > output-$serial/analysis.yaml

@@ -33,9 +33,9 @@ safe_run cp \
     master-run.dag \
     generate-dag.sub generate-dag test-parameters.yaml \
     create-io-images.sub create-io-images \
-    run-job osg-test.patch test-changes.patch osg-release.patch \
-    single-test-run.sub inner-dag.config extract-job-output \
-    analyze-test-run.sub analyze-test-run email-analysis \
+    run-job osg-test.patch test-changes.patch osg-release.patch single-test-run.sub inner-dag.config \
+    process-job-output extract-job-output analyze-job-output \
+    combine-job-analyses analyze-test-run.sub analyze-test-run email-analysis \
     $RUN_DIRECTORY/
 cp /osgtest/rpms/osg-test-*.rpm $RUN_DIRECTORY/ 2> /dev/null
 cd $RUN_DIRECTORY

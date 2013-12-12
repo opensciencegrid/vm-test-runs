@@ -1,15 +1,16 @@
 # Master DAG for osg-test runs
 
-# First node: Generate the test-run DAG and configuration files
+# 1. Generate the test-run DAG and configuration files
 JOB GenerateDAG generate-dag.sub
 
-# Second node: Create the test-run images
+# 2. Create the test-run images
 JOB CreateImages create-io-images.sub
 
-# Second "node": Run the generated DAG
+# 3. Run the generated DAG
 SUBDAG EXTERNAL RunTests test-run.dag
 
-# Third node: Analyze the output
+# 4. Analyze the output
+SCRIPT PRE AnalyzeOutput combine-job-analyses
 JOB AnalyzeOutput analyze-test-run.sub
 SCRIPT POST AnalyzeOutput email-analysis
 
