@@ -61,9 +61,9 @@ def make_data_grid(runs, organization_scheme='repos'):
                 repo_idx = idx
 
         if organization_scheme == 'packages':
-            row = package_idx + repo_idx  * len(packages)
-        else:
             row = repo_idx + package_idx * len(repos)
+        else:
+            row = package_idx + repo_idx  * len(packages)
 
         organized_runs[row][column] = run
     return organized_runs
@@ -107,7 +107,7 @@ def populate_table(table, data, organization_scheme='repos'):
         idx = row_tuple[0]
         row = row_tuple[1]
         rowspan_size = len(inner_org)
-        if idx % sizeof_something == 0:
+        if idx % rowspan_size == 0:
             tbody.append_new_tag('tr').append_new_tag('td', class_ = 'divider')
             trow = tbody.append_new_tag('tr')
             trow.append_new_tag('th', rowspan=rowspan_size).append(outer_org[idx/rowspan_size][1])
