@@ -10,8 +10,10 @@ import taglib
 from taglib import Tag, SubTag
 
 
-CSS_URI =  "http://vdt.cs.wisc.edu/testsvmu.css"
-timestamp = time.strftime('%F%m%d-%H%M')
+CSS_URI =  "http://vdt.cs.wisc.edu/tests/vmu.css"
+m = re.search('run-((\d*)-\d*)', osg.getcwd())
+date = m.group(2)
+timestamp = m.group(1)
 url_base = "http://vdt.cs.wisc.edu/tests/" + timestamp + "/"
 repo_filename = "results.html"
 pkg_filename = "packages.html" 
@@ -123,16 +125,21 @@ def populate_table(table, data, organization_scheme='repos'):
             trow.append(get_test_numbers(column))
 
 def get_test_numbers(run):
+    run_dir = url_base + str(run['job_serial']).zfill(3)
     if run['run_status'] == 0:
+        link_location =  run_dir + '/osg-test-' + date + '.log'
         success = run['tests_ok']
         skip = run['tests_ok_skip']
         fail =  run['tests_failed'] + run['tests_error'] + run['tests_bad_skip']
+        link = Tag('a', href=link_location).append("%s %s %s" % (success, skip, fail))
         if fail == 0:
-            return Tag('td', class_ = 'result pass', align='center').append("%s %s %s" % (success, skip, fail))
+            return Tag('td', class_='result pass', align='center').append(link)
         else:
-            return Tag('td', class_ = 'result fail', align='center').append("%s %s %s" % (success, skip, fail))
+            return Tag('td', class_='result fail', align='center').append(link)
     else:
-        return Tag('td', class_ = 'result die', align='center').append('DIED')
+        link_location = run_dir + '/run-job.log'
+        link = Tag('a', class_='data', href=link_location).append('DIED')
+        return Tag('td', class_='result die', align='center').append(link)
     
 def print_html_to_file(html, filename):
     f = open(filename, 'w')
