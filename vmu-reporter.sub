@@ -1,5 +1,5 @@
 universe   = local
-executable = vmu-reporter.py
+executable = vmu-reporter
 arguments  = "."
 
 output = vmu-reporter.out

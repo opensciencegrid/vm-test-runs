@@ -36,7 +36,7 @@ safe_run cp \
     run-job osg-test.patch test-changes.patch osg-release.patch single-test-run.sub inner-dag.config \
     process-job-output extract-job-output analyze-job-output \
     combine-job-analyses analyze-test-run.sub analyze-test-run email-analysis \
-    reporting/vmu-reporter.py reporting/taglib.py \
+    reporting/vmu-reporter vmu-reporter.sub reporting/taglib.py \
     $RUN_DIRECTORY/
 cp /osgtest/rpms/osg-test-*.rpm $RUN_DIRECTORY/ 2> /dev/null
 cd $RUN_DIRECTORY

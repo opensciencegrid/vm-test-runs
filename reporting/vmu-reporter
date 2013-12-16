@@ -10,11 +10,11 @@ import taglib
 from taglib import Tag, SubTag
 
 
-url_base = "http://vdt.cs.wisc.edu/tests/"
-CSS_URI =  url_base + "vmu.css"
-today = time.strftime('%Y%m%d')
-repo_filename = "results-" + today + ".html"
-pkg_filename = "packages-" + today + ".html" 
+CSS_URI =  "http://vdt.cs.wisc.edu/testsvmu.css"
+timestamp = time.strftime('%F%m%d-%H%M')
+url_base = "http://vdt.cs.wisc.edu/tests/" + timestamp + "/"
+repo_filename = "results.html"
+pkg_filename = "packages.html" 
 homepage = url_base +  repo_filename
 pkg_organized_homepage = url_base + pkg_filename
 
