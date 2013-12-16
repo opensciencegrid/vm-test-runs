@@ -39,8 +39,13 @@ def file_contents(path, as_single_string=False):
     the_file.close()
     return contents
 
+# Get timestamp from containing directory
+my_directory = os.path.basename(os.getcwd())
+my_timestamp = re.sub(r'^run-', '', my_directory)
 
-message = ''
+message = '''OSG VMU tests
+http://vdt.cs.wisc.edu/tests/%s/results.html
+http://vdt.cs.wisc.edu/tests/%s/packages.html\n\n''' % (my_timestamp, my_timestamp)
 
 if not os.path.exists(ANALYSIS_FILENAME):
     subject = 'OSG VMU test results: FAIL: no %s' % (ANALYSIS_FILENAME)
