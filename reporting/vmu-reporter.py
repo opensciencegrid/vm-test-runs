@@ -3,15 +3,20 @@
 import re
 import os
 import sys
+import time
 import itertools
 import yaml
 import taglib
 from taglib import Tag, SubTag
 
-cwd = os.getcwd()
-CSS_URI = "file://%s/vmu.css" % cwd
-homepage = "file://%s/results.html" % cwd
-pkg_organized_homepage = "file://%s/packages.html" % cwd
+
+url_base = "http://vdt.cs.wisc.edu/tests/"
+CSS_URI =  url_base + "vmu.css"
+today = time.strftime('%Y%m%d')
+repo_filename = "results-" + today + ".html"
+pkg_filename = "packages-" + today + ".html" 
+homepage = url_base +  repo_filename
+pkg_organized_homepage = url_base + pkg_filename
 
 os_flavors = [('CentOS','CentOS'),
               ('Red Hat Enterprise Linux Server','Red Hat'),
@@ -110,7 +115,7 @@ def populate_table(table, data, organization_scheme='repos'):
         if idx % rowspan_size == 0:
             tbody.append_new_tag('tr').append_new_tag('td', class_ = 'divider')
             trow = tbody.append_new_tag('tr')
-            trow.append_new_tag('th', rowspan=rowspan_size).append(outer_org[idx/rowspan_size][1])
+            trow.append_new_tag('th', valign='top', rowspan=rowspan_size).append(outer_org[idx/rowspan_size][1])
         else:
             trow = tbody.append_new_tag('tr')
         trow.append_new_tag('th').append(inner[1])
@@ -153,8 +158,8 @@ if __name__ == "__main__":
 
     repo_organized_runs = make_data_grid(runs)
     populate_table(table_repo, repo_organized_runs)
-    print_html_to_file(html_repo, 'results.html')
+    print_html_to_file(html_repo, repo_filename)
     
     pkg_organized_runs = make_data_grid(runs, organization_scheme='packages')
     populate_table(table_package, pkg_organized_runs, organization_scheme='packages')
-    print_html_to_file(html_package, 'packages.html')
+    print_html_to_file(html_package, pkg_filename)
