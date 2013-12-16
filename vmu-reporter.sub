@@ -1,0 +1,11 @@
+universe   = local
+executable = vmu-reporter.py
+arguments  = "."
+
+output = vmu-reporter.out
+error  = vmu-reporter.err
+log    = vmu-reporter.log
+
+should_transfer_files = NO
+
+queue

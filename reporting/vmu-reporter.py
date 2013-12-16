@@ -141,17 +141,12 @@ def print_html_to_file(html, filename):
     
     
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print "usage: %s <analyze-test-run file>" % sys.argv[1]
-        sys.exit(1)
-
     # setup html objects
     html_repo, table_repo = create_html_and_table()
     html_package, table_package = create_html_and_table()
     
     # Map runs to their rows
-    filename = sys.argv[1]
-    f = open(filename, 'r')
+    f = open('combined-analysis.yaml', 'r')
     yaml_data = f.read()
     f.close()
     runs = yaml.load(yaml_data)
