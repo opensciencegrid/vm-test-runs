@@ -44,5 +44,19 @@ if [ "x$TEMP_DIR" != 'x' ]; then
     rm -fr $TEMP_DIR
 fi
 
-# Submit DAG
+# Submit DAG (or print and skip)
+if [ $# -ge 1 ]; then
+    case $1 in
+        -s | -skip | --skip)
+            echo 'Run tests with:'
+            echo "    cd $RUN_DIRECTORY"
+            echo '    condor_submit_dag master-run.dag'
+            exit 0
+            ;;
+        *)
+            echo "Unknown option '$1'"
+            exit 1
+            ;;
+    esac
+fi
 condor_submit_dag master-run.dag
