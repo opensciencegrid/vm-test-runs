@@ -58,18 +58,18 @@ def concat_packages(packages):
     return packages
     
 
-def make_data_grid(runs, organization_scheme='repos'):
-    organized_runs = [[None] * 6 for i in range(0,48)]
+def make_data_grid(runs, test_params, organization_scheme='repos'):
+    if organization_scheme == 'repos':
+        num_rows = range(0,len(runs)/len(test_params['platform']))
+    else:
+        num_rows = range(0,len(runs)/len(test_params['platform']))        
+    organized_runs = [[None] * len(test_params['platform']) for i in num_rows]
     for run in runs:
         # Find y value in the grid
         for idx, platform in enumerate(test_params['platform']):
             if re.match(os_translation[platform]['short'], run['os_release']):
-                if re.search('6\.', run['os_release']):
-                    column = idx + num_el5
-                    break
-                else:
-                    column = idx
-                    break
+                column = idx
+                break
             
         # Find x value in the grid
         for idx, package in enumerate(test_params['packages']):
@@ -207,13 +207,13 @@ if __name__ == "__main__":
     runs = yaml.load(yaml_data)
 
     # Create and print repo organized html
-    repo_organized_runs = make_data_grid(runs)
+    repo_organized_runs = make_data_grid(runs, test_params)
     populate_table_data(populate_table_headers(table_repo),
                         repo_organized_runs)
     print_html_to_file(html_repo, repo_filename)
     
     # Create and print pkg organized html
-    pkg_organized_runs = make_data_grid(runs, organization_scheme='packages')
+    pkg_organized_runs = make_data_grid(runs, test_params, organization_scheme='packages')
     populate_table_data(populate_table_headers(table_pkg, organization_scheme='packages'),
                         pkg_organized_runs,
                         organization_scheme='packages')
