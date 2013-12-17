@@ -3,6 +3,7 @@
 import re
 import os
 import sys
+import string
 import time
 import itertools
 import yaml
@@ -11,7 +12,7 @@ from taglib import Tag, SubTag
 
 
 CSS_URI =  "http://vdt.cs.wisc.edu/tests/vmu.css"
-m = re.search('run-((\d*)-\d*)', osg.getcwd())
+m = re.search('run-((\d*)-\d*)', os.getcwd())
 date = m.group(2)
 timestamp = m.group(1)
 url_base = "http://vdt.cs.wisc.edu/tests/" + timestamp + "/"
@@ -20,25 +21,12 @@ pkg_filename = "packages.html"
 homepage = url_base +  repo_filename
 pkg_organized_homepage = url_base + pkg_filename
 
-os_flavors = [('CentOS','CentOS'),
-              ('Red Hat Enterprise Linux Server','Red Hat'),
-              ('Scientific Linux','Sci Linux')]
-
-repos = [('3.1; osg','3.1 Release'),
-         ('3.1; osg-testing','3.1 Testing'),
-         ('3.1; osg > osg-testing','3.1 Release -> 3.1 Testing'),
-         ('3.2; osg','3.2 Release'),
-         ('3.2; osg-testing','3.2 Testing'),
-         ('3.2; osg > osg-testing','3.2 Release -> 3.2 Testing'),
-         ('3.1; osg > 3.2/osg','3.1 Release -> 3.2 Release'),
-         ('3.1; osg-testing > 3.2/osg-testing','3.1 Testing -> 3.2 Testing')]
-
-packages = [('osg-tested-internal','Everything'),
-            ('condor.x86_64, osg-ce-condor, rsv','Condor'),
-            ('osg-gridftp, edg-mkgridmap, rsv','GridFTP'),
-            ('osg-se-bestman, rsv','BeStMan'),
-            ('osg-voms, rsv','VOMS'),
-            ('osg-gums, rsv','GUMS')]
+os_translation = {'centos_5_x86_64':{'dver':5, 'short':'CentOS'},
+                  'centos_6_x86_64':{'dver':6, 'short':'CentOS'},
+                  'rhel_5_x86_64':{'dver':5, 'short':'Red Hat'},
+                  'rhel_6_x86_64':{'dver':6, 'short':'Red Hat'},
+                  'sl_5_x86_64':{'dver':5, 'short':'Scientific'},
+                  'sl_6_x86_64':{'dver':6, 'short':'Scientific'}}
 
 def create_html_and_table():
     html = taglib.Html(page_title='OSG VMU Automated Test Results', css_link=CSS_URI)
@@ -47,67 +35,118 @@ def create_html_and_table():
 
     return html, table
 
+def sort_platforms_by_dver(platforms):
+    global num_el5
+    global num_el6
+
+    organized_platforms = []
+    num_el5 = 0
+    for platform in platforms:
+        if os_translation[platform]['dver'] == 5:
+            organized_platforms.insert(num_el5, platform)
+            num_el5 = num_el5 + 1
+        else:
+            organized_platforms.append(platform)
+
+    num_el6 = len(platforms) - num_el5
+    return organized_platforms
+
+def concat_packages(packages):
+    for idx, package in enumerate(packages):
+        packages[idx] = string.join(package, ', ')
+
+    return packages
+    
+
 def make_data_grid(runs, organization_scheme='repos'):
     organized_runs = [[None] * 6 for i in range(0,48)]
     for run in runs:
         # Find y value in the grid
-        for idx, flavor in enumerate(os_flavors):
-            if re.match(flavor[0], run['os_release']):
-                column = idx
+        for idx, platform in enumerate(test_params['platform']):
+            if re.match(os_translation[platform]['short'], run['os_release']):
+                if re.search('6\.', run['os_release']):
+                    column = idx + num_el5
+                    break
+                else:
+                    column = idx
+                    break
             
-        if re.search('6', run['os_release']):
-            column = column + 3
-
         # Find x value in the grid
-        for idx, package in enumerate(packages):
-            if package[0] == run['param_packages']:
+        for idx, package in enumerate(test_params['packages']):
+            if package == run['param_packages']:
                 package_idx = idx
+                break
 
-        for idx, repo in enumerate(repos):
-            if repo[0] == run['param_sources']:
+        for idx, repo in enumerate(test_params['repository']):
+            if repo == run['param_sources']:
                 repo_idx = idx
+                break
 
         if organization_scheme == 'packages':
-            row = repo_idx + package_idx * len(repos)
+            row = repo_idx + package_idx * len(test_params['repository'])
         else:
-            row = package_idx + repo_idx  * len(packages)
+            row = package_idx + repo_idx  * len(test_params['packages'])
 
         organized_runs[row][column] = run
     return organized_runs
 
-def populate_table(table, data, organization_scheme='repos'):
+def populate_table_headers(table, organization_scheme='repos'):
     if organization_scheme == 'packages':
         sort_link = homepage
         sort_link_text = 'Sort by Release &#9660;'
         first_column_text = 'Parent Package &#9660;'
         second_column_text = 'OSG Release/Upgrade'
-        outer_org = packages
-        inner_org = repos
     else:
         sort_link = pkg_organized_homepage
         sort_link_text = 'Sort by Package &#9660;'
         first_column_text = 'OSG Release/Upgrade &#9660;'
         second_column_text = 'Parent Package'
-        outer_org = repos
-        inner_org = packages
 
-    # Create header
-    header = Tag("thead")
+    header = table.append_new_tag("thead")
     row_1 = header.append_new_tag("tr")
     th = row_1.append_new_tag("th", rowspan="2", id = 'sort')
     th.append_new_tag('span', id = 'hide_text').append(first_column_text)
     th.append_new_tag('a', href=sort_link, id = 'sort_link').\
         append(sort_link_text) # mouseover text/link
     row_1.append_new_tag("th", rowspan="2").append(second_column_text)
-    row_1.append_new_tag("th", colspan="3").append("EL5")
-    row_1.append_new_tag("th", colspan="3").append("EL6")
+
+    row_1.append_new_tag("th", colspan=num_el5).append("EL5")
+    row_1.append_new_tag("th", colspan=num_el6).append("EL6")
 
     row_2 = header.append_new_tag("tr")
-    for os in os_flavors * 2:
-        row_2.append_new_tag("th").append(os[1])
+    for platform in test_params['platform']:
+        row_2.append_new_tag("th").append(os_translation[platform]['short'])
 
-    # Populate table rows
-    table.append(header)
+    return table
+
+def populate_table_data(table, data, organization_scheme='repos'):
+    repo_translation = {'3.1; osg':'3.1 Release',
+                        '3.1; osg-testing':'3.1 Testing',
+                        '3.1; osg > osg-testing':'3.1 Release -> 3.1 Testing',
+                        '3.2; osg':'3.2 Release',
+                        '3.2; osg-testing':'3.2 Testing',
+                        '3.2; osg > osg-testing':'3.2 Release -> 3.2 Testing',
+                        '3.1; osg > 3.2/osg':'3.1 Release -> 3.2 Release',
+                        '3.1; osg-testing > 3.2/osg-testing':'3.1 Testing -> 3.2 Testing'}
+    
+    pkg_translation = {'osg-tested-internal':'Everything',
+                       'condor.x86_64, osg-ce-condor, rsv':'Condor',
+                       'osg-gridftp, edg-mkgridmap, rsv':'GridFTP',
+                       'osg-se-bestman, rsv':'BeStMan',
+                       'osg-voms, rsv':'VOMS',
+                       'osg-gums, rsv':'GUMS'}
+
+    if organization_scheme == 'packages':
+        outer_org = test_params['packages']
+        inner_org = test_params['repository']
+        outer_translation = pkg_translation
+        inner_translation = repo_translation
+    else:
+        outer_org = test_params['repository']
+        inner_org = test_params['packages']
+        outer_translation = repo_translation
+        inner_translation = pkg_translation
+
     tbody = table.append_new_tag('tbody')
 
     for row_tuple, inner in itertools.izip(enumerate(data), itertools.cycle(inner_org)):
@@ -117,12 +156,13 @@ def populate_table(table, data, organization_scheme='repos'):
         if idx % rowspan_size == 0:
             tbody.append_new_tag('tr').append_new_tag('td', class_ = 'divider')
             trow = tbody.append_new_tag('tr')
-            trow.append_new_tag('th', valign='top', rowspan=rowspan_size).append(outer_org[idx/rowspan_size][1])
+            outer = outer_org[idx/rowspan_size]
+            trow.append_new_tag('th', valign='top', rowspan=rowspan_size).append(outer_translation[outer])
         else:
             trow = tbody.append_new_tag('tr')
-        trow.append_new_tag('th').append(inner[1])
-        for column in row:
-            trow.append(get_test_numbers(column))
+        trow.append_new_tag('th').append(inner_translation[inner])
+        for cell in row:
+            trow.append(get_test_numbers(cell))
 
 def get_test_numbers(run):
     run_dir = url_base + str(run['job_serial']).zfill(3)
@@ -150,18 +190,31 @@ def print_html_to_file(html, filename):
 if __name__ == "__main__":
     # setup html objects
     html_repo, table_repo = create_html_and_table()
-    html_package, table_package = create_html_and_table()
-    
+    html_pkg, table_pkg = create_html_and_table()
+
+    # Read test parameters
+    f = open('test-parameters.yaml', 'r')
+    yaml_data = f.read()
+    f.close()
+    test_params = yaml.load(yaml_data)
+    test_params['platform'] = sort_platforms_by_dver(test_params['platform'])
+    test_params['packages'] = concat_packages(test_params['packages'])
+
     # Map runs to their rows
-    f = open('combined-analysis.yaml', 'r')
+    f = open('reporting/combined-analysis.yaml', 'r')
     yaml_data = f.read()
     f.close()
     runs = yaml.load(yaml_data)
 
+    # Create and print repo organized html
     repo_organized_runs = make_data_grid(runs)
-    populate_table(table_repo, repo_organized_runs)
+    populate_table_data(populate_table_headers(table_repo),
+                        repo_organized_runs)
     print_html_to_file(html_repo, repo_filename)
     
+    # Create and print pkg organized html
     pkg_organized_runs = make_data_grid(runs, organization_scheme='packages')
-    populate_table(table_package, pkg_organized_runs, organization_scheme='packages')
-    print_html_to_file(html_package, pkg_filename)
+    populate_table_data(populate_table_headers(table_pkg, organization_scheme='packages'),
+                        pkg_organized_runs,
+                        organization_scheme='packages')
+    print_html_to_file(html_pkg, pkg_filename)
