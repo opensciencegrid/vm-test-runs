@@ -201,7 +201,7 @@ if __name__ == "__main__":
     test_params['packages'] = concat_packages(test_params['packages'])
 
     # Map runs to their rows
-    f = open('reporting/combined-analysis.yaml', 'r')
+    f = open('combined-analysis.yaml', 'r')
     yaml_data = f.read()
     f.close()
     runs = yaml.load(yaml_data)
