@@ -59,15 +59,14 @@ def concat_packages(packages):
     
 
 def make_data_grid(runs, test_params, organization_scheme='repos'):
-    if organization_scheme == 'repos':
-        num_rows = range(0,len(runs)/len(test_params['platform']))
-    else:
-        num_rows = range(0,len(runs)/len(test_params['platform']))        
+    num_rows = range(0,len(runs)/len(test_params['platform']))        
     organized_runs = [[None] * len(test_params['platform']) for i in num_rows]
     for run in runs:
         # Find y value in the grid
         for idx, platform in enumerate(test_params['platform']):
-            if re.match(os_translation[platform]['short'], run['os_release']):
+            dver_regex = '[^\d]' + str(os_translation[platform]['dver']) + '\.'
+            if (re.match(os_translation[platform]['short'], run['os_release']) and
+                re.search(dver_regex, run['os_release'])):
                 column = idx
                 break
             
@@ -150,18 +149,18 @@ def populate_table_data(table, data, organization_scheme='repos'):
     tbody = table.append_new_tag('tbody')
 
     for row_tuple, inner in itertools.izip(enumerate(data), itertools.cycle(inner_org)):
-        idx = row_tuple[0]
-        row = row_tuple[1]
+        row_num = row_tuple[0]
+        columns = row_tuple[1]
         rowspan_size = len(inner_org)
-        if idx % rowspan_size == 0:
+        if row_num % rowspan_size == 0:
             tbody.append_new_tag('tr').append_new_tag('td', class_ = 'divider')
             trow = tbody.append_new_tag('tr')
-            outer = outer_org[idx/rowspan_size]
+            outer = outer_org[row_num/rowspan_size]
             trow.append_new_tag('th', valign='top', rowspan=rowspan_size).append(outer_translation[outer])
         else:
             trow = tbody.append_new_tag('tr')
         trow.append_new_tag('th').append(inner_translation[inner])
-        for cell in row:
+        for cell in columns:
             trow.append(get_test_numbers(cell))
 
 def get_test_numbers(run):
