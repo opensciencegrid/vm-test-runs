@@ -1,0 +1,97 @@
+#!/bin/bash
+
+# This script takes the results of a set of test runs and uploads them via
+# passwordless SSH to the local drive of a machine hosted by the UW CSL. This
+# is part of a two-step process to put the results on the VDT web site -- the
+# second step being copying the files from the local drive to AFS. The reason
+# this cannot be done in a single step is that an SSH session using
+# passwordless authentication cannot get an AFS token and would not be able to
+# access AFS.
+
+# Assume that we are in the run directory.
+
+NOTIFY_ON_ERROR=(matyas@cs.wisc.edu)
+
+UPLOAD_USER=cndrutil
+UPLOAD_MACHINE=ingwe.cs.wisc.edu
+UPLOAD_DIR=/scratch/osg/vmu-test-results
+
+
+# This is a separate private key that should be generated specifically for
+# uploading test results. It should be generated using the following command:
+#    ssh-keygen -f test_result_upload.key -C "VMU test result upload key for `whoami`@osghost"
+# and must be generated __with no passphrase__
+# Both the .key and the corresponding .pub file should be placed into ~/.ssh.
+# In addition, the .pub file should be scp'ed to the $UPLOAD_MACHINE and appended
+# to the .ssh/authorized_keys file of the user $UPLOAD_USER.
+# The key must have 0600 / 0400 perms and be owned by you.
+KEY_FILE=$HOME/.ssh/test_result_upload.key
+
+RUN_DIR=$(pwd)
+WORK_DIR=$(mktemp -d)
+trap "rm -rf $WORK_DIR" EXIT
+
+# Transform ...../run-20131217-0423 into $WORK_DIR/20131217-0423
+RUN_DIR_BASE=$(basename "$RUN_DIR")
+STAGED_RUN_DIR=$WORK_DIR/${RUN_DIR_BASE#run-}
+
+
+stage_run_dir () {
+    # Stage each job output directory; echo which directory we used for staging
+    # to stdout.
+
+    mkdir -p "$STAGED_RUN_DIR"
+    cp packages.html results.html "$STAGED_RUN_DIR"
+    (
+        local output_dir staged_output_dir
+
+        shopt -s nullglob
+        for output_dir in output-*; do
+            # output-080 -> $STAGED_RUN_DIR/080
+            staged_output_dir=$STAGED_RUN_DIR/${output_dir#output-}
+            mkdir -p "$staged_output_dir"
+            cp "$output_dir"/run-job.log "$output_dir"/output/osg-test-*.log "$staged_output_dir/"
+        done
+    )
+}
+
+upload_run () {
+    local staged_run_dir_base
+    staged_run_dir_base=$(basename "$STAGED_RUN_DIR")
+    (
+        set -o errexit
+        ssh -i $KEY_FILE -l $UPLOAD_USER $UPLOAD_MACHINE mkdir -p "$UPLOAD_DIR"
+        cd "$STAGED_RUN_DIR"/..
+        tar cz "$staged_run_dir_base" | \
+            ssh -i $KEY_FILE -l $UPLOAD_USER $UPLOAD_MACHINE tar xz -C "$UPLOAD_DIR"
+    )
+}
+
+send_fail_email () {
+    local email_file receiver
+
+    email_file=$WORK_DIR/fail.eml
+    rm -f "$email_file"
+    echo "Subject: OSG VMU Automated Tests upload failed" >> "$email_file"
+    echo "Uploading results failed." >> "$email_file"
+    for receiver in ${NOTIFY_ON_ERROR[*]}; do
+        echo "To: $receiver" >> "$email_file"
+    done
+    cat upload.log >> "$email_file"
+    sendmail -F"'OSG VMU Automated Tests'" -i ${NOTIFY_ON_ERROR[*]} < "$email_file"
+}
+
+
+(
+    set -o errexit
+    stage_run_dir
+    upload_run
+) > upload.log 2>&1
+
+if [[ $? -ne 0 ]]; then
+    send_fail_email
+fi
+
+# No matter what, we never want to exit nonzero, because that would
+# fail the entire dag.
+exit 0
