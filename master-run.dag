@@ -25,3 +25,4 @@ PARENT GenerateDAG CHILD CreateImages
 PARENT CreateImages CHILD RunTests
 PARENT RunTests CHILD AnalyzeOutput
 PARENT AnalyzeOutput CHILD HtmlOutput
+PARENT HtmlOutput CHILD UploadJobOutput
