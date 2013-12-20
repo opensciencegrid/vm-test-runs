@@ -1,0 +1,10 @@
+universe   = local
+executable = upload-job-output
+
+output = upload-job-output.out
+error  = upload-job-output.err
+log    = upload-job-output.log
+
+should_transfer_files = NO
+
+queue
