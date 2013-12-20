@@ -68,17 +68,22 @@ upload_run () {
 }
 
 send_fail_email () {
-    local email_file receiver
+    local email_file recipient
 
+    from_addr="OSG VMU Automated Tests <`whoami`@`hostname`>"
     email_file=$WORK_DIR/fail.eml
-    rm -f "$email_file"
-    echo "Subject: OSG VMU Automated Tests upload failed" >> "$email_file"
-    echo "Uploading results failed." >> "$email_file"
-    for receiver in ${NOTIFY_ON_ERROR[*]}; do
-        echo "To: $receiver" >> "$email_file"
-    done
-    cat upload.log >> "$email_file"
-    sendmail -F"'OSG VMU Automated Tests'" -i ${NOTIFY_ON_ERROR[*]} < "$email_file"
+    (
+        echo "From: $from_addr"
+        echo "Subject: OSG VMU Automated Tests upload failed"
+        for recipient in "${NOTIFY_ON_ERROR[@]}"; do
+            echo "To: $recipient"
+        done
+        echo
+        echo "Uploading results failed."
+        cat upload.log
+    ) > "$email_file"
+
+    /bin/mailx -S 'smtp=wid-service-1.chtc.wisc.edu' -t -S "from=$from_addr" < "$email_file"
 }
 
 
