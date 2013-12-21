@@ -25,7 +25,8 @@ UPLOAD_DIR=/scratch/osg/vmu-test-results
 # In addition, the .pub file should be scp'ed to the $UPLOAD_MACHINE and appended
 # to the .ssh/authorized_keys file of the user $UPLOAD_USER.
 # The key must have 0600 / 0400 perms and be owned by you.
-KEY_FILE=$HOME/.ssh/test_result_upload.key
+eval KEY_FILE=~`whoami`/.ssh/test_result_upload.key
+# ^ $HOME isn't set in the env this runs in; in that case, plain ~ won't work either
 
 RUN_DIR=$(pwd)
 WORK_DIR=$(mktemp -d)
@@ -70,10 +71,10 @@ upload_run () {
 send_fail_email () {
     local email_file recipient
 
-    from_addr="OSG VMU Automated Tests <`whoami`@`hostname`>"
+    from_addr="`whoami`@`hostname`"
     email_file=$WORK_DIR/fail.eml
     (
-        echo "From: $from_addr"
+        echo "From: OSG VMU Automated tests <$from_addr>"
         echo "Subject: OSG VMU Automated Tests upload failed"
         for recipient in "${NOTIFY_ON_ERROR[@]}"; do
             echo "To: $recipient"
