@@ -149,15 +149,14 @@ if install_result != 'OK':
 
 # See if the final yum install of osg-test failed
 final_osgtest_install = extract_last(run_job_log, r'^.*install osg-test(?:.*\n)*?^==>.*$')
-if final_osgtest_install is None:
-    write_failure_and_exit(data, 1, 'Could not find a yum install of osg-test')
-install_result = re_extract(r'^==> (\w+)', final_osgtest_install, re.MULTILINE, group=1)
-if install_result != 'OK':
-    write_failure_and_exit(data, 1, 'yum install of osg-test failed', final_osgtest_install)
+if final_osgtest_install is not None:
+    install_result = re_extract(r'^==> (\w+)', final_osgtest_install, re.MULTILINE, group=1)
+    if install_result != 'OK':
+        write_failure_and_exit(data, 1, 'yum install of osg-test failed', final_osgtest_install)
 
 # Extract osg-test NEVRA (Name-Epoch:Version-Release.Arch)
-nevra_re = r'^(osg-test-[^-]+-[^.]+\.osg\d*\.el\d).*?$'
-osg_test_nevra = re_extract(nevra_re, run_job_log, re.MULTILINE, default='(unknown version)', group=1)
+nevra_re = r'rpm --query osg-test\n(osg-test-[^-]+-[^.]+\.osg\d*\.el\d)'
+osg_test_nevra = re_extract(nevra_re, run_job_log, default='(unknown version)', group=1)
 data['osg_test_version'] = osg_test_nevra
 
 # Read osg-test output
