@@ -161,25 +161,47 @@ def populate_table_data(table, data, organization_scheme='repos'):
             trow = tbody.append_new_tag('tr')
         trow.append_new_tag('th').append(inner_translation[inner])
         for cell in columns:
-            trow.append(get_test_numbers(cell))
+            trow.append(get_cell_contents(cell))
 
-def get_test_numbers(run):
-    run_dir = url_base + str(run['job_serial']).zfill(3)
+def get_cell_contents(run):
+    formatted_serial_num = str(run['job_serial']).zfill(3)
+    run_dir = url_base + formatted_serial_num
+
+    # Generic info for each cell
+    mouseover_text = 'Hostname: ' + run['host_name'] + '&#013;' + \
+        'Host IP: ' + run['host_address'] + '&#013;' + \
+        'Guest IP: ' + run['guest_address'] + '&#013;' + \
+        'Job ID: ' + str(run['job_id']) + '&#013;' + \
+        'Job Serial: ' + formatted_serial_num + '&#013;'
+
+    # Create link tags with # of success/skip/fail as the link text
     if run['run_status'] == 0:
-        link_location =  run_dir + '/osg-test-' + date + '.log'
+        # Construct link tag
         success = run['tests_ok']
         skip = run['tests_ok_skip']
         fail =  run['tests_failed'] + run['tests_error'] + run['tests_bad_skip']
+        link_location = run_dir + '/osg-test-' + date + '.log'
         link = Tag('a', href=link_location).append("%s %s %s" % (success, skip, fail))
+
+        # Info for successful jobs
+        mouseover_text = mouseover_text + 'Run Dir: ' + run['run_directory'] + '/output-' + formatted_serial_num + '&#013;' + \
+            'OSG Test Version: ' + run['osg_test_version'] + '&#013;' + \
+            'Start Time: ' + str(run['start_time']) + '&#013;' + \
+            'Run Time: ' + str(run['run_time'])
+        
         if fail == 0:
-            return Tag('td', class_='result pass', align='center').append(link)
+            return Tag('td', class_='result pass', align='center', title=mouseover_text).append(link)
         else:
-            return Tag('td', class_='result fail', align='center').append(link)
+            mouseover_text = mouseover_text + '&#013;Failures:&#013;' 
+            for msg in run['tests_messages']:
+                mouseover_text = mouseover_text + msg + '&#013;' 
+            return Tag('td', class_='result fail', align='center', title=mouseover_text).append(link)
     else:
+        mouseover_text = mouseover_text + 'Run Summary: ' + run['run_summary']
         link_location = run_dir + '/run-job.log'
         link = Tag('a', class_='data', href=link_location).append('DIED')
-        return Tag('td', class_='result die', align='center').append(link)
-    
+        return Tag('td', class_='result die', align='center', title=mouseover_text).append(link)
+
 def print_html_to_file(html, filename):
     f = open(filename, 'w')
     f.write(str(html))
