@@ -71,8 +71,11 @@ def write_yaml_value(value):
 
 def write_yaml_mapping(data, key):
     if key in data:
-        value = data[key]
-        print '  %s:%s' % (key, write_yaml_value(value))
+        if key == 'job_serial':
+            print '  %s: \'%s\'' % (key, data[key])
+        else:
+            value = data[key]
+            print '  %s:%s' % (key, write_yaml_value(value))
 
 def write_yaml(data):
     print '-'
