@@ -59,10 +59,10 @@ def concat_packages(packages):
     
 
 def make_data_grid(runs, test_params, organization_scheme='repos'):
-    num_rows = range(0,len(runs)/len(test_params['platform']))        
-    organized_runs = [[None] * len(test_params['platform']) for i in num_rows]
+    num_rows = range(0,len(runs)/len(test_params['platform'])) 
+    organized_runs = [[None] * len(test_params['platform']) for i in num_rows] # Create a 2D array to hold the runs
     for run in runs:
-        # Find y value in the grid
+        # Find column value in the grid
         for idx, platform in enumerate(test_params['platform']):
             dver_regex = '[^\d]' + str(os_translation[platform]['dver']) + '\.'
             if (re.match(os_translation[platform]['short'], run['os_release']) and
@@ -70,7 +70,7 @@ def make_data_grid(runs, test_params, organization_scheme='repos'):
                 column = idx
                 break
             
-        # Find x value in the grid
+        # Find row value in the grid
         for idx, package in enumerate(test_params['packages']):
             if package == run['param_packages']:
                 package_idx = idx
@@ -89,7 +89,7 @@ def make_data_grid(runs, test_params, organization_scheme='repos'):
         organized_runs[row][column] = run
     return organized_runs
 
-def populate_table_headers(table, organization_scheme='repos'):
+def create_table_headers(table, organization_scheme='repos'):
     if organization_scheme == 'packages':
         sort_link = homepage
         sort_link_text = 'Sort by Release &#9660;'
@@ -164,15 +164,14 @@ def populate_table_data(table, data, organization_scheme='repos'):
             trow.append(get_cell_contents(cell))
 
 def get_cell_contents(run):
-    formatted_serial_num = str(run['job_serial']).zfill(3)
-    run_dir = url_base + formatted_serial_num
+    run_dir = url_base + run['job_serial']
 
     # Generic info for each cell
     mouseover_text = 'Hostname: ' + run['host_name'] + '&#013;' + \
         'Host IP: ' + run['host_address'] + '&#013;' + \
         'Guest IP: ' + run['guest_address'] + '&#013;' + \
         'Job ID: ' + str(run['job_id']) + '&#013;' + \
-        'Job Serial: ' + formatted_serial_num + '&#013;'
+        'Job Serial: ' + run['job_serial'] + '&#013;'
 
     # Create link tags with # of success/skip/fail as the link text
     if run['run_status'] == 0:
@@ -184,7 +183,7 @@ def get_cell_contents(run):
         link = Tag('a', href=link_location).append("%s %s %s" % (success, skip, fail))
 
         # Info for successful jobs
-        mouseover_text = mouseover_text + 'Run Dir: ' + run['run_directory'] + '/output-' + formatted_serial_num + '&#013;' + \
+        mouseover_text = mouseover_text + 'Run Dir: ' + run['run_directory'] + '/output-' + run['job_serial'] + '&#013;' + \
             'OSG Test Version: ' + run['osg_test_version'] + '&#013;' + \
             'Start Time: ' + str(run['start_time']) + '&#013;' + \
             'Run Time: ' + str(run['run_time'])
@@ -229,13 +228,13 @@ if __name__ == "__main__":
 
     # Create and print repo organized html
     repo_organized_runs = make_data_grid(runs, test_params)
-    populate_table_data(populate_table_headers(table_repo),
+    populate_table_data(create_table_headers(table_repo),
                         repo_organized_runs)
     print_html_to_file(html_repo, repo_filename)
     
     # Create and print pkg organized html
     pkg_organized_runs = make_data_grid(runs, test_params, organization_scheme='packages')
-    populate_table_data(populate_table_headers(table_pkg, organization_scheme='packages'),
+    populate_table_data(create_table_headers(table_pkg, organization_scheme='packages'),
                         pkg_organized_runs,
                         organization_scheme='packages')
     print_html_to_file(html_pkg, pkg_filename)
