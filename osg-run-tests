@@ -10,9 +10,33 @@ safe_run()
     fi
 }
 
+SKIP=0
+
+# Submit DAG (or print and skip)
+if [ $# -ge 1 ]; then
+    case $1 in
+        -s | -skip | --skip)
+            SKIP=1
+            ;;
+        -h | -help | --help)
+            echo "usage: $0 <option>"
+            echo "Options:"
+            echo "    -s, -skip, --skip"
+            echo "       Do not automatically submit DAG. Allows for patching before jobs are submitted."
+            echo '    -h, -help, --help'
+            echo "       Print this dialogue"
+            exit 0
+            ;;
+        *)
+            echo "Unknown option '$1'"
+            exit 1
+            ;;
+    esac
+fi
+
 TEST_HOME=/osgtest/runs
 if [ ! -d $TEST_HOME ]; then
-    safe_run mkdir $TEST_HOME
+    safe_run mkdir -p $TEST_HOME
 fi
 
 RUN_DIR_NAME=`date '+run-%Y%m%d-%H%M'`
@@ -45,19 +69,11 @@ if [ "x$TEMP_DIR" != 'x' ]; then
     rm -fr $TEMP_DIR
 fi
 
-# Submit DAG (or print and skip)
-if [ $# -ge 1 ]; then
-    case $1 in
-        -s | -skip | --skip)
-            echo 'Run tests with:'
-            echo "    cd $RUN_DIRECTORY"
-            echo '    condor_submit_dag master-run.dag'
-            exit 0
-            ;;
-        *)
-            echo "Unknown option '$1'"
-            exit 1
-            ;;
-    esac
+if [ $SKIP -eq 1 ]; then
+    echo 'Run tests with:'
+    echo "    cd $RUN_DIRECTORY"
+    echo '    condor_submit_dag master-run.dag'
+    exit 0
+else
+    condor_submit_dag master-run.dag
 fi
-condor_submit_dag master-run.dag
