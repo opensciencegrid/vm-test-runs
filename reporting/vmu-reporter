@@ -169,7 +169,6 @@ def get_cell_contents(run):
     # Generic info for each cell
     mouseover_text = 'Hostname: ' + run['host_name'] + '&#013;' + \
         'Host IP: ' + run['host_address'] + '&#013;' + \
-        'Guest IP: ' + run['guest_address'] + '&#013;' + \
         'Job ID: ' + str(run['job_id']) + '&#013;' + \
         'Job Serial: ' + run['job_serial'] + '&#013;'
 
@@ -184,6 +183,7 @@ def get_cell_contents(run):
 
         # Info for successful jobs
         mouseover_text = mouseover_text + 'Run Dir: ' + run['run_directory'] + '/output-' + run['job_serial'] + '&#013;' + \
+            'Guest IP: ' + run['guest_address'] + '&#013;' + \
             'OSG Test Version: ' + run['osg_test_version'] + '&#013;' + \
             'Start Time: ' + str(run['start_time']) + '&#013;' + \
             'Run Time: ' + str(run['run_time'])
