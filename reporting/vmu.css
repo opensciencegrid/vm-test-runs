@@ -1,13 +1,32 @@
+h2 {
+   background-color: #D1D1D1;
+   width: 30.4em;
+}
+
 /* Table formatting */
 th {
    background-color: #EFEFEF;
    border: 1px solid #CCCCCC;
    color: #555555;
-   padding: 8px;
+   padding:0.1em;
    text-align: center;
 }
-.divider{padding: 4px;}
-.wrapper_full{width: 100%;position:relative;}
+
+.divider{padding: .1em;}
+
+th {
+   font-size:small;
+}
+
+td.result a{
+   display:block;
+   height:100%;
+   width:100%;
+   text-decoration:none;
+   font-family:monospace;
+   color:black;
+}
+
 /* Test result colors */
 
 .pass {background-color: #67E46F;} 
@@ -15,7 +34,6 @@ th {
 .die {background-color: #EAF;}
 
 /* Hover stuff */
-
 
 th#sort span#hide_text{ 
    display:inline;
@@ -34,12 +52,12 @@ th#sort a#sort_link{
    height: 100%;
 }
 
-th#sort:hover { 
-   background-color: #0099CC;
-}
+th#sort:hover {background-color: #0099CC;}
 
 th#sort:hover a#sort_link{ 
-   display:inline-block;
+   display:block;
    width: 100%;
    height: 100%;
 }
+
+td.result:hover {background-color: #0099CC;}

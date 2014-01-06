@@ -31,6 +31,7 @@ os_translation = {'centos_5_x86_64':{'dver':5, 'short':'CentOS'},
 def create_html_and_table():
     html = taglib.Html(page_title='OSG VMU Automated Test Results', css_link=CSS_URI)
     html.body.append_new_tag('h1').append('OSG VMU Automated Test Results')
+    html.body.append_new_tag('h2').append(timestamp)
     table = html.body.append_new_tag('table', class_ = 'padded')
 
     return html, table
