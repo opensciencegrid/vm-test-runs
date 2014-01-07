@@ -109,6 +109,7 @@ def create_latest_symlinks(dest_dir):
     """
     # all run directories under source_dir are named 20YYmmdd-HHMM
     run_dirs = glob.glob(os.path.join(dest_dir, "20*-*"))
+    run_dirs = map(os.path.basename, run_dirs)
     latest = datetime.datetime(1970, 01, 01, 0, 0)
     latest_manual = datetime.datetime(1970, 01, 01, 0, 0)
     for run_dir in run_dirs:
