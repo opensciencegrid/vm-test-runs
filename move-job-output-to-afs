@@ -12,6 +12,7 @@ import os
 import glob
 import shutil
 import datetime
+import errno
 import sys
 from optparse import OptionParser
 
@@ -102,8 +103,10 @@ def move_runs(source_dir, dest_dir):
     return 0
 
 def create_latest_symlinks(dest_dir):
-    "Find the latest automated and manual test runs and create symlinks to their
-    results html files."
+    """
+    Find the latest automated and manual test runs and create symlinks to their
+    results html files.
+    """
     # all run directories under source_dir are named 20YYmmdd-HHMM
     run_dirs = glob.glob(os.path.join(dest_dir, "20*-*"))
     latest = datetime.datetime(1970, 01, 01, 0, 0)
@@ -120,16 +123,16 @@ def create_latest_symlinks(dest_dir):
     create_symlink(latest_dir, dest_dir, 'latest.html')
     create_symlink(latest_manual_dir, dest_dir, 'latest_manual.html')
 
-def create_symlink(date_time, dest_dir, dest_file):
+def create_symlink(run_dir, dest_dir, dest_file):
     "Safely create symlink to results html"
-    link_src = os.path.join(dest_dir, date_time, 'results.html')
+    link_src = os.path.join(dest_dir, run_dir, 'results.html')
     dest_path = os.path.join(dest_dir, dest_file)
     
     try:
         os.unlink(dest_path)
     except OSError, e:
-        if e.errno == 2:
-            pass
+        if e.errno != errno.ENOENT:
+            raise e
     os.link(link_src, dest_path)
 
 def main():
