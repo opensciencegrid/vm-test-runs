@@ -134,7 +134,7 @@ def create_symlink(run_dir, dest_dir, dest_file):
     except OSError, e:
         if e.errno != errno.ENOENT:
             raise e
-    os.link(link_src, dest_path)
+    os.symlink(link_src, dest_path)
 
 def main():
     """A wrapper around the rest of the logic to make sure this script can be
