@@ -6,7 +6,7 @@ platform:
   - sl_5_x86_64
   - sl_6_x86_64
 
-repository:
+sources:
   - 3.1; osg
   - 3.1; osg-testing
   - 3.1; osg > osg-testing
@@ -17,6 +17,7 @@ repository:
   - 3.1; osg-testing > 3.2/osg-testing
   # 3.2; osg-upcoming
   # 3.2; osg-testing, osg-upcoming-testing
+  - trunk; 3.2; osg-testing
 
 packages:
   - [osg-tested-internal]

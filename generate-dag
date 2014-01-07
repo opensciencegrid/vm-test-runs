@@ -20,7 +20,7 @@ def write_file(contents, file_path):
     f.close()
 
 def generate_dag_fragment(serial, combo):
-    platform, repo, packages = combo
+    platform, sources, packages = combo
     node_name = 'TestRun' + serial
 
     priority = 0
@@ -28,7 +28,7 @@ def generate_dag_fragment(serial, combo):
         priority = 1
 
     contents = '\n'
-    contents += '# Node %s: %s - %s - %s\n' % (serial, platform, repo, ', '.join(packages))
+    contents += '# Node %s: %s - %s - %s\n' % (serial, platform, sources, ', '.join(packages))
     contents += 'JOB %s single-test-run.sub\n' % (node_name)
     contents += 'VARS %s serial="%s" platform="%s" jobpriority="%d"\n' % (node_name, serial, platform, priority)
     contents += 'SCRIPT POST %s process-job-output %s $JOBID\n' % (node_name, serial)
@@ -37,14 +37,20 @@ def generate_dag_fragment(serial, combo):
     return contents
 
 def write_osg_test_configuration(serial, combo, directory):
-    platform, repo, packages = combo
+    platform, sources, packages = combo
     contents = '[Config]\n'
     contents += 'adduser = True\n'
     contents += 'dumpout = True\n'
     contents += 'verbose = True\n'
     contents += 'timeout = 14400\n'  # 4 hours
     contents += 'hostcert = True\n'
-    release_series, repositories = re.split(r'\s*;\s*', repo)
+
+    sources_parts = re.split(r'\s*;\s*', sources)
+    if len(sources_parts) == 3:
+        contents += 'testsource = %s\n' % (sources_parts[0])
+        _, release_series, repositories = sources_parts
+    else:
+        release_series, repositories = sources_parts
     repo_parts = re.split(r'\s*>\s*', repositories)
     if repo_parts[0] != 'osg':
         contents += 'extrarepos = %s\n' % (repo_parts[0])
@@ -58,7 +64,7 @@ def write_osg_test_configuration(serial, combo, directory):
                 contents += 'updaterepo = %s\n' % (update_parts[1])
     contents += 'packages = %s\n' % (', '.join(packages))
     contents += 'series = %s\n' % (release_series)
-    contents += 'sources = %s\n' % (repo)
+    contents += 'sources = %s\n' % (sources)
 
     write_file(contents, os.path.join(directory, 'osg-test-%s.conf' % (serial)))
 
@@ -94,7 +100,7 @@ if __name__ == '__main__':
 
     # Run parameter sweep
     process = 0
-    for combo in itertools.product(run_params['platform'], run_params['repository'], run_params['packages']):
+    for combo in itertools.product(run_params['platform'], run_params['sources'], run_params['packages']):
         serial = '%03d' % (process)
         dag_contents += generate_dag_fragment(serial, combo)
         write_osg_test_configuration(serial, combo, test_run_directory)
