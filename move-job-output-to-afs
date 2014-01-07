@@ -11,6 +11,7 @@ import safe_cron_job
 import os
 import glob
 import shutil
+import datetime
 import sys
 from optparse import OptionParser
 
@@ -18,9 +19,10 @@ from optparse import OptionParser
 # Defaults
 DEFAULT_DEST_DIR = '/p/vdt/public/html/tests'
 DEFAULT_SOURCE_DIR = '/scratch/osg/vmu-test-results'
-DEFAULT_NOTIFY_ADDRS = ['matyas@cs.wisc.edu']
+DEFAULT_NOTIFY_ADDRS = ['matyas@cs.wisc.edu', 'blin@cs.wisc.edu']
 DEFAULT_TIMEOUT_MINS = 60
 DEFAULT_LOCKFILE_PATH = os.path.join(os.getenv('HOME'), '.move-job-output-to-afs.lock')
+DEFAULT_DATE_FORMAT = '%Y%m%d-%H%M'
 #
 ########################################################################
 
@@ -93,10 +95,42 @@ def move_runs(source_dir, dest_dir):
     print "%d dir(s) were copied successfully." % num_copied
     print "%d dir(s) could not be copied." % num_errors
 
+    create_latest_symlinks(dest_dir)
+    
     if num_errors:
         return 1
     return 0
 
+def create_latest_symlinks(dest_dir):
+    "Find the latest automated and manual test runs and create symlinks to their
+    results html files."
+    # all run directories under source_dir are named 20YYmmdd-HHMM
+    run_dirs = glob.glob(os.path.join(dest_dir, "20*-*"))
+    latest = datetime.datetime(1970, 01, 01, 0, 0)
+    latest_manual = datetime.datetime(1970, 01, 01, 0, 0)
+    for run_dir in run_dirs:
+        run_datetime = datetime.datetime.strptime(run_dir, DEFAULT_DATE_FORMAT)
+        if os.path.exists(os.path.join(run_dir, 'manual_run')) and run_datetime > latest_manual:
+            latest_manual = run_datetime
+            latest_manual_dir = run_dir
+        elif run_datetime > latest:
+            latest_dir = run_dir
+            latest = run_datetime
+
+    create_symlink(latest_dir, dest_dir, 'latest.html')
+    create_symlink(latest_manual_dir, dest_dir, 'latest_manual.html')
+
+def create_symlink(date_time, dest_dir, dest_file):
+    "Safely create symlink to results html"
+    link_src = os.path.join(dest_dir, date_time, 'results.html')
+    dest_path = os.path.join(dest_dir, dest_file)
+    
+    try:
+        os.unlink(dest_path)
+    except OSError, e:
+        if e.errno == 2:
+            pass
+    os.link(link_src, dest_path)
 
 def main():
     """A wrapper around the rest of the logic to make sure this script can be

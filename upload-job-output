@@ -43,6 +43,9 @@ stage_run_dir () {
 
     mkdir -p "$STAGED_RUN_DIR"
     cp packages.html results.html "$STAGED_RUN_DIR"
+    if [ -f manual_run ]; then
+        cp manual_run "$STAGED_RUN_DIR"
+    fi
     (
         local output_dir staged_output_dir
 

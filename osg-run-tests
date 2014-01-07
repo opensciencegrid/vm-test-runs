@@ -70,6 +70,7 @@ if [ "x$TEMP_DIR" != 'x' ]; then
 fi
 
 if [ $SKIP -eq 1 ]; then
+    touch $RUN_DIRECTORY/manual_run
     echo 'Run tests with:'
     echo "    cd $RUN_DIRECTORY"
     echo '    condor_submit_dag master-run.dag'
