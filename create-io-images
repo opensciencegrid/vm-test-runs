@@ -8,13 +8,59 @@ import sys
 import tempfile
 
 
-def create_image(config_filename):
+def run_command(command, shell=False):
+    # Preprocess command
+    if shell:
+        if not isinstance(command, str):
+            command = ' '.join(command)
+    elif not (isinstance(command, list) or isinstance(command, tuple)):
+        raise TypeError, 'Need list or tuple, got %s' % (repr(command))
+
+    # Run and return command
+    p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=shell)
+    (stdout, stderr) = p.communicate()
+    return (p.returncode, stdout, stderr)
+
+def make_osg_test_source_tarball():
+    source_tarball_name = 'osg-test-trunk.tar.bz2'
+
+    # Return immediately if the source tarball seems to exist already
+    if os.path.exists(source_tarball_name):
+        return
+
+    # Export osg-test from trunk@HEAD into a temporary directory
+    temp_directory = tempfile.mkdtemp()
+    export_directory = os.path.join(temp_directory, 'osg-test-trunk')
+    command = ('svn', 'export', 'https://vdt.cs.wisc.edu/svn/software/osg-test/trunk', export_directory)
+    (exit_status, stdout, stderr) = run_command(command)
+    if exit_status != 0:
+        print 'svn export failed with exit status %d' % exit_status
+        print stdout
+        print stderr
+        sys.exit(1)
+    svn_revision = re.search(r'^Exported revision (\d+)\.', stdout, re.MULTILINE).group(1)
+
+    # Write Subversion revision number into the export directory
+    revision_path = os.path.join(export_directory, 'svn-revision.txt')
+    f = open(revision_path, 'w')
+    f.write(svn_revision + '\n')
+    f.close()
+
+    # Make source tarball
+    command = ('tar', 'cjf', source_tarball_name, '--directory', temp_directory, 'osg-test-trunk')
+    (exit_status, stdout, stderr) = run_command(command)
+    if exit_status != 0:
+        print 'tar command failed with exit status %d' % exit_status
+        print stdout
+        print stderr
+        sys.exit(1)
+
+    # Clean up
+    shutil.rmtree(temp_directory)
+
+def create_image(config_filename, config_contents):
     serial_number = re.search(r'(\d+)', config_filename).group(1)
     image_filename = 'input-image-%s.qcow2' % (serial_number)
-
-    f = open(config_filename, 'r')
-    config_contents = f.read()
-    f.close()
 
     if contents_to_filename.has_key(config_contents):
         print 'Linking from "%s" -> "%s"' % (contents_to_filename[config_contents], image_filename)
@@ -56,6 +102,13 @@ if __name__ == '__main__':
 
     # Write files
     contents_to_filename = {}
-    for config_file in sorted(glob.glob('osg-test-*.conf')):
-        create_image(config_file)
-        os.remove(config_file)
+    for config_filename in sorted(glob.glob('osg-test-*.conf')):
+        f = open(config_filename, 'r')
+        config_contents = f.read()
+        f.close()
+
+        if 'testsource = trunk' in config_contents:
+            make_osg_test_source_tarball()
+
+        create_image(config_filename, config_contents)
+        os.remove(config_filename)
