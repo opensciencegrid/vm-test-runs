@@ -157,10 +157,10 @@ if final_osgtest_install is not None:
     if install_result != 'OK':
         write_failure_and_exit(data, 1, 'yum install of osg-test failed', final_osgtest_install)
 
-# Extract osg-test NEVRA (Name-Epoch:Version-Release.Arch)
-nevra_re = r'rpm --query osg-test\n(osg-test-[^-]+-[^.]+\.osg\d*\.el\d)'
-osg_test_nevra = re_extract(nevra_re, run_job_log, default='(unknown version)', group=1)
-data['osg_test_version'] = osg_test_nevra
+# Extract osg-test source string
+osg_test_source_re = r'^osg-test source: (.*)$'
+osg_test_source = re_extract(osg_test_source_re, run_job_log, re.MULTILINE, default='(unknown)', group=1)
+data['osg_test_version'] = osg_test_source
 
 # Read osg-test output
 osg_test_logfile_list = glob.glob(os.path.join(test_run_dir, 'output', 'osg-test-*.log'))
