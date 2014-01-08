@@ -143,20 +143,17 @@ for test_run_dir in test_run_dirs:
 
     # See if the final yum install of osg-test failed
     final_osgtest_install = extract_last(run_job_log, r'^.*install osg-test(?:.*\n)*?^==>.*$')
-    if final_osgtest_install is None:
-        report_death(job_serial, run_job_logfile, eth0_inet_address, host_ip, hostname,
-                     'Could not find a yum install of osg-test')
-        continue
-    install_result = re_extract(r'^==> (\w+)', final_osgtest_install, re.MULTILINE, group=1)
-    if install_result != 'OK':
-        report_death(job_serial, run_job_logfile, eth0_inet_address, host_ip, hostname,
-                     'yum install of osg-test failed', final_osgtest_install)
-        continue
+    if final_osgtest_install is not None:
+        install_result = re_extract(r'^==> (\w+)', final_osgtest_install, re.MULTILINE, group=1)
+        if install_result != 'OK':
+            report_death(job_serial, run_job_logfile, eth0_inet_address, host_ip, hostname,
+                         'yum install of osg-test failed', final_osgtest_install)
+            continue
 
-    # Extract osg-test NEVRA (Name-Epoch:Version-Release.Arch)
-    nevra_re = r'osg-test\.noarch\s+\d:([^-]+-[^.]+)\.osg\d*\.el\d'
-    osg_test_nevra = re_extract(nevra_re, run_job_log, default='(version unknown)', group=1)
-    osg_test_version = 'osg-test ' + osg_test_nevra
+    # Extract osg-test source string
+    osg_test_source_re = r'^osg-test source: (.*)$'
+    osg_test_source = re_extract(osg_test_source_re, run_job_log, re.MULTILINE, default='(unknown)', group=1)
+    osg_test_version = osg_test_source
 
     # Get and simplify OS release string
     os_long_string = re_extract(r'cat /etc/redhat-release\n(.*?)\n==> OK', run_job_log, group=1)
