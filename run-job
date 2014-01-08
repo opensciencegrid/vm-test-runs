@@ -173,6 +173,8 @@ cp -r \
     /var/log/bestman2 \
     /var/log/boot.log \
     /var/log/dmesg \
+    /var/log/globus \
+    /var/log/globus-gatekeeper.log \
     /var/log/gridftp-auth.log \
     /var/log/gridftp.log \
     /var/log/messages \
