@@ -77,13 +77,13 @@ def make_data_grid(runs, test_params, organization_scheme='repos'):
                 package_idx = idx
                 break
 
-        for idx, repo in enumerate(test_params['repository']):
+        for idx, repo in enumerate(test_params['sources']):
             if repo == run['param_sources']:
                 repo_idx = idx
                 break
 
         if organization_scheme == 'packages':
-            row = repo_idx + package_idx * len(test_params['repository'])
+            row = repo_idx + package_idx * len(test_params['sources'])
         else:
             row = package_idx + repo_idx  * len(test_params['packages'])
 
@@ -138,11 +138,11 @@ def populate_table_data(table, data, organization_scheme='repos'):
 
     if organization_scheme == 'packages':
         outer_org = test_params['packages']
-        inner_org = test_params['repository']
+        inner_org = test_params['sources']
         outer_translation = pkg_translation
         inner_translation = repo_translation
     else:
-        outer_org = test_params['repository']
+        outer_org = test_params['sources']
         inner_org = test_params['packages']
         outer_translation = repo_translation
         inner_translation = pkg_translation
