@@ -8,10 +8,13 @@ import socket
 import sys
 
 RECIPIENTS = (
-    'Tim Cartwright <cat@cs.wisc.edu>',
-    'Mat Selmeci <matyas@cs.wisc.edu>',
-    'Carl Edquist <edquist@cs.wisc.edu>',
     'Brian Lin <blin@cs.wisc.edu>',
+    'Carl Edquist <edquist@cs.wisc.edu>',
+    'Edgar Fajardo <edgar.mauricio.fajardo.hernandez@cern.ch>',
+    'Mat Selmeci <matyas@cs.wisc.edu>',
+    'Suchandra Thapa <sthapa@ci.uchicago.edu>',
+    'Tim Cartwright <cat@cs.wisc.edu>',
+    'Tim Theisen <tim@cs.wisc.edu>'
     )
 
 ANALYSIS_FILENAME = 'analyze-test-run.out'
