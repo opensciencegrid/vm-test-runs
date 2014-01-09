@@ -7,12 +7,10 @@ import re
 import socket
 import sys
 import time
+import textwrap
 
+import yaml
 
-# Stupid globals, because I am lazy
-total_jobs = 0
-jobs_died = 0
-deaths_by_host = {}
 
 def start_error():
     sys.stdout.write('\x1b[1;31m')
@@ -23,225 +21,133 @@ def start_warn():
 def end_color():
     sys.stdout.write('\x1b[0m')
 
-def test_run_dir_key(a):
-    return '%s.%04s' % re.search(r'-(\d+)\.(\d+)$', a).group(1, 2)
-
-def read_file(path):
-    data_file = open(path, 'r')
-    data = data_file.read()
-    data_file.close()
-    return data
-
-def re_extract(regexp, data, flags=0, default=None, group=None):
-    m = re.search(regexp, data, flags)
-    if m is None:
-        return default
-    elif group is None:
-        return m.groups()
-    else:
-        return m.group(group)
-
-def cache_job_mappings(main_log):
-    # Associate serial numbers with job IDs
-    serial_to_job_id = {}
-    for m in re.finditer(r'^000 \((\d{3,}\.\d{3,})\.\d+\) .*\n\s+DAG Node: TestRun(\d+)', main_log, re.MULTILINE):
-        serial_to_job_id[m.group(2)] = m.group(1)
-
-    # Associate job IDs with execute host IPs
-    job_id_to_host_ip = {}
-    for m in re.finditer(r'^001 \((\d{3,}\.\d{3,})\.\d+\) .* Job executing on host: <([^:]+):', main_log, re.MULTILINE):
-        job_id_to_host_ip[m.group(1)] = m.group(2)
-
-    return serial_to_job_id, job_id_to_host_ip
-
-def extract_eth0_inet_address(run_job_log):
-    eth0_block = re_extract(r'^\d:\s*eth0:(.*?)(?:^\d)', run_job_log, re.MULTILINE | re.DOTALL, group=1)
-    if eth0_block is None:
-        return None
-    return re_extract(r'^\s+inet\s+(.*?)\/', eth0_block, re.MULTILINE, group=1)
-
-def extract_yum_repositories(osg_test_log):
-    extra_repo = re_extract(r'^\s+-\s+Extra repos: +(\S+)$', osg_test_log, re.MULTILINE, group=1)
-    if extra_repo is None:
-        return 'osg repo'
-    else:
-        return '%s and osg repos' % (extra_repo)
-
-def extract_last(run_job_log, regexp):
-    all_installs = re.findall(regexp, run_job_log, re.MULTILINE)
-    if len(all_installs) == 0:
-        return None
-    return all_installs[-1]
-
 def indent_block(block, indent=4):
     output = ''
     for line in block.rstrip('\n').split('\n'):
         output += (' ' * indent) + line + '\n'
     return output
 
-def report_death(serial, logfile, eth0, host_ip, hostname, message, extra=None):
-    report = 'TEST JOB %s (%s)\n' % (serial, logfile)
-    if eth0 is not None:
-        report += 'Guest IP address: %s\n' % (eth0)
-    report += 'DIED: %s (%s = %s)\n' % (message, host_ip, hostname)
-    if extra is not None:
-        report += indent_block(extra)
+def process_run(run):
+    status = 0
+    if run['run_status'] != 0:
+        if ('osg_test_logfile' not in run) or (run['osg_test_logfile'] is None):
+            logfile_text = 'osg-test did not run'
+        else:
+            logfile_text = run['osg_test_logfile']
+        report = 'TEST JOB %s (%s)\n' % (run['job_serial'], logfile_text)
+        if ('guest_address' in run) and (run['guest_address'] is not None):
+            report += 'Guest IP address: %s\n' % (run['guest_address'])
+        report += 'Cause of death: %s\n' % (run['run_summary'])
+        if ('run_details' in run) and (run['run_details'] is not None):
+            report += indent_block(run['run_details'])
+        host = 'Execute host %s (%s)' % (run['host_name'], run['host_address'])
+        if host in deaths_by_host:
+            deaths_by_host[host].append(report)
+        else:
+            deaths_by_host[host] = [report]
+        status = 1
+    elif (run['tests_bad_skip'] + run['tests_failed'] + run['tests_error']) > 0:
+        status = 2
+    return status
 
-    if hostname in deaths_by_host:
-        deaths_by_host[hostname].append(report)
-    else:
-        deaths_by_host[hostname] = [report]
+def canonical_os_string(os_release):
+    result = os_release.replace('Red Hat Enterprise Linux Server', 'RHEL')
+    result = result.replace('Scientific Linux', 'SL')
+    return result
 
-    global jobs_died
-    jobs_died += 1
+def canonical_pkg_string(package):
+    mapping = {
+        'condor.x86_64, osg-ce-condor, rsv': 'Condor',
+        'osg-gridftp, edg-mkgridmap, rsv': 'GridFTP',
+        'osg-gums, rsv': 'GUMS',
+        'osg-se-bestman, rsv': 'BeStMan',
+        'osg-tested-internal': 'All',
+        'osg-voms, rsv': 'VOMS'
+        }
+    return mapping[package]
 
-    start_error()
-    print report
-    end_color()
+def canonical_src_string(sources):
+    mapping = {
+        '3.1; osg': '3.1 Release',
+        '3.1; osg > 3.2/osg': '3.1 Release -> 3.2 Release',
+        '3.1; osg > osg-testing': '3.1 Release -> 3.1 Testing',
+        '3.1; osg-testing': '3.1 Testing',
+        '3.1; osg-testing > 3.2/osg-testing': '3.1 Testing -> 3.2 Testing',
+        '3.2; osg': '3.2 Release',
+        '3.2; osg > osg-testing': '3.2 Release -> 3.2 Testing',
+        '3.2; osg-testing': '3.2 Testing',
+        'trunk; 3.2; osg-testing': '3.2 Testing (TRUNK)'
+        }
+    return mapping[sources]
 
-def analyze_network():
-    pass
+def tally_run_results(container, key, status):
+    if key not in container:
+        container[key] = [0, 0, 0]
+    container[key][status] += 1
+
+def print_tallied_results(container, key_label):
+    key_column_width = max(12, len(key_label))
+    for key in container.keys():
+        if len(key) > key_column_width:
+            key_column_width = len(key)
+
+    print '%-*s    OK    DIED   FAIL' % (key_column_width, key_label.upper())
+    print '%s   ----   ----   ----' % ('-' * key_column_width)
+    for key in sorted(container.keys()):
+        print '%-*s   %4d   %4d   %4d' % (key_column_width, key, container[key][0], container[key][1], container[key][2])
+    print
 
 # ------------------------------------------------------------------------------
 
-# [TODO] add checking of argv
+# Process command-line arguments
+script_name = os.path.basename(sys.argv[0])
+if len(sys.argv) != 2:
+    print 'usage: %s RUN-DIRECTORY' % (script_name)
+    sys.exit(1)
 run_directory = sys.argv[1]
+if not os.path.exists(run_directory):
+    print '%s: run directory "%s" does not exist' % (script_name, run_directory)
+    sys.exit(1)
 
-# Parse job log
-main_log = read_file(os.path.join(run_directory, 'osg-test-cat.log'))
-serial_to_job_id, job_id_to_host_ip = cache_job_mappings(main_log)
+# Load test run data from combined YAML file
+combined_yaml_path = os.path.join(run_directory, 'combined-analysis.yaml')
+yaml_file = open(combined_yaml_path)
+yaml_contents = yaml_file.read()
+yaml_file.close()
+runs = yaml.load(yaml_contents)
 
-summary_re = re.compile(r'(Ran \d+ tests in .*)\s+((?:OK|FAILED)\s*\([^)]+\))')
-
-test_run_dirs = sorted(glob.glob(os.path.join(run_directory, 'output-[0-9][0-9][0-9]')))
-for test_run_dir in test_run_dirs:
+# Report on one run at a time
+total_jobs = 0
+jobs_died = 0
+deaths_by_host = {}
+results_by_os = {}
+results_by_pkg = {}
+results_by_src = {}
+for run in runs:
+    status = process_run(run)
     total_jobs += 1
-    job_serial = re_extract(r'-(\d+)$', test_run_dir, group=1)
+    if status == 1:
+        jobs_died += 1
+    tally_run_results(results_by_os, canonical_os_string(run['os_release']), status)
+    tally_run_results(results_by_pkg, canonical_pkg_string(run['param_packages']), status)
+    tally_run_results(results_by_src, canonical_src_string(run['param_sources']), status)
 
-    # Read run-job.log and look for whole-run failures
-    run_job_logfile = os.path.join(test_run_dir, 'run-job.log')
-    run_job_log = read_file(run_job_logfile)
-    eth0_inet_address = extract_eth0_inet_address(run_job_log)
-    host_ip = job_id_to_host_ip[serial_to_job_id[job_serial]]
-    hostname = socket.gethostbyaddr(host_ip)[0]
-    if eth0_inet_address is None:
-        report_death(job_serial, run_job_logfile, eth0_inet_address, host_ip, hostname,
-                     'No apparent eth0 IP address')
-        continue
-
-    # See if the final rpm install of epel-release failed
-    final_epel_install = extract_last(run_job_log, r'^.*rpm --upgrade.*epel-release(?:.*\n)*?^==>.*$')
-    if final_epel_install is None:
-        report_death(job_serial, run_job_logfile, eth0_inet_address, host_ip, hostname,
-                     'Could not find an rpm install of epel-release')
-        continue
-    install_result = re_extract(r'^==> (\w+)', final_epel_install, re.MULTILINE, group=1)
-    if install_result != 'OK':
-        report_death(job_serial, run_job_logfile, eth0_inet_address, host_ip, hostname,
-                     'rpm install of epel-release failed', final_epel_install)
-        continue
-
-    # See if the final yum install of osg-test failed
-    final_osgtest_install = extract_last(run_job_log, r'^.*install osg-test(?:.*\n)*?^==>.*$')
-    if final_osgtest_install is not None:
-        install_result = re_extract(r'^==> (\w+)', final_osgtest_install, re.MULTILINE, group=1)
-        if install_result != 'OK':
-            report_death(job_serial, run_job_logfile, eth0_inet_address, host_ip, hostname,
-                         'yum install of osg-test failed', final_osgtest_install)
-            continue
-
-    # Extract osg-test source string
-    osg_test_source_re = r'^osg-test source: (.*)$'
-    osg_test_source = re_extract(osg_test_source_re, run_job_log, re.MULTILINE, default='(unknown)', group=1)
-    osg_test_version = osg_test_source
-
-    # Get and simplify OS release string
-    os_long_string = re_extract(r'cat /etc/redhat-release\n(.*?)\n==> OK', run_job_log, group=1)
-    os_string = re.sub(r'release\s+', '', os_long_string)
-    os_string = re.sub(r'\s*\(.*\)$', '', os_string)
-
-    # Read osg-test output
-    osg_test_logfile_list = glob.glob(os.path.join(test_run_dir, 'output', 'osg-test-*.log'))
-    if len(osg_test_logfile_list) == 0:
-        start_error()
-        print 'TEST JOB %s (%s)' % (job_serial, run_job_logfile)
-        print 'DIED: (%s = %s) No osg-test-DATE.log file produced' % (host_ip, hostname)
-        print
-        end_color()
-        continue
-
-    osg_test_logfile = osg_test_logfile_list[0]
-    print 'TEST JOB %s (%s)' % (job_serial, osg_test_logfile)
-    osg_test_log = read_file(osg_test_logfile)
-
-    # Extract yum repositories
-    yum_repo = extract_yum_repositories(osg_test_log)
-
-    # Extract package list
-    installed_string = re_extract(r'^\s+-\s+Install:\s+(.*)$', osg_test_log, re.MULTILINE, group=1)
-    installed_list = re.split(r'\s*,\s*', installed_string)
-    if len(installed_list) == 2:
-        installed_string = ' and '.join(installed_list)
-    elif len(installed_list) > 2:
-        installed_string = ', '.join(installed_list[0:-1]) + ', and ' + installed_list[-1]
-
-    # Extract summary statistics
-    summary_lines = re_extract(summary_re, osg_test_log)
-    tests_total = tests_failed = tests_error = tests_bad_skip = tests_ok_skip = 0
-    if summary_lines is None:
-        run_time = 0.0
-        overall = 'KILLED'
-    else:
-        tests_total, run_time = re_extract(r'Ran (\d+) tests in ([\d.]+)s', summary_lines[0])
-        tests_total = int(tests_total)
-        run_time = float(run_time)
-        summary = summary_lines[1]
-        overall, details = re_extract(r'(OK|FAILED)\s*\(([^)]+)\)', summary_lines[1])
-        if overall == 'OK':
-            overall = 'PASSED'
-        for detailed_count in re.split(r'\s*,\s*', details):
-            label, value = detailed_count.split('=')
-            if label == 'failures': tests_failed = int(value)
-            elif label == 'errors': tests_error = int(value)
-            elif label == 'badSkips': tests_bad_skip = int(value)
-            elif label == 'okSkips': tests_ok_skip = int(value)
-            else: raise ValueError()
-    tests_ok = tests_total - (tests_failed + tests_error + tests_bad_skip + tests_ok_skip)
-
-    # Extract start time
-    start_time = re_extract(r'^Start time: (.*)$', osg_test_log, re.MULTILINE, group=1)
-
-    # Extract problems
-    problems = []
-    for m in re.finditer(r'^(ERROR|FAIL): (\w+) \(osgtest\.tests\.(\w+)\.(\w+)\)', osg_test_log, re.MULTILINE):
-        status, function, module, module_name = m.groups()
-        problems.append((module, function, module_name, status, '-'))
-    m = re.search(r'^=+\nBAD SKIPS:\n-+\n(.*?)\n\n', osg_test_log, re.MULTILINE | re.DOTALL)
-    if m is not None:
-        for n in re.finditer(r'^(\w+) \(osgtest\.tests\.(\w+)\.(\w+)\) (.*)$', m.group(1), re.MULTILINE):
-            function, module, module_name, comment = n.groups()
-            problems.append((module, function, module_name, 'SKIP', comment))
-
-    # Print stuff
-    if overall != 'PASSED':
-        start_warn()
-    print 'Ran %s on %s from the %s' % (osg_test_version, installed_string, yum_repo)
-    print 'Ran on %s starting at %s and ran for %.1f seconds' % (os_string, start_time, run_time)
-    print '%s: %d tests: %d ok, %d skip; %d fail, %d error, %d skip' % \
-          (overall, tests_total, tests_ok, tests_ok_skip, tests_failed, tests_error, tests_bad_skip)
-    for problem in sorted(problems, key=itemgetter(0, 1)):
-        print '  - %-5s %s (%s) - %s (%s)' % (problem[3], problem[0], problem[2], problem[1], problem[4])
-        
-    print
-    end_color()
-
+print_tallied_results(results_by_os, 'OS Release')
+print_tallied_results(results_by_pkg, 'Installed')
+print_tallied_results(results_by_src, 'Source(s)')
 
 # Print machines that died
 if len(deaths_by_host) > 0:
-    print >> sys.stderr, 'We are running VM universe test runs starting at 0:05 every day now.  The'
-    print >> sys.stderr, 'following jobs failed today, for the reasons shown below.  The jobs are'
-    print >> sys.stderr, 'grouped by hypervisor host.'
+    print >> sys.stderr, '-' * 75
     print >> sys.stderr
+    print >> sys.stderr, 'To: CHTC Infrastructure <htcondor-inf@cs.wisc.edu>'
+    print >> sys.stderr, 'Subject: VM universe failures for OSG tests on %s' % (time.strftime('%Y-%m-%d'))
+    print >> sys.stderr
+
+    paragraph = 'The OSG Software team runs automated tests in VM universe every morning.  The following jobs failed today, for the reasons shown below.  The jobs are grouped by hypervisor host.'
+    print >> sys.stderr, textwrap.fill(paragraph, 75)
+    print >> sys.stderr
+
     print >> sys.stderr, 'Run date: %s' % (time.strftime('%d %B %Y (%A)'))
     print >> sys.stderr, 'Failures: %d out of %d (%.0f%%)' % (jobs_died, total_jobs, 100.0 * jobs_died / total_jobs)
     print >> sys.stderr
