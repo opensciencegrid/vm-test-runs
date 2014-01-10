@@ -58,6 +58,36 @@ def concat_packages(packages):
 
     return packages
     
+def read_source_params(test_params):
+    """
+    Generate source_translation from sources attribute of test_params. Sources can take the following forms:
+    '3.1; osg' # 3.1 Release
+    '3.2; osg > osg-testing' # 3.2 Release ->  3.2 Testing
+    '3.1; osg > 3.2/osg' # 3.1 Release -> 3.2 Release
+    'trunk; 3.2; osg-testing' # 3.2 Testing (TRUNK)
+    """
+    repo_translation = {'osg':'Release', 'osg-testing':'Testing'}
+    source_translation = {}
+    re_sources = re.compile('(trunk)?[; ]*(\d.\d)[; ]*([\w-]*)[> ]*(\d.\d)?\/?([\w-]+)?')
+    for source in test_params['sources']:
+        match = re_sources.match(source)
+        translation = match.group(2) + ' ' + repo_translation[match.group(3)] # always safe
+        try:
+            translation = translation + ' -> ' + match.group(4) + ' ' + repo_translation[match.group(5)]
+        except TypeError:
+            # Not upgrading osg-release
+            try:
+                print(match.group(5))
+                translation = translation + ' ->  ' + match.group(2) + ' ' + repo_translation[match.group(5)]
+            except (TypeError, KeyError):
+                pass # Not an upgrade test
+        try:
+            translation = translation + ' (' + match.group(1).upper() + ')'
+        except (TypeError, AttributeError):
+            pass # Not a trunk test
+        source_translation[source] = translation
+
+    return source_translation
 
 def make_data_grid(runs, test_params, organization_scheme='repos'):
     num_rows = range(0,len(runs)/len(test_params['platform'])) 
@@ -119,17 +149,8 @@ def create_table_headers(table, organization_scheme='repos'):
 
     return table
 
-def populate_table_data(table, data, organization_scheme='repos'):
-    repo_translation = {'3.1; osg':'3.1 Release',
-                        '3.1; osg-testing':'3.1 Testing',
-                        '3.1; osg > osg-testing':'3.1 Release -> 3.1 Testing',
-                        '3.2; osg':'3.2 Release',
-                        '3.2; osg-testing':'3.2 Testing',
-                        '3.2; osg > osg-testing':'3.2 Release -> 3.2 Testing',
-                        '3.1; osg > 3.2/osg':'3.1 Release -> 3.2 Release',
-                        '3.1; osg-testing > 3.2/osg-testing':'3.1 Testing -> 3.2 Testing',
-                        'trunk; 3.2; osg-testing': '3.2 Testing (TRUNK)'}
-    
+def populate_table_data(table, data, test_params, organization_scheme='repos'):
+    source_translation = read_source_params(test_params)
     pkg_translation = {'osg-tested-internal':'Everything',
                        'condor.x86_64, osg-ce-condor, rsv':'Condor',
                        'osg-gridftp, edg-mkgridmap, rsv':'GridFTP',
@@ -141,11 +162,11 @@ def populate_table_data(table, data, organization_scheme='repos'):
         outer_org = test_params['packages']
         inner_org = test_params['sources']
         outer_translation = pkg_translation
-        inner_translation = repo_translation
+        inner_translation = source_translation
     else:
         outer_org = test_params['sources']
         inner_org = test_params['packages']
-        outer_translation = repo_translation
+        outer_translation = source_translation
         inner_translation = pkg_translation
 
     tbody = table.append_new_tag('tbody')
@@ -207,8 +228,7 @@ def print_html_to_file(html, filename):
     f = open(filename, 'w')
     f.write(str(html))
     f.close()
-    
-    
+
 if __name__ == "__main__":
     # setup html objects
     html_repo, table_repo = create_html_and_table()
@@ -231,12 +251,14 @@ if __name__ == "__main__":
     # Create and print repo organized html
     repo_organized_runs = make_data_grid(runs, test_params)
     populate_table_data(create_table_headers(table_repo),
-                        repo_organized_runs)
+                        repo_organized_runs,
+                        test_params)
     print_html_to_file(html_repo, repo_filename)
     
     # Create and print pkg organized html
     pkg_organized_runs = make_data_grid(runs, test_params, organization_scheme='packages')
     populate_table_data(create_table_headers(table_pkg, organization_scheme='packages'),
                         pkg_organized_runs,
+                        test_params,
                         organization_scheme='packages')
     print_html_to_file(html_pkg, pkg_filename)
