@@ -53,6 +53,7 @@ def process_run(run):
 def canonical_os_string(os_release):
     result = os_release.replace('Red Hat Enterprise Linux Server', 'RHEL')
     result = result.replace('Scientific Linux', 'SL')
+    result = re.sub(r'(\d)\.\d+', '\\1', result)
     return result
 
 def canonical_pkg_string(package):
@@ -67,18 +68,14 @@ def canonical_pkg_string(package):
     return mapping[package]
 
 def canonical_src_string(sources):
-    mapping = {
-        '3.1; osg': '3.1 Release',
-        '3.1; osg > 3.2/osg': '3.1 Release -> 3.2 Release',
-        '3.1; osg > osg-testing': '3.1 Release -> 3.1 Testing',
-        '3.1; osg-testing': '3.1 Testing',
-        '3.1; osg-testing > 3.2/osg-testing': '3.1 Testing -> 3.2 Testing',
-        '3.2; osg': '3.2 Release',
-        '3.2; osg > osg-testing': '3.2 Release -> 3.2 Testing',
-        '3.2; osg-testing': '3.2 Testing',
-        'trunk; 3.2; osg-testing': '3.2 Testing (TRUNK)'
-        }
-    return mapping[sources]
+    result = re.sub(r'\s*>\s*', ' -> ', sources)
+    result = re.sub(r'osg-testing', 'Testing', result)
+    result = re.sub(r'osg', 'Release', result) # Must come after osg-testing
+    result = re.sub(r';', '', result)
+    result = re.sub(r'/', ' ', result)
+    result = re.sub(r'^(\d+\.\d+)(.*-> )(?!\d)', '\\1\\2\\1 ', result) # Duplicate release series, when needed
+    result = re.sub(r'^trunk\s*(.*)$', '\\1 (TRUNK)', result)
+    return result
 
 def tally_run_results(container, key, status):
     if key not in container:
