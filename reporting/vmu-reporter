@@ -2,9 +2,7 @@
 
 import re
 import os
-import sys
 import string
-import time
 import itertools
 import yaml
 import taglib
@@ -12,7 +10,7 @@ from taglib import Tag, SubTag
 
 
 CSS_URI =  "http://vdt.cs.wisc.edu/tests/vmu.css"
-m = re.search('run-((\d*)-\d*)', os.getcwd())
+m = re.search(r'run-((\d*)-\d*)', os.getcwd())
 date = m.group(2)
 timestamp = m.group(1)
 url_base = "http://vdt.cs.wisc.edu/tests/" + timestamp + "/"
@@ -68,7 +66,7 @@ def read_source_params(test_params):
     """
     repo_translation = {'osg':'Release', 'osg-testing':'Testing'}
     source_translation = {}
-    re_sources = re.compile('(trunk)?[; ]*(\d.\d)[; ]*([\w-]*)[> ]*(\d.\d)?\/?([\w-]+)?')
+    re_sources = re.compile(r'(trunk)?[; ]*(\d.\d)[; ]*([\w-]*)[> ]*(\d.\d)?\/?([\w-]+)?')
     for source in test_params['sources']:
         match = re_sources.match(source)
         translation = match.group(2) + ' ' + repo_translation[match.group(3)] # always safe
@@ -77,7 +75,6 @@ def read_source_params(test_params):
         except TypeError:
             # Not upgrading osg-release
             try:
-                print(match.group(5))
                 translation = translation + ' ->  ' + match.group(2) + ' ' + repo_translation[match.group(5)]
             except (TypeError, KeyError):
                 pass # Not an upgrade test
@@ -90,12 +87,12 @@ def read_source_params(test_params):
     return source_translation
 
 def make_data_grid(runs, test_params, organization_scheme='repos'):
-    num_rows = range(0,len(runs)/len(test_params['platform'])) 
+    num_rows = range(0, len(runs)/len(test_params['platform'])) 
     organized_runs = [[None] * len(test_params['platform']) for i in num_rows] # Create a 2D array to hold the runs
     for run in runs:
         # Find column value in the grid
         for idx, platform in enumerate(test_params['platform']):
-            dver_regex = '[^\d]' + str(os_translation[platform]['dver']) + '\.'
+            dver_regex = r'[^\d]' + str(os_translation[platform]['dver']) + r'\.'
             if (re.match(os_translation[platform]['short'], run['os_release']) and
                 re.search(dver_regex, run['os_release'])):
                 column = idx
@@ -142,7 +139,7 @@ def create_table_headers(table, organization_scheme='repos'):
 
     row_1.append_new_tag("th", colspan=num_el5).append("EL5")
     row_1.append_new_tag("th", colspan=num_el6).append("EL6")
-
+p
     row_2 = header.append_new_tag("tr")
     for platform in test_params['platform']:
         row_2.append_new_tag("th").append(os_translation[platform]['short'])
@@ -211,13 +208,26 @@ def get_cell_contents(run):
             'Start Time: ' + str(run['start_time']) + '&#013;' + \
             'Run Time: ' + str(run['run_time'])
         
-        if fail == 0:
+        if run['osg_test_status'] == 'timeout':
+            mouseover_text = mouseover_text + '&#013;Timeout Test: ' + run['timeout_test']
+            link = Tag('a', class_='data', href=link_location).append('TIMEOUT')
+            return Tag('td', class_='result timeout', align='center', title=mouseover_text).append(link)
+        elif run['osg_test_status'] == 'install':
+            link = Tag('a', class_='data', href=link_location).append('INSTALL')
+            return Tag('td', class_='result install', align='center', title=mouseover_text).append(link)
+        elif run['osg_test_status'] == 'success':
             return Tag('td', class_='result pass', align='center', title=mouseover_text).append(link)
         else:
-            mouseover_text = mouseover_text + '&#013;Failures:&#013;' 
+            mouseover_text = mouseover_text + '&#013;Failures:&#013;'
             for msg in run['tests_messages']:
                 mouseover_text = mouseover_text + msg + '&#013;' 
-            return Tag('td', class_='result fail', align='center', title=mouseover_text).append(link)
+            if run['osg_test_status'] == 'cleanup':
+                return Tag('td', class_='result cleanup', align='center', title=mouseover_text).append(link)
+            elif run['osg_test_status'] == 'fail':
+                return Tag('td', class_='result fail', align='center', title=mouseover_text).append(link)
+            else:
+                # unknown osg test status
+                return Tag('td', class_='result', align='center', title=mouseover_text).append(link)
     else:
         mouseover_text = mouseover_text + 'Run Summary: ' + run['run_summary']
         link_location = run_dir + '/run-job.log'

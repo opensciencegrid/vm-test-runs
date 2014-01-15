@@ -1,14 +1,12 @@
 #!/usr/bin/python
 
 import glob
-from operator import itemgetter
 import os
 import re
 import socket
 import subprocess
 import sys
-import time
-
+import datetime
 
 def run_command(command, shell=False):
     # Preprocess command
@@ -90,6 +88,17 @@ def write_failure_and_exit(data, status, message, extra=None):
     write_yaml(data)
     sys.exit(0)
 
+def set_osg_test_status(module, data):
+    """
+    module - string indicating failed/errored/skipped test module
+    data - dictionary that eventually gets printed as yaml
+    """
+    if module == 'special_install':
+        data['osg_test_status'] = 'install'
+    if module == 'special_cleanup':
+        data['osg_test_status'] = 'cleanup'
+    
+
 # ======================================================================================================================
 
 # Process command-line arguments
@@ -169,6 +178,7 @@ if len(osg_test_logfile_list) == 0:
 osg_test_logfile = osg_test_logfile_list[0]
 osg_test_log = read_file(osg_test_logfile)
 data['run_status'] = 0
+data['osg_test_status'] = 'success'
 data['osg_test_logfile'] = osg_test_logfile
 
 # Extract package list
@@ -178,6 +188,43 @@ if len(installed_list) == 2:
     installed_string = ' and '.join(installed_list)
 elif len(installed_list) > 2:
     installed_string = ', '.join(installed_list[0:-1]) + ', and ' + installed_list[-1]
+
+# Extract problems
+problems = []
+for m in re.finditer(r'^(ERROR|FAIL): (\w+) \(osgtest\.tests\.(\w+)\.(\w+)\)', osg_test_log, re.MULTILINE):
+    status, function, module, module_name = m.groups()
+    problems.append('|'.join((module, function, module_name, status, '-')))
+    set_osg_test_status(module, data)
+m = re.search(r'^=+\nBAD SKIPS:\n-+\n(.*?)\n\n', osg_test_log, re.MULTILINE | re.DOTALL)
+if m is not None:
+    for n in re.finditer(r'^(\w+) \(osgtest\.tests\.(\w+)\.(\w+)\) (.*)$', m.group(1), re.MULTILINE):
+        function, module, module_name, comment = n.groups()
+        problems.append('|'.join((module, function, module_name, 'SKIP', comment)))
+        set_osg_test_status(module,data)
+data['tests_messages'] = problems
+if problems:
+    data['osg_test_status'] = 'fail'
+
+
+# Extract start time
+data['start_time'] = re_extract(r'^Start time: (.*)$', osg_test_log, re.MULTILINE, group=1)
+
+# Determine if the run timed out
+timeout_re = re.compile('message: (.*): Caught alarm:')
+timeout_match = timeout_re.search(osg_test_log, re.MULTILINE)
+if timeout_match:
+    data['osg_test_status'] = 'timeout'
+
+    end_time = datetime.datetime.strptime(timeout_match.group(1), '%Y-%m-%d %H:%M:%S')
+    start_time = datetime.datetime.strptime(data['start_time'], '%Y-%m-%d %H:%M:%S')
+    data['run_time'] = end_time - start_time
+
+    timeout_exception_re = re.compile(r'.*: Caught alarm:', re.DOTALL)
+    timeout_exception = timeout_exception_re.sub('', osg_test_log)
+    last_test_re = re.compile(r'File .*osgtest\/tests\/(.*)\".*in (.*)')
+    last_test = last_test_re.search(timeout_exception)
+    failed_module, failed_test = last_test.groups()
+    data['timeout_test'] = failed_test + ' (' + failed_module + ')'
 
 # Extract summary statistics
 summary_re = re.compile(r'(Ran \d+ tests in .*)\s+((?:OK|FAILED)\s*\([^)]+\))')
@@ -200,20 +247,5 @@ else:
         else: raise ValueError()
 data['tests_ok'] = data['tests_total'] - \
   (data['tests_failed'] + data['tests_error'] + data['tests_bad_skip'] + data['tests_ok_skip'])
-
-# Extract start time
-data['start_time'] = re_extract(r'^Start time: (.*)$', osg_test_log, re.MULTILINE, group=1)
-
-# Extract problems
-problems = []
-for m in re.finditer(r'^(ERROR|FAIL): (\w+) \(osgtest\.tests\.(\w+)\.(\w+)\)', osg_test_log, re.MULTILINE):
-    status, function, module, module_name = m.groups()
-    problems.append('|'.join((module, function, module_name, status, '-')))
-m = re.search(r'^=+\nBAD SKIPS:\n-+\n(.*?)\n\n', osg_test_log, re.MULTILINE | re.DOTALL)
-if m is not None:
-    for n in re.finditer(r'^(\w+) \(osgtest\.tests\.(\w+)\.(\w+)\) (.*)$', m.group(1), re.MULTILINE):
-        function, module, module_name, comment = n.groups()
-        problems.append('|'.join((module, function, module_name, 'SKIP', comment)))
-data['tests_messages'] = problems
 
 write_yaml(data)
