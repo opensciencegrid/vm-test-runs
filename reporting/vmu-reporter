@@ -30,7 +30,7 @@ def create_html_and_table():
     html = taglib.Html(page_title='OSG VMU Automated Test Results', css_link=CSS_URI)
     html.body.append_new_tag('h1').append('OSG VMU Automated Test Results')
     html.body.append_new_tag('h2').append(timestamp)
-    table = html.body.append_new_tag('table', class_ = 'padded')
+    table = html.body.append_new_tag('table')
 
     return html, table
 
@@ -68,22 +68,14 @@ def read_source_params(test_params):
     source_translation = {}
     re_sources = re.compile(r'(trunk)?[; ]*(\d.\d)[; ]*([\w-]*)[> ]*(\d.\d)?\/?([\w-]+)?')
     for source in test_params['sources']:
-        match = re_sources.match(source)
-        translation = match.group(2) + ' ' + repo_translation[match.group(3)] # always safe
-        try:
-            translation = translation + ' -> ' + match.group(4) + ' ' + repo_translation[match.group(5)]
-        except TypeError:
-            # Not upgrading osg-release
-            try:
-                translation = translation + ' ->  ' + match.group(2) + ' ' + repo_translation[match.group(5)]
-            except (TypeError, KeyError):
-                pass # Not an upgrade test
-        try:
-            translation = translation + ' (' + match.group(1).upper() + ')'
-        except (TypeError, AttributeError):
-            pass # Not a trunk test
-        source_translation[source] = translation
-
+        result = re.sub(r'\s*>\s*', ' -> ', sources)
+        result = re.sub(r'osg-testing', 'Testing', result)
+        result = re.sub(r'osg', 'Release', result) # Must come after osg-testing
+        result = re.sub(r';', '', result)
+        result = re.sub(r'/', ' ', result)
+        result = re.sub(r'^(\d+\.\d+)(.*-> )(?!\d)', '\\1\\2\\1 ', result) # Duplicate release series, when needed
+        result = re.sub(r'^trunk\s*(.*)$', '\\1 (TRUNK)', result)
+        source_translation[source] = result
     return source_translation
 
 def make_data_grid(runs, test_params, organization_scheme='repos'):
@@ -139,7 +131,7 @@ def create_table_headers(table, organization_scheme='repos'):
 
     row_1.append_new_tag("th", colspan=num_el5).append("EL5")
     row_1.append_new_tag("th", colspan=num_el6).append("EL6")
-p
+
     row_2 = header.append_new_tag("tr")
     for platform in test_params['platform']:
         row_2.append_new_tag("th").append(os_translation[platform]['short'])
