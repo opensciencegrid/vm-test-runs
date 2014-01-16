@@ -68,7 +68,7 @@ def read_source_params(test_params):
     source_translation = {}
     re_sources = re.compile(r'(trunk)?[; ]*(\d.\d)[; ]*([\w-]*)[> ]*(\d.\d)?\/?([\w-]+)?')
     for source in test_params['sources']:
-        result = re.sub(r'\s*>\s*', ' -> ', sources)
+        result = re.sub(r'\s*>\s*', ' -> ', source)
         result = re.sub(r'osg-testing', 'Testing', result)
         result = re.sub(r'osg', 'Release', result) # Must come after osg-testing
         result = re.sub(r';', '', result)
@@ -162,9 +162,11 @@ def populate_table_data(table, data, test_params, organization_scheme='repos'):
 
     for row_tuple, inner in itertools.izip(enumerate(data), itertools.cycle(inner_org)):
         row_num = row_tuple[0]
-        columns = row_tuple[1]
+        data = row_tuple[1]
         rowspan_size = len(inner_org)
         if row_num % rowspan_size == 0:
+            # Every time we finish looping over the inner organization scheme,
+            # we need to move onto the next item in the outer organization scheme.
             tbody.append_new_tag('tr').append_new_tag('td', class_ = 'divider')
             trow = tbody.append_new_tag('tr')
             outer = outer_org[row_num/rowspan_size]
@@ -172,59 +174,59 @@ def populate_table_data(table, data, test_params, organization_scheme='repos'):
         else:
             trow = tbody.append_new_tag('tr')
         trow.append_new_tag('th').append(inner_translation[inner])
-        for cell in columns:
+        for cell in data:
             trow.append(get_cell_contents(cell))
 
 def get_cell_contents(run):
     run_dir = url_base + run['job_serial']
+    osg_test_version = re.sub('yum.*(\d+\.\d+\.\d+-\d+).*', '\\1', run['osg_test_version'])
+    
+    # Generic info for each run
+    mouseover_text = '<b>Hostname</b>: ' + run['host_name'] + '</br>' + \
+        '<b>Host IP</b>: ' + run['host_address'] + '</br>' + \
+        '<b>Job ID:</b> ' + str(run['job_id']) + '</br>' + \
+        '<b>Job Serial</b>: ' + run['job_serial'] + '</br>'
 
-    # Generic info for each cell
-    mouseover_text = 'Hostname: ' + run['host_name'] + '&#013;' + \
-        'Host IP: ' + run['host_address'] + '&#013;' + \
-        'Job ID: ' + str(run['job_id']) + '&#013;' + \
-        'Job Serial: ' + run['job_serial'] + '&#013;'
-
-    # Create link tags with # of success/skip/fail as the link text
     if run['run_status'] == 0:
+        # Info for all runs of osg-test
+        mouseover_text = mouseover_text + \
+            '<b>Run Dir</b>: ' + run['run_directory'] + '/output-' + run['job_serial'] + '</br>' + \
+            '<b>Guest IP</b>: ' + run['guest_address'] + '</br>' + \
+            '<b>OSG Test Version</b>: ' + osg_test_version + '</br>' + \
+            '<b>Start Time</b>: ' + str(run['start_time']) + '</br>' + \
+            '<b>Run Time</b>: ' + str(run['run_time'])
+        # and for the failures...
+        if run['osg_test_status'] == 'fail' or run['osg_test_status'] == 'cleanup':
+            mouseover_text = mouseover_text + '</br><b>Failures:</b>'
+            for test in run['tests_messages']:
+                filename, test, module, status, msg = test.split('|')
+                mouseover_text = mouseover_text + \
+                    '</br><b> %s:</b> %s (%s,%s): %s' % (status, test, filename, module, msg)
+        mouseover = Tag('span', class_ = 'mouseover').append(mouseover_text)
+
         # Construct link tag
         success = run['tests_ok']
         skip = run['tests_ok_skip']
         fail =  run['tests_failed'] + run['tests_error'] + run['tests_bad_skip']
         link_location = run_dir + '/osg-test-' + date + '.log'
-        link = Tag('a', href=link_location).append("%s %s %s" % (success, skip, fail))
-
-        # Info for successful jobs
-        mouseover_text = mouseover_text + 'Run Dir: ' + run['run_directory'] + '/output-' + run['job_serial'] + '&#013;' + \
-            'Guest IP: ' + run['guest_address'] + '&#013;' + \
-            'OSG Test Version: ' + run['osg_test_version'] + '&#013;' + \
-            'Start Time: ' + str(run['start_time']) + '&#013;' + \
-            'Run Time: ' + str(run['run_time'])
-        
         if run['osg_test_status'] == 'timeout':
-            mouseover_text = mouseover_text + '&#013;Timeout Test: ' + run['timeout_test']
-            link = Tag('a', class_='data', href=link_location).append('TIMEOUT')
-            return Tag('td', class_='result timeout', align='center', title=mouseover_text).append(link)
+            link = Tag('a', class_='data', href=link_location).extend('TIMEOUT', mouseover)
         elif run['osg_test_status'] == 'install':
-            link = Tag('a', class_='data', href=link_location).append('INSTALL')
-            return Tag('td', class_='result install', align='center', title=mouseover_text).append(link)
-        elif run['osg_test_status'] == 'success':
-            return Tag('td', class_='result pass', align='center', title=mouseover_text).append(link)
+            link = Tag('a', class_='data', href=link_location).extend('INSTALL', mouseover)
         else:
-            mouseover_text = mouseover_text + '&#013;Failures:&#013;'
-            for msg in run['tests_messages']:
-                mouseover_text = mouseover_text + msg + '&#013;' 
-            if run['osg_test_status'] == 'cleanup':
-                return Tag('td', class_='result cleanup', align='center', title=mouseover_text).append(link)
-            elif run['osg_test_status'] == 'fail':
-                return Tag('td', class_='result fail', align='center', title=mouseover_text).append(link)
-            else:
-                # unknown osg test status
-                return Tag('td', class_='result', align='center', title=mouseover_text).append(link)
+            link = Tag('a', href=link_location).extend(("%s %s %s" % (success, skip, fail), mouseover))
+
+        # Construct html
+        result_class = 'result ' + run['osg_test_status']
+        cell_contents = Tag('div', class_ = 'data').append(link)
+        return Tag('td', class_ = result_class, align = 'center').append(cell_contents)
     else:
-        mouseover_text = mouseover_text + 'Run Summary: ' + run['run_summary']
+        mouseover_text = mouseover_text + '<b>Run Summary</b>: ' + run['run_summary']
+        mouseover = Tag('span', class_ = 'mouseover').append(mouseover_text)
         link_location = run_dir + '/run-job.log'
-        link = Tag('a', class_='data', href=link_location).append('DIED')
-        return Tag('td', class_='result die', align='center', title=mouseover_text).append(link)
+        link = Tag('a', class_ = 'result die', href = link_location).extend('DIED', mouseover)
+        cell_contents = Tag('div', class_ = 'data').append(link)
+        return Tag('td', class_ = 'result die', align = 'center').append(cell_contents)
 
 def print_html_to_file(html, filename):
     f = open(filename, 'w')

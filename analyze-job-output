@@ -178,7 +178,7 @@ if len(osg_test_logfile_list) == 0:
 osg_test_logfile = osg_test_logfile_list[0]
 osg_test_log = read_file(osg_test_logfile)
 data['run_status'] = 0
-data['osg_test_status'] = 'success'
+data['osg_test_status'] = 'pass'
 data['osg_test_logfile'] = osg_test_logfile
 
 # Extract package list
