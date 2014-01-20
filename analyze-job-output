@@ -178,7 +178,6 @@ if len(osg_test_logfile_list) == 0:
 osg_test_logfile = osg_test_logfile_list[0]
 osg_test_log = read_file(osg_test_logfile)
 data['run_status'] = 0
-data['osg_test_status'] = 'pass'
 data['osg_test_logfile'] = osg_test_logfile
 
 # Extract package list
@@ -202,9 +201,10 @@ if m is not None:
         problems.append('|'.join((module, function, module_name, 'SKIP', comment)))
         set_osg_test_status(module,data)
 data['tests_messages'] = problems
-if problems:
+if problems and 'osg_test_status' not in data:
     data['osg_test_status'] = 'fail'
-
+elif not problems:
+    data['osg_test_status'] = 'pass'
 
 # Extract start time
 data['start_time'] = re_extract(r'^Start time: (.*)$', osg_test_log, re.MULTILINE, group=1)
