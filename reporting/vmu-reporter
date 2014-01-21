@@ -129,8 +129,10 @@ def create_table_headers(table, organization_scheme='repos'):
         append(sort_link_text) # mouseover text/link
     row_1.append_new_tag("th", rowspan="2").append(second_column_text)
 
-    row_1.append_new_tag("th", colspan=num_el5).append("EL5")
-    row_1.append_new_tag("th", colspan=num_el6).append("EL6")
+    if num_el5 > 0:
+        row_1.append_new_tag("th", colspan=num_el5).append("EL5")
+    if num_el6 > 0:
+        row_1.append_new_tag("th", colspan=num_el6).append("EL6")
 
     row_2 = header.append_new_tag("tr")
     for platform in test_params['platform']:
