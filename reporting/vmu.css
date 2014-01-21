@@ -4,8 +4,6 @@ h2 {
 }
 
 /* Table formatting */
-table {table-layout: fixed;}
-
 th {
    background-color: #EFEFEF;
    border: 1px solid #CCCCCC;
@@ -15,20 +13,17 @@ th {
    font-size:small;
 }
 
-.divider{padding: .1em;}
+.divider {padding: .1em;}
 
-div.data {
-   height:1em;
-   width:4em;
-}
+div.data {position:relative;}
 
-td.result a{
-   display:block;
-   height:100%;
-   width:100%;
-   text-decoration:none;
-   font-family:monospace;
-   color:black;
+td.result a {
+  display:inline-block;
+  height:100%;
+  width:100%;
+  text-decoration:none;
+  font-family:monospace;
+  color:black;
 }
 
 /* Test result colors */
@@ -92,6 +87,7 @@ a:hover span.mouseover{
 
 div.mouseover{
    position:absolute;
+   left:3.7em;
    display:block;
    visibility:hidden;
    background:#F8F8F8;
@@ -99,6 +95,7 @@ div.mouseover{
    line-height: 1.5em;
    text-align:left;
    padding:0em 1em;
+   z-index:101;
 }
 
 td:hover div.mouseover{

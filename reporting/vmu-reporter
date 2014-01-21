@@ -202,7 +202,6 @@ def get_cell_contents(run):
                 filename, test, module, status, msg = test.split('|')
                 mouseover_text = mouseover_text + \
                     '</br><b>&emsp;%s:</b> %s (%s,%s): %s' % (status, test, filename, module, msg)
-        mouseover = Tag('div', class_ = 'mouseover').append(mouseover_text)
         
         # Construct link tag
         success = run['tests_ok']
@@ -210,23 +209,23 @@ def get_cell_contents(run):
         fail =  run['tests_failed'] + run['tests_error'] + run['tests_bad_skip']
         link_location = run_dir + '/osg-test-' + date + '.log'
         if run['osg_test_status'] == 'timeout':
-            link = Tag('a', class_='data', href=link_location).append('TIMEOUT')
+            link = Tag('a', href=link_location).append('TIMEOUT')
         elif run['osg_test_status'] == 'install':
-            link = Tag('a', class_='data', href=link_location).append('INSTALL')
+            link = Tag('a', href=link_location).append('INSTALL')
         else:
             link = Tag('a', href=link_location).append("%s %s %s" % (success, skip, fail))
-
-        # Construct html
-        result_class = 'result ' + run['osg_test_status']
-        link_div = Tag('div', class_ = 'link').append(link)
-        return Tag('td', class_ = result_class, align = 'center').extend((link_div, mouseover))
     else:
         mouseover_text = mouseover_text + '<b>Run Summary</b>: ' + run['run_summary']
-        mouseover = Tag('div', class_ = 'mouseover').append(mouseover_text)
         link_location = run_dir + '/run-job.log'
-        link = Tag('a', class_ = 'result die', href = link_location).append('DIED')
-        link_div = Tag('div', class_ = 'link').append(link)
-        return Tag('td', class_ = 'result die', align = 'center').append((link_div, mouseover))
+        run['osg_test_status'] = 'die'
+        link = Tag('a', href = link_location).append('DIED')
+
+    # Construct html
+    result_class = 'result ' + run['osg_test_status']        
+    link_div = Tag('div', class_ = 'link').append(link)
+    mouseover_div = Tag('div', class_ = 'mouseover').append(mouseover_text)        
+    container = Tag('div', class_ = 'data').extend((link_div, mouseover_div))
+    return Tag('td', class_ = result_class, align = 'center').append(container)
 
 def print_html_to_file(html, filename):
     f = open(filename, 'w')
