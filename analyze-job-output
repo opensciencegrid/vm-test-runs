@@ -88,17 +88,6 @@ def write_failure_and_exit(data, status, message, extra=None):
     write_yaml(data)
     sys.exit(0)
 
-def set_osg_test_status(module, data):
-    """
-    module - string indicating failed/errored/skipped test module
-    data - dictionary that eventually gets printed as yaml
-    """
-    if module == 'special_install':
-        data['osg_test_status'] = 'install'
-    if module == 'special_cleanup':
-        data['osg_test_status'] = 'cleanup'
-    
-
 # ======================================================================================================================
 
 # Process command-line arguments
@@ -193,16 +182,24 @@ problems = []
 for m in re.finditer(r'^(ERROR|FAIL): (\w+) \(osgtest\.tests\.(\w+)\.(\w+)\)', osg_test_log, re.MULTILINE):
     status, function, module, module_name = m.groups()
     problems.append('|'.join((module, function, module_name, status, '-')))
-    set_osg_test_status(module, data)
+    if module == 'special_install':
+        data['osg_test_status'] = 'install'
+    elif module != 'special_cleanup':
+        data['osg_test_status'] = 'fail'
 m = re.search(r'^=+\nBAD SKIPS:\n-+\n(.*?)\n\n', osg_test_log, re.MULTILINE | re.DOTALL)
 if m is not None:
     for n in re.finditer(r'^(\w+) \(osgtest\.tests\.(\w+)\.(\w+)\) (.*)$', m.group(1), re.MULTILINE):
         function, module, module_name, comment = n.groups()
         problems.append('|'.join((module, function, module_name, 'SKIP', comment)))
-        set_osg_test_status(module,data)
+        if module == 'special_install':
+            # Presumably if there are bad skips, osg_test_status shoul dbe marked as a failure
+            # from the above for loop. We should still check to see if it's an install bad skip.
+            data['osg_test_status'] = 'install'
 data['tests_messages'] = problems
 if problems and 'osg_test_status' not in data:
-    data['osg_test_status'] = 'fail'
+    # At this point, if osg_test_status hasn't been marked as a regular or install failure
+    # and has failures, then it's a cleanup failure
+    data['osg_test_status'] = 'cleanup'
 elif not problems:
     data['osg_test_status'] = 'pass'
 
