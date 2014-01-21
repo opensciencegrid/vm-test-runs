@@ -210,9 +210,9 @@ def get_cell_contents(run):
         fail =  run['tests_failed'] + run['tests_error'] + run['tests_bad_skip']
         link_location = run_dir + '/osg-test-' + date + '.log'
         if run['osg_test_status'] == 'timeout':
-            link = Tag('a', class_='data', href=link_location).extend('TIMEOUT', mouseover)
+            link = Tag('a', class_='data', href=link_location).extend(('TIMEOUT', mouseover))
         elif run['osg_test_status'] == 'install':
-            link = Tag('a', class_='data', href=link_location).extend('INSTALL', mouseover)
+            link = Tag('a', class_='data', href=link_location).extend(('INSTALL', mouseover))
         else:
             link = Tag('a', href=link_location).extend(("%s %s %s" % (success, skip, fail), mouseover))
 
@@ -224,7 +224,7 @@ def get_cell_contents(run):
         mouseover_text = mouseover_text + '<b>Run Summary</b>: ' + run['run_summary']
         mouseover = Tag('span', class_ = 'mouseover').append(mouseover_text)
         link_location = run_dir + '/run-job.log'
-        link = Tag('a', class_ = 'result die', href = link_location).extend('DIED', mouseover)
+        link = Tag('a', class_ = 'result die', href = link_location).extend(('DIED', mouseover))
         cell_contents = Tag('div', class_ = 'data').append(link)
         return Tag('td', class_ = 'result die', align = 'center').append(cell_contents)
 
