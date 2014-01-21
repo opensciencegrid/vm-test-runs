@@ -186,7 +186,6 @@ def get_cell_contents(run):
         '<b>Host IP</b>: ' + run['host_address'] + '</br>' + \
         '<b>Job ID:</b> ' + str(run['job_id']) + '</br>' + \
         '<b>Job Serial</b>: ' + run['job_serial'] + '</br>'
-    link_div = Tag('div', class_ = 'link')
 
     if run['run_status'] == 0:
         # Info for all runs of osg-test
@@ -219,14 +218,14 @@ def get_cell_contents(run):
 
         # Construct html
         result_class = 'result ' + run['osg_test_status']
-        link_div = link_div.append(link)
-        cell_contents = Tag('div', class_ = 'data').append(link)
+        link_div = Tag('div', class_ = 'link').append(link)
         return Tag('td', class_ = result_class, align = 'center').extend((link_div, mouseover))
     else:
         mouseover_text = mouseover_text + '<b>Run Summary</b>: ' + run['run_summary']
         mouseover = Tag('div', class_ = 'mouseover').append(mouseover_text)
         link_location = run_dir + '/run-job.log'
-        link = link_div.append_new_tag('a', class_ = 'result die', href = link_location).append('DIED')
+        link = Tag('a', class_ = 'result die', href = link_location).append('DIED')
+        link_div = Tag('div', class_ = 'link').append(link)
         return Tag('td', class_ = 'result die', align = 'center').append((link_div, mouseover))
 
 def print_html_to_file(html, filename):
