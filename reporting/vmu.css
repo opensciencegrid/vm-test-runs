@@ -89,3 +89,19 @@ span.mouseover{
 a:hover span.mouseover{
     display:inline-block;
 }
+
+div.mouseover{
+   position:absolute;
+   display:block;
+   visibility:hidden;
+   background:#F8F8F8;
+   border: 5px solid #DFDFDF;
+   line-height: 1.5em;
+   text-align:left;
+   padding:0em 1em;
+}
+
+td:hover div.mouseover{
+   visibility:visible;
+}
+
