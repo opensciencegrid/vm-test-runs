@@ -18,9 +18,6 @@ th {
 div.data {position:relative;}
 
 td.result a {
-  display:inline-block;
-  height:100%;
-  width:100%;
   text-decoration:none;
   font-family:monospace;
   color:black;
@@ -36,65 +33,50 @@ td.result a {
 .fail {background-color: #FF7673;}
 .die {background-color: #EAF;}
 
-/* Hover stuff */
+/* Organization link hover */
 
-th#sort span#hide_text{ 
-   display:inline;
-   width: 100%;
-   height: 100%;
-}
+th#sort span#hide_text {display:block;}
+th#sort:hover span#hide_text {display:none;}
 
-th#sort:hover span#hide_text{ 
-   display:none;
-   width: 100%;
-   height: 100%;
-}
-
-th#sort a#sort_link{ 
-   display:none;
-   width: 100%;
-   height: 100%;
-}
-
+th#sort a#sort_link {display:none;}
+th#sort:hover a#sort_link{display:block;}
 th#sort:hover {background-color: #0099CC;}
-
-th#sort:hover a#sort_link{ 
-   display:block;
-   width: 100%;
-   height: 100%;
-}
 
 td.result:hover {background-color: #0099CC;}
 
 /* Mouseover CSS */
 
+/* Here to support the old layout.
+   Can be removed after 2/2014
+*/
 span.mouseover{
+   position:absolute;
+   left:4em;
+   visibility:hidden;
+   white-space:nowrap;
    background:#F8F8F8;
-   border: 5px solid #DFDFDF;
-   line-height: 1.5em;
-   position: relative;
-   left:5.5em;
-   top:.5em;
+   border: 2px solid #8F8F8F;
    text-align:left;
-   display:none;
-   padding:.5em .5em;
-   white-space:pre;
+   line-height:1.5em;
+   padding:.5em 1em;
+   z-index:101;
 }
 
-a:hover span.mouseover{
-    display:inline-block;
+td:hover span.mouseover{
+    visibility:visible;
 }
 
+/* New layout */
 div.mouseover{
    position:absolute;
-   left:3.7em;
-   display:block;
+   left:4em;
    visibility:hidden;
+   white-space:nowrap;
    background:#F8F8F8;
-   border: 5px solid #DFDFDF;
-   line-height: 1.5em;
+   border: 2px solid #8F8F8F;
    text-align:left;
-   padding:0em 1em;
+   line-height:1.5em;
+   padding:.5em 1em;
    z-index:101;
 }
 
