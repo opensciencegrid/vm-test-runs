@@ -88,6 +88,18 @@ def write_failure_and_exit(data, status, message, extra=None):
     write_yaml(data)
     sys.exit(0)
 
+def set_fail_status(test_module, test_function):
+    if test_module == 'special_install':
+        if re.search('update', test_function):
+            status = 'update'
+        else:
+            status = 'install'
+    elif test_module == 'special_cleanup':
+        status = 'cleanup'
+    else:
+        status = 'fail'
+    return status
+    
 # ======================================================================================================================
 
 # Process command-line arguments
@@ -182,25 +194,19 @@ problems = []
 for m in re.finditer(r'^(ERROR|FAIL): (\w+) \(osgtest\.tests\.(\w+)\.(\w+)\)', osg_test_log, re.MULTILINE):
     status, function, module, module_name = m.groups()
     problems.append('|'.join((module, function, module_name, status, '-')))
-    if module == 'special_install':
-        data['osg_test_status'] = 'install'
-    elif module != 'special_cleanup':
-        data['osg_test_status'] = 'fail'
+    test_status = set_fail_status(module, function)
+    if test_status in ('install', 'update', 'cleanup') or 'osg_test_status' not in data:
+        data['osg_test_status'] = test_status
 m = re.search(r'^=+\nBAD SKIPS:\n-+\n(.*?)\n\n', osg_test_log, re.MULTILINE | re.DOTALL)
 if m is not None:
     for n in re.finditer(r'^(\w+) \(osgtest\.tests\.(\w+)\.(\w+)\) (.*)$', m.group(1), re.MULTILINE):
         function, module, module_name, comment = n.groups()
         problems.append('|'.join((module, function, module_name, 'SKIP', comment)))
-        if module == 'special_install':
-            # Presumably if there are bad skips, osg_test_status shoul dbe marked as a failure
-            # from the above for loop. We should still check to see if it's an install bad skip.
-            data['osg_test_status'] = 'install'
+        test_status = set_fail_status(module, function)
+        if test_status in ('install', 'update', 'cleanup'):
+            data['osg_test_status'] = test_status
 data['tests_messages'] = problems
-if problems and 'osg_test_status' not in data:
-    # At this point, if osg_test_status hasn't been marked as a regular or install failure
-    # and has failures, then it's a cleanup failure
-    data['osg_test_status'] = 'cleanup'
-elif not problems:
+if not problems:
     data['osg_test_status'] = 'pass'
 
 # Extract start time

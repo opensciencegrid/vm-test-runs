@@ -6,7 +6,7 @@ import string
 import itertools
 import yaml
 import taglib
-from taglib import Tag, SubTag
+from taglib import Tag
 
 
 CSS_URI =  "http://vdt.cs.wisc.edu/tests/vmu.css"
@@ -198,7 +198,7 @@ def get_cell_contents(run):
             '<b>Start Time</b>: ' + str(run['start_time']) + '</br>' + \
             '<b>Run Time</b>: ' + str(run['run_time'])
         # and for the failures...
-        if run['osg_test_status'] in ('fail', 'cleanup', 'install'):
+        if run['osg_test_status'] != 'pass':
             mouseover_text = mouseover_text + '</br><b>Failures:</b>'
             for test in run['tests_messages']:
                 filename, test, module, status, msg = test.split('|')
@@ -214,6 +214,8 @@ def get_cell_contents(run):
             link = Tag('a', href=link_location).append('TIMEOUT')
         elif run['osg_test_status'] == 'install':
             link = Tag('a', href=link_location).append('INSTALL')
+        elif run['osg_test_status'] == 'update':
+            link = Tag('a', href=link_location).append('UPDATE')
         else:
             link = Tag('a', href=link_location).append("%s %s %s" % (success, skip, fail))
     else:

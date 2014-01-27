@@ -27,6 +27,7 @@ td.result a {
 
 .timeout {background-color: #6A94D4;}
 .install {background-color: #FFA240;}
+.update {background-color: #FFA240;}
 .cleanup {background-color: #FFDE40;}
 .success {background-color: #67E46F;} 
 .pass {background-color: #67E46F;} 
