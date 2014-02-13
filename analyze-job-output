@@ -202,6 +202,8 @@ if m is not None:
 data['tests_messages'] = problems
 if not problems:
     data['osg_test_status'] = 'pass'
+elif 'osg_test_status' not in data: # catch missed failures
+    data['osg_test_status'] = 'fail'
 
 # Extract start time
 data['start_time'] = re_extract(r'^Start time: (.*)$', osg_test_log, re.MULTILINE, group=1)
