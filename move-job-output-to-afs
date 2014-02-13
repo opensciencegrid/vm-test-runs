@@ -228,7 +228,18 @@ def create_latest_symlinks(dest_dir):
         except ValueError:
             # This directory is named wrong; skip it
             continue
-        if os.path.exists(os.path.join(dest_dir, run_dir, 'manual_run')) and run_datetime > latest_manual:
+        label_file_name = os.path.join(dest_dir, run_dir, 'run_label')
+        if os.path.exists(label_file_name):
+            label_file = open(label_file_name, 'r')
+            label = label_file.read()
+            label_file.close()
+            if re.match('nightly$', label.strip()) and run_datetime > latest:
+                latest_dir = run_dir
+                latest = run_datetime
+            elif run_datetime > latest_manual:
+                latest_manual = run_datetime
+                latest_manual_dir = run_dir
+        elif os.path.exists(os.path.join(dest_dir, run_dir, 'manual_run')) and run_datetime > latest_manual:
             latest_manual = run_datetime
             latest_manual_dir = run_dir
         elif run_datetime > latest:

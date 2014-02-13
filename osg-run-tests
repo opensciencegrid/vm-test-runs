@@ -11,28 +11,38 @@ safe_run()
 }
 
 SKIP=0
+LABEL=''
 
 # Submit DAG (or print and skip)
-if [ $# -ge 1 ]; then
-    case $1 in
-        -s | -skip | --skip)
+while getopts :l:sh opt; do
+    case $opt in
+        s)
             SKIP=1
             ;;
-        -h | -help | --help)
+        l)
+            LABEL=$OPTARG
+            ;;
+        h)
             echo "usage: $0 <option>"
             echo "Options:"
-            echo "    -s, -skip, --skip"
+            echo "    -s"
             echo "       Do not automatically submit DAG. Allows for patching before jobs are submitted."
+            echo "    -l <description>"
+            echo "       Assign a description to the test run. Used to create report web page."
             echo '    -h, -help, --help'
             echo "       Print this dialogue"
             exit 0
             ;;
-        *)
-            echo "Unknown option '$1'"
+        \?)
+            echo "Invalid option: -$OPTARG" 
+            exit 1
+            ;;
+        :)
+            echo "Option -$OPTARG requires an argument." 
             exit 1
             ;;
     esac
-fi
+done
 
 TEST_HOME=/osgtest/runs
 if [ ! -d $TEST_HOME ]; then
@@ -69,8 +79,14 @@ if [ "x$TEMP_DIR" != 'x' ]; then
     rm -fr $TEMP_DIR
 fi
 
+if [ -z $LABEL ]; then
+    # User has not specified a description for this run
+    touch $RUN_DIRECTORY/run_label
+else
+    echo $LABEL > $RUN_DIRECTORY/run_label
+fi
+
 if [ $SKIP -eq 1 ]; then
-    touch $RUN_DIRECTORY/manual_run
     echo 'Run tests with:'
     echo "    cd $RUN_DIRECTORY"
     echo '    condor_submit_dag master-run.dag'
