@@ -27,15 +27,21 @@ os_translation = {'centos_5_x86_64':{'dver':5, 'short':'CentOS'},
                   'sl_6_x86_64':{'dver':6, 'short':'Scientific'}}
 
 def create_html_and_table():
+    html = taglib.Html(page_title='OSG VMU Automated Test Results', css_link=CSS_URI)
+    html.body.append_new_tag('h1').append('OSG VMU Automated Test Results')
+
+    # Read description file
     f = open('run_label', 'r')
     label = f.read()
     f.close()
-    
-    html = taglib.Html(page_title='OSG VMU Automated Test Results', css_link=CSS_URI)
-    html.body.append_new_tag('h1').append('OSG VMU Automated Test Results')
     html.body.append_new_tag('h2').append('%s: %s ' % (timestamp, label.strip()))
-    table = html.body.append_new_tag('table')
 
+    # Create patch link if we applied any patches
+    if os.stat('test-changes.patch').st_size != 0:
+        html.body.append_new_tag('p').append_new_tag('a', href = url_base + 'test-changes.patch').\
+            append('Click to view osg-test patches')
+        
+    table = html.body.append_new_tag('table')
     return html, table
 
 def sort_platforms_by_dver(platforms):
