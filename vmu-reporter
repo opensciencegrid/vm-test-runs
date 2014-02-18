@@ -13,11 +13,12 @@ CSS_URI =  "http://vdt.cs.wisc.edu/tests/vmu.css"
 m = re.search(r'run-((\d*)-\d*)', os.getcwd())
 date = m.group(2)
 timestamp = m.group(1)
-url_base = "http://vdt.cs.wisc.edu/tests/" + timestamp + "/"
+vmu_tests_url = "http://vdt.cs.wisc.edu/tests/"
+run_url = vmu_tests_url + timestamp + "/"
 repo_filename = "results.html"
 pkg_filename = "packages.html" 
-homepage = url_base +  repo_filename
-pkg_organized_homepage = url_base + pkg_filename
+homepage = run_url +  repo_filename
+pkg_organized_homepage = run_url + pkg_filename
 
 os_translation = {'centos_5_x86_64':{'dver':5, 'short':'CentOS'},
                   'centos_6_x86_64':{'dver':6, 'short':'CentOS'},
@@ -32,13 +33,23 @@ def create_html_and_table():
 
     # Read description file
     f = open('run_label', 'r')
-    label = f.read()
+    label = f.read().strip()
     f.close()
     html.body.append_new_tag('h2').append('%s: %s ' % (timestamp, label.strip()))
 
+    header_links = html.body.append_new_tag('p')
+
+    # Link back to latest nightly or manual run
+    if label == 'nightly':
+        header_links.append_new_tag('a', href = vmu_tests_url + 'latest.html').\
+            append('&lt;&lt; Back to latest nightly').append_new_tag('br')
+    else:
+        header_links.append_new_tag('a', href = vmu_tests_url + 'latest_manual.html').\
+            append('&lt;&lt; Back to latest manual run').append_new_tag('br')
+
     # Create patch link if we applied any patches
     if os.stat('test-changes.patch').st_size != 0:
-        html.body.append_new_tag('p').append_new_tag('a', href = url_base + 'test-changes.patch').\
+        header_links.append_new_tag('a', href = run_url + 'test-changes.patch').\
             append('Click to view osg-test patches')
         
     table = html.body.append_new_tag('table')
@@ -119,7 +130,7 @@ def make_data_grid(runs, test_params, organization_scheme='repos'):
         organized_runs[row][column] = run
     return organized_runs
 
-def create_table_headers(table, organization_scheme='repos'):
+def create_table_header(table, organization_scheme='repos'):
     if organization_scheme == 'packages':
         sort_link = homepage
         sort_link_text = 'Sort by Release &#9660;'
@@ -190,7 +201,7 @@ def populate_table_data(table, data, test_params, organization_scheme='repos'):
             trow.append(get_cell_contents(cell))
 
 def get_cell_contents(run):
-    run_dir = url_base + run['job_serial']
+    run_dir = run_url + run['job_serial']
     
     # Generic info for each run
     mouseover_text = '<b>Hostname</b>: ' + run['host_name'] + '</br>' + \
@@ -267,14 +278,14 @@ if __name__ == "__main__":
 
     # Create and print repo organized html
     repo_organized_runs = make_data_grid(runs, test_params)
-    populate_table_data(create_table_headers(table_repo),
+    populate_table_data(create_table_header(table_repo),
                         repo_organized_runs,
                         test_params)
     print_html_to_file(html_repo, repo_filename)
     
     # Create and print pkg organized html
     pkg_organized_runs = make_data_grid(runs, test_params, organization_scheme='packages')
-    populate_table_data(create_table_headers(table_pkg, organization_scheme='packages'),
+    populate_table_data(create_table_header(table_pkg, organization_scheme='packages'),
                         pkg_organized_runs,
                         test_params,
                         organization_scheme='packages')
