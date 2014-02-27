@@ -185,15 +185,21 @@ problems = []
 for m in re.finditer(r'^(ERROR|FAIL): (\w+) \(osgtest\.tests\.(\w+)\.(\w+)\)', osg_test_log, re.MULTILINE):
     status, function, module, module_name = m.groups()
     problems.append('|'.join((module, function, module_name, status, '-')))
-    if module == 'special_install':
-        if re.search('update', function):
-            data['osg_test_status'] = 'update'
-        else:
-            data['osg_test_status'] = 'install'
-    elif module == 'special_cleanup':
-        data['osg_test_status'] = 'cleanup'
-    elif 'osg_test_status' not in data:
-        data['osg_test_status'] = 'fail'
+
+# update failures should trump cleanup failures
+for problem in problems:
+    if 'update' in problem:
+        data['osg_test_status'] = 'update'
+        break
+    elif 'special_cleanup' in problem:
+      data['osg_test_status'] = 'cleanup'
+
+# install failures trump all other failures
+for problem in problems:
+    if 'install_packages' in problem:
+        data['osg_test_status'] = 'install'
+        break
+
 m = re.search(r'^=+\nBAD SKIPS:\n-+\n(.*?)\n\n', osg_test_log, re.MULTILINE | re.DOTALL)
 if m is not None:
     for n in re.finditer(r'^(\w+) \(osgtest\.tests\.(\w+)\.(\w+)\) (.*)$', m.group(1), re.MULTILINE):
@@ -209,7 +215,7 @@ elif 'osg_test_status' not in data: # catch missed failures
 data['start_time'] = re_extract(r'^Start time: (.*)$', osg_test_log, re.MULTILINE, group=1)
 
 # Determine if the run timed out
-timeout_re = re.compile('message: (.*): Caught alarm:')
+timeout_re = re.compile('message: (.*): \n*Caught alarm:')
 timeout_match = timeout_re.search(osg_test_log, re.MULTILINE)
 if timeout_match:
     data['osg_test_status'] = 'timeout'
