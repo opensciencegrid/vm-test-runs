@@ -186,19 +186,17 @@ for m in re.finditer(r'^(ERROR|FAIL): (\w+) \(osgtest\.tests\.(\w+)\.(\w+)\)', o
     status, function, module, module_name = m.groups()
     problems.append('|'.join((module, function, module_name, status, '-')))
 
-# update failures should trump cleanup failures
-for problem in problems:
-    if 'update' in problem:
-        data['osg_test_status'] = 'update'
-        break
-    elif 'special_cleanup' in problem:
-      data['osg_test_status'] = 'cleanup'
+# Cleanup failures should only be marked as such if they're the only failure type
+if all('special_cleanup' in problem for problem in problems):
+    data['osg_test_status'] = 'cleanup'
 
-# install failures trump all other failures
-for problem in problems:
-    if 'install_packages' in problem:
-        data['osg_test_status'] = 'install'
-        break
+# Update failures
+if any('_update_' in problem for problem in problems):
+    data['osg_test_status'] = 'update'
+
+# Install failures trump all other failures
+if any('install_packages' in problem for problem in problems):
+    data['osg_test_status'] = 'install'
 
 m = re.search(r'^=+\nBAD SKIPS:\n-+\n(.*?)\n\n', osg_test_log, re.MULTILINE | re.DOTALL)
 if m is not None:
