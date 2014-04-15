@@ -1,0 +1,11 @@
+universe   = local
+executable = report-job-failures
+arguments  = "."
+
+output = report-job-failures.out
+error  = report-job-failures.err
+log    = report-job-failures.log
+
+should_transfer_files = NO
+
+queue
