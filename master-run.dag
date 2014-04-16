@@ -14,15 +14,19 @@ JOB AnalyzeOutput analyze-test-run.sub
 SCRIPT PRE AnalyzeOutput combine-job-analyses
 SCRIPT POST AnalyzeOutput email-analysis
 
-# 5. Produce html output
+# 5. Report job failures
+JOB ReportJobFailures report-job-failures.sub
+
+# 6. Produce html output
 JOB HtmlOutput vmu-reporter.sub
 
-# 6. Upload output to CSL
+# 7. Upload output to CSL
 JOB UploadJobOutput upload-job-output.sub
 
 # Connections - simple linear DAG (at this level)
 PARENT GenerateDAG CHILD CreateImages
 PARENT CreateImages CHILD RunTests
 PARENT RunTests CHILD AnalyzeOutput
-PARENT AnalyzeOutput CHILD HtmlOutput
+PARENT AnalyzeOutput CHILD ReportJobFailures
+PARENT ReportJobFailures CHILD HtmlOutput
 PARENT HtmlOutput CHILD UploadJobOutput

@@ -1,48 +1,84 @@
 #!/usr/bin/python
 
 import re
+import smtplib
 
-f = open('osg-test-cat.log', 'r')
-job_log = f.read()
-f.close()
+RECIPIENTS = ('Brian Lin <blin@cs.wisc.edu>',
+              'Tim Cartwright <cat@cs.wisc.edu>')
 
-messages = {}
+# Adapted from Tim's email-analysis script, which was adapted from Mat's aggregator/emailer.py script
+def mail_message(subject, message, recipients):
+    from_addr = 'OSG Tests <osg-software@opensciencegrid.org>'
+    payload = 'Subject: %s\r\n' % (subject)
+    payload += 'From: %s\r\n' % (from_addr)
+    payload += 'To: %s\r\n' % (', '.join(recipients))
+    payload += '\r\n'
+    payload += message
+    smtp = smtplib.SMTP('wid-service-1.chtc.wisc.edu')
+    smtp.sendmail(from_addr, recipients, payload)
+    smtp.quit()
 
-for m in re.finditer(r'^(007 .*?)^\.\.\.', job_log, re.MULTILINE | re.DOTALL):
-    error_lines = m.group(1).split('\n')
-    banner_match = re.search(r'^007 \((\d+\.\d+.\d+)\) (.*?) Shadow exception!', error_lines[0].strip())
-    job_id, timestamp = banner_match.group(1, 2)
-    text_match = re.search(r'Error from slot\d+@(.*?): (.*)', error_lines[1].strip())
-    hostname, message = text_match.group(1, 2)
-    message = re.sub(r'STARTER at [\d.]+', 'STARTER at [[HOST]]', message)
-    message = re.sub(r'file /var/lib/condor/execute/[^:]+_htcondor.dsk:', 'file [[OS_IMAGE]]:', message)
-    message = re.sub(r': FILETRANSFER', ': \\\nFILESTRANSFER', message)
+def parse_job_log(logfile):
+    f = open(logfile, 'r')
+    job_log = f.read()
+    f.close()
 
-    event = (job_id, timestamp)
-    if messages.has_key(message):
-        if messages[message].has_key(hostname):
-            messages[message][hostname].append(event)
+    messages = {}
+
+    for m in re.finditer(r'^(007 .*?)^\.\.\.', job_log, re.MULTILINE | re.DOTALL):
+        error_lines = m.group(1).split('\n')
+        banner_match = re.search(r'^007 \((\d+\.\d+.\d+)\) (.*?) Shadow exception!', error_lines[0].strip())
+        job_id, timestamp = banner_match.group(1, 2)
+        text_match = re.search(r'Error from slot\d+@(.*?): (.*)', error_lines[1].strip())
+        hostname, message = text_match.group(1, 2)
+        message = re.sub(r'STARTER at [\d.]+', 'STARTER at [[HOST]]', message)
+        message = re.sub(r'file /var/lib/condor/execute/[^:]+_htcondor.dsk:', 'file [[OS_IMAGE]]:', message)
+        message = re.sub(r': FILETRANSFER', ': \\\nFILESTRANSFER', message)
+
+        event = (job_id, timestamp)
+        if messages.has_key(message):
+            if messages[message].has_key(hostname):
+                messages[message][hostname].append(event)
+            else:
+                messages[message][hostname] = [event]
         else:
-            messages[message][hostname] = [event]
-    else:
-        messages[message] = {hostname: [event]}
+            messages[message] = {hostname: [event]}
 
-if messages:
-    print 'In my VM universe test run today, I received the shadow exceptions below.'
-    print 'Usually, these errors indicate a broken libvirt, dnsmasq, firewall, or'
-    print 'other hypervisor configuration issue.  The counts are total exceptions per'
-    print 'hostname.'
-    print
+    return messages
+
+def construct_email(messages):
+    body = '''In my VM universe test run today, I received the shadow exceptions below.
+Usually, these errors indicate a broken libvirt, dnsmasq, firewall, or
+other hypervisor configuration issue.  The counts are total exceptions per
+hostname.
+'''
         
     for message, failures in messages.items():
-        print 'Failure:', message
+        body += "\nFailure: %s\n" % message
         for hostname in failures:
             times = 'times'
             if len(failures[hostname]) == 1:
                 times = 'time'
-            print '  * %d %s on %s' % (len(failures[hostname]), times, hostname)
-        print
+            body += "  * %d %s on %s\n" % (len(failures[hostname]), times, hostname)
+                
+    body += '''
+Have a nice day! (^_^)
 
-    print 'Have a nice day! (^_^)'
-    print
-    print '-- Tim C.'
+-- Tim C.'''
+
+    return body
+
+if __name__ == "__main__":
+    f = open('run_label', 'r')
+    run_label = f.read()
+    f.close()
+
+    # Don't harass infrastructure for manual runs
+    if run_label != 'nightly\n':
+        print 'Skipping manual run.'
+        exit(0)
+
+    failures = parse_job_log('osg-test-cat.log')
+    message = construct_email(failures)
+
+    mail_message('VMU Failures', message, RECIPIENTS)

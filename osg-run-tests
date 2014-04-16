@@ -70,6 +70,7 @@ safe_run cp \
     run-job osg-test.patch test-changes.patch osg-release.patch single-test-run.sub inner-dag.config \
     process-job-output extract-job-output analyze-job-output \
     combine-job-analyses analyze-test-run.sub analyze-test-run email-analysis \
+    report-job-failures report-job-failures.sub \
     vmu-reporter vmu-reporter.sub taglib.py \
     upload-job-output upload-job-output.sub \
     $RUN_DIRECTORY/
@@ -79,7 +80,7 @@ if [ "x$TEMP_DIR" != 'x' ]; then
     rm -fr $TEMP_DIR
 fi
 
-if [ -z $LABEL ]; then
+if [ -z "$LABEL" ]; then
     # User has not specified a description for this run
     touch $RUN_DIRECTORY/run_label
 else
