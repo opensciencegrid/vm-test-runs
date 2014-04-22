@@ -74,6 +74,6 @@ for line in file_contents(ANALYSIS_FILENAME):
 if os.path.exists(ERROR_FILENAME) and (os.path.getsize(ERROR_FILENAME) > 0):
     message += '\n'
     message += '=' * 75
-    message += ERROR_FILENAME + ' contents:\n\n' + file_contents(ERROR_FILENAME, as_single_string=True)
+    message += '\n' + ERROR_FILENAME + ' contents:\n\n' + file_contents(ERROR_FILENAME, as_single_string=True)
 
 mail_message(subject, message, RECIPIENTS)

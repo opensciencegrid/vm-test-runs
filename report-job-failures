@@ -26,11 +26,21 @@ def parse_job_log(logfile):
     f.close()
 
     messages = {}
-
+    failed_jobs = {}
+    
     for m in re.finditer(r'^(007 .*?)^\.\.\.', job_log, re.MULTILINE | re.DOTALL):
         error_lines = m.group(1).split('\n')
         banner_match = re.search(r'^007 \((\d+\.\d+.\d+)\) (.*?) Shadow exception!', error_lines[0].strip())
         job_id, timestamp = banner_match.group(1, 2)
+
+        # The same job can fail multiple times, so for the instance where an error
+        # is missing a hostname, we have to keep track of how many times the job has
+        # failed to find the corresponding log message with an IP address.
+        if job_id in failed_jobs.keys():
+            failed_jobs[job_id] += 1
+        else:
+            failed_jobs[job_id] = 0
+
         text_match = re.search(r'Error from slot\d+@(.*?): (.*)', error_lines[1].strip())
         try:
             hostname, message = text_match.group(1, 2)
@@ -38,14 +48,23 @@ def parse_job_log(logfile):
             # Ignore shadow exceptions that don't follow the 'Error from...' format
             pass
         else:
+            # Sometimes Condor comes up before it knows its hostname so we have to
+            # find the IP of the machine that the job landed on.
+            if hostname == '':
+                regex_string = r'^001 \(%s\).*?Job executing on host: <(.*?):\d+>' % job_id
+                ip_matches = re.findall(regex_string, job_log, re.MULTILINE)
+                machine_id = ip_matches[failed_jobs[job_id]] 
+            else:
+                machine_id = hostname
+                
             event = (job_id, timestamp)
             if messages.has_key(message):
-                if messages[message].has_key(hostname):
-                    messages[message][hostname].append(event)
+                if messages[message].has_key(machine_id):
+                    messages[message][machine_id].append(event)
                 else:
-                    messages[message][hostname] = [event]
+                    messages[message][machine_id] = [event]
             else:
-                messages[message] = {hostname: [event]}
+                messages[message] = {machine_id: [event]}
 
     return messages
 
