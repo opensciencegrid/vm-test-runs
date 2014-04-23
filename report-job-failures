@@ -97,13 +97,11 @@ if __name__ == "__main__":
 
     # Don't harass infrastructure for manual runs
     if run_label != 'nightly\n':
-        print 'Skipping manual run.'
         exit(0)
 
     failures = parse_job_log('osg-test-cat.log')
-    message = construct_email(failures)
-
-    run_time = time.gmtime(os.path.getctime('osg-test-cat.log'))
-    run_date = time.strftime('%F', run_time)
-    
-    mail_message('VM universe machine failures - ' + run_date, message, RECIPIENTS)
+    if failures:
+        message = construct_email(failures)
+        run_time = time.gmtime(os.path.getctime('osg-test-cat.log'))
+        run_date = time.strftime('%F', run_time)
+        mail_message('VM universe machine failures - ' + run_date, message, RECIPIENTS)
