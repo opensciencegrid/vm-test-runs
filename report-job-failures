@@ -6,7 +6,7 @@ import time
 import os
 
 RECIPIENTS = ('Brian Lin <blin@cs.wisc.edu>',
-              'Tim Cartwright <cat@cs.wisc.edu>')
+              'HTCondor Infrastructure <htcondor-inf@cs.wisc.edu>')
 
 # Adapted from Tim's email-analysis script, which was adapted from Mat's aggregator/emailer.py script
 def mail_message(subject, message, recipients):
