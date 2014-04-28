@@ -70,9 +70,9 @@ def parse_job_log(logfile):
 
 def construct_email(messages):
     body = '''In the OSG VM universe test run today, the following shadow exceptions
-occurred. Often, these errors indicate a broken libvirt, dnsmasq, firewall, or
-other hypervisor configuration issue.  The counts are total exceptions per
-hostname.
+occurred on machines that have 'HasVirshDefaultNetwork = true'.  Often, these errors
+indicate a broken libvirt, dnsmasq, firewall, or other hypervisor configuration issue.
+The counts are total exceptions per hostname.
 '''
         
     for message, failures in messages.items():
