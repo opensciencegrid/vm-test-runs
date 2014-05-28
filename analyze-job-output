@@ -110,11 +110,16 @@ data = {
 # Construct expected directory name
 test_run_dir = 'output-' + job_serial
 
-# Read condor_history output for transfer-in time (in seconds) and remote hostname
+# Read condor_history output for transfer-in time (in seconds)
 (rc, stdout, _) = run_command(('condor_history', '-format', '%d ', 'JobCurrentStartExecutingDate - JobCurrentStartDate',
-                               '-format', '%s\\n', 'LastRemoteHost', job_id, '-match', '1'))
+                               job_id, '-match', '1'))
 if rc == 0:
-    data['transfer_in'], data['host_name'] = re_extract(r'^(\S+) \S+@(\S+)$', stdout)
+    data['transfer_in'] = re_extract(r'^(\S+)$', stdout, group=1)
+
+# Separate query for hostname in case the JobAd's missing attributes
+(rc, stdout, _) = run_command(('condor_history', '-format', '%s\\n', 'LastRemoteHost', job_id, '-match', '1'))
+if rc ==0:
+    data['host_name'] = re_extract(r'^\S+@(\S+)$', stdout, group=1)
 if 'host_name' in data:
     try:
         data['host_address'] = socket.gethostbyname(data['host_name'])
