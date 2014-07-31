@@ -90,7 +90,10 @@ def read_source_params(test_params):
     re_sources = re.compile(r'(trunk)?[; ]*(\d.\d)[; ]*([\w-]*)[> ]*(\d.\d)?\/?([\w-]+)?')
     for source in test_params['sources']:
         result = re.sub(r'\s*>\s*', ' -> ', source)
+        result = re.sub(r'osg-minefield', 'Minefield', result)
+        result = re.sub(r'osg-development', 'Development', result)
         result = re.sub(r'osg-testing', 'Testing', result)
+        result = re.sub(r'osg-prerelease', 'Prerelease', result)
         result = re.sub(r'osg', 'Release', result) # Must come after osg-testing
         result = re.sub(r';', '', result)
         result = re.sub(r'/', ' ', result)
