@@ -20,12 +20,7 @@ pkg_filename = "packages.html"
 homepage = run_url +  repo_filename
 pkg_organized_homepage = run_url + pkg_filename
 
-os_translation = {'centos_5_x86_64':{'dver':5, 'short':'CentOS'},
-                  'centos_6_x86_64':{'dver':6, 'short':'CentOS'},
-                  'rhel_5_x86_64':{'dver':5, 'short':'Red Hat'},
-                  'rhel_6_x86_64':{'dver':6, 'short':'Red Hat'},
-                  'sl_5_x86_64':{'dver':5, 'short':'Scientific'},
-                  'sl_6_x86_64':{'dver':6, 'short':'Scientific'}}
+os_translation = {'centos': 'CentOS', 'rhel': 'Red Hat', 'sl': 'Scientific'}
 
 def create_html_and_table():
     html = taglib.Html(page_title='OSG VMU Automated Test Results', css_link=CSS_URI)
@@ -55,27 +50,27 @@ def create_html_and_table():
     table = html.body.append_new_tag('table')
     return html, table
 
-def sort_platforms_by_dver(platforms):
-    global num_el5
-    global num_el6
+def sort_platforms_by_dver(platform_list):
+    # Sorts the OS's by dver so that we know which column to put each run
+    # Assumes the OS's have the format: <flavor>_<dver>_<arch>
+    
+    # Sort platforms into different dver buckets
+    el = {}
+    for platform in platform_list:
+        m = re.search('_(\d+)_', platform)
+        try:
+            el[m.group(1)].append(platform)
+        except KeyError:
+            el[m.group(1)] = [platform]
 
-    organized_platforms = []
-    num_el5 = 0
-    for platform in platforms:
-        if os_translation[platform]['dver'] == 5:
-            organized_platforms.insert(num_el5, platform)
-            num_el5 = num_el5 + 1
-        else:
-            organized_platforms.append(platform)
-
-    num_el6 = len(platforms) - num_el5
-    return organized_platforms
+    # Add them all into one list
+    del platform_list[:] # clear list in place
+    for dver in sorted(el):
+        platform_list += el[dver]
 
 def concat_packages(packages):
-    for idx, package in enumerate(packages):
-        packages[idx] = string.join(package, ', ')
-
-    return packages
+    for idx, package_set in enumerate(packages):
+        packages[idx] = string.join(package_set, ', ')
     
 def read_source_params(test_params):
     """
@@ -85,7 +80,6 @@ def read_source_params(test_params):
     '3.1; osg > 3.2/osg' # 3.1 Release -> 3.2 Release
     'trunk; 3.2; osg-testing' # 3.2 Testing (TRUNK)
     """
-    repo_translation = {'osg':'Release', 'osg-testing':'Testing'}
     source_translation = {}
     re_sources = re.compile(r'(trunk)?[; ]*(\d.\d)[; ]*([\w-]*)[> ]*(\d.\d)?\/?([\w-]+)?')
     for source in test_params['sources']:
@@ -108,9 +102,10 @@ def make_data_grid(runs, test_params, organization_scheme='repos'):
     for run in runs:
         # Find column value in the grid
         for idx, platform in enumerate(test_params['platform']):
-            dver_regex = r'[^\d]' + str(os_translation[platform]['dver']) + r'\.'
-            if (re.match(os_translation[platform]['short'], run['os_release']) and
-                re.search(dver_regex, run['os_release'])):
+            m = re.match('([^_]*)_(\d)_', platform)
+            os, dver = m.groups()
+            if (re.match(os_translation[os], run['os_release']) and
+                re.search(' %s\.' % dver, run['os_release'])):
                 column = idx
                 break
             
@@ -128,7 +123,7 @@ def make_data_grid(runs, test_params, organization_scheme='repos'):
         if organization_scheme == 'packages':
             row = repo_idx + package_idx * len(test_params['sources'])
         else:
-            row = package_idx + repo_idx  * len(test_params['packages'])
+            row = package_idx + repo_idx * len(test_params['packages'])
 
         organized_runs[row][column] = run
     return organized_runs
@@ -153,14 +148,25 @@ def create_table_header(table, organization_scheme='repos'):
         append(sort_link_text) # mouseover text/link
     row_1.append_new_tag("th", rowspan="2").append(second_column_text)
 
-    if num_el5 > 0:
-        row_1.append_new_tag("th", colspan=num_el5).append("EL5")
-    if num_el6 > 0:
-        row_1.append_new_tag("th", colspan=num_el6).append("EL6")
+    # Get number of platforms per dver so we know the length of the dver columns
+    num_el = {}
+    for platform in test_params['platform']:
+        m =  re.search('_(\d+)_', platform)
+        try:
+            num_el[m.group(1)] += 1
+        except KeyError:
+            num_el[m.group(1)] = 1
 
+    # If we have at least 1 platform in a dver, we should create the dver column
+    for dver in num_el:
+        if num_el[dver] > 0:
+            row_1.append_new_tag("th", colspan=num_el[dver]).append("EL%s" % dver)
+
+    # Print out all the OS flavors
     row_2 = header.append_new_tag("tr")
     for platform in test_params['platform']:
-        row_2.append_new_tag("th").append(os_translation[platform]['short'])
+        m = re.match('([^_]*)', platform)
+        row_2.append_new_tag("th").append(os_translation[m.group(1)])
 
     return table
 
@@ -186,7 +192,7 @@ def populate_table_data(table, data, test_params, organization_scheme='repos'):
 
     tbody = table.append_new_tag('tbody')
 
-    for row_tuple, inner in itertools.izip(enumerate(data), itertools.cycle(inner_org)):
+    for row_tuple, inner_idx in itertools.izip(enumerate(data), itertools.cycle(inner_org)):
         row_num = row_tuple[0]
         data = row_tuple[1]
         rowspan_size = len(inner_org)
@@ -195,11 +201,11 @@ def populate_table_data(table, data, test_params, organization_scheme='repos'):
             # we need to move onto the next item in the outer organization scheme.
             tbody.append_new_tag('tr').append_new_tag('td', class_ = 'divider')
             trow = tbody.append_new_tag('tr')
-            outer = outer_org[row_num/rowspan_size]
-            trow.append_new_tag('th', valign='top', rowspan=rowspan_size).append(outer_translation[outer])
+            outer_idx = outer_org[row_num/rowspan_size]
+            trow.append_new_tag('th', valign='top', rowspan=rowspan_size).append(outer_translation[outer_idx])
         else:
             trow = tbody.append_new_tag('tr')
-        trow.append_new_tag('th').append(inner_translation[inner])
+        trow.append_new_tag('th').append(inner_translation[inner_idx])
         for cell in data:
             trow.append(get_cell_contents(cell))
 
@@ -270,8 +276,8 @@ if __name__ == "__main__":
     yaml_data = f.read()
     f.close()
     test_params = yaml.load(yaml_data)
-    test_params['platform'] = sort_platforms_by_dver(test_params['platform'])
-    test_params['packages'] = concat_packages(test_params['packages'])
+    sort_platforms_by_dver(test_params['platform'])
+    concat_packages(test_params['packages'])
 
     # Map runs to their rows
     f = open('combined-analysis.yaml', 'r')
