@@ -72,7 +72,7 @@ def concat_packages(packages):
     for idx, package_set in enumerate(packages):
         packages[idx] = string.join(package_set, ', ')
     
-def read_source_params(test_params):
+def read_source_params(sources_list):
     """
     Generate source_translation from sources attribute of test_params. Sources can take the following forms:
     '3.1; osg' # 3.1 Release
@@ -82,7 +82,7 @@ def read_source_params(test_params):
     """
     source_translation = {}
     re_sources = re.compile(r'(trunk)?[; ]*(\d.\d)[; ]*([\w-]*)[> ]*(\d.\d)?\/?([\w-]+)?')
-    for source in test_params['sources']:
+    for source in sources_list:
         result = re.sub(r'\s*>\s*', ' -> ', source)
         result = re.sub(r'osg-minefield', 'Minefield', result)
         result = re.sub(r'osg-development', 'Development', result)
@@ -171,7 +171,7 @@ def create_table_header(table, organization_scheme='repos'):
     return table
 
 def populate_table_data(table, data, test_params, organization_scheme='repos'):
-    source_translation = read_source_params(test_params)
+    source_translation = read_source_params(test_params['sources'])
     pkg_translation = {'osg-tested-internal':'Everything',
                        'condor.x86_64, osg-ce-condor, rsv':'Condor',
                        'osg-gridftp, edg-mkgridmap, rsv':'GridFTP',
@@ -192,20 +192,28 @@ def populate_table_data(table, data, test_params, organization_scheme='repos'):
 
     tbody = table.append_new_tag('tbody')
 
-    for row_tuple, inner_idx in itertools.izip(enumerate(data), itertools.cycle(inner_org)):
+    # Every time we finish looping over the inner organization scheme,
+    # we need to move onto the next item in the outer organization scheme.
+    for row_tuple, inner_value in itertools.izip(enumerate(data), itertools.cycle(inner_org)):
         row_num = row_tuple[0]
         data = row_tuple[1]
         rowspan_size = len(inner_org)
         if row_num % rowspan_size == 0:
-            # Every time we finish looping over the inner organization scheme,
-            # we need to move onto the next item in the outer organization scheme.
             tbody.append_new_tag('tr').append_new_tag('td', class_ = 'divider')
             trow = tbody.append_new_tag('tr')
-            outer_idx = outer_org[row_num/rowspan_size]
-            trow.append_new_tag('th', valign='top', rowspan=rowspan_size).append(outer_translation[outer_idx])
+            outer_value = outer_org[row_num/rowspan_size]
+            try:
+                trow.append_new_tag('th', valign='top', rowspan=rowspan_size).append(outer_translation[outer_value])
+            except KeyError:
+                # If we don't have a translation for the value, we should just use what we were given
+                trow.append_new_tag('th', valign='top', rowspan=rowspan_size).append(outer_value)
         else:
             trow = tbody.append_new_tag('tr')
-        trow.append_new_tag('th').append(inner_translation[inner_idx])
+        try:
+            trow.append_new_tag('th').append(inner_translation[inner_value])
+        except:
+            # If we don't have a translation for the value, we should just use what we were given
+            trow.append_new_tag('th').append(inner_value)
         for cell in data:
             trow.append(get_cell_contents(cell))
 
