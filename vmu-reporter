@@ -203,17 +203,19 @@ def populate_table_data(table, data, test_params, organization_scheme='repos'):
             trow = tbody.append_new_tag('tr')
             outer_value = outer_org[row_num/rowspan_size]
             try:
-                trow.append_new_tag('th', valign='top', rowspan=rowspan_size).append(outer_translation[outer_value])
+                translated_outer_value = outer_translation[outer_value]
             except KeyError:
                 # If we don't have a translation for the value, we should just use what we were given
-                trow.append_new_tag('th', valign='top', rowspan=rowspan_size).append(outer_value)
+                translated_outer_value = outer_value
+            trow.append_new_tag('th', valign='top', rowspan=rowspan_size).append(translated_outer_value)
         else:
             trow = tbody.append_new_tag('tr')
         try:
-            trow.append_new_tag('th').append(inner_translation[inner_value])
-        except:
+            translated_inner_value = inner_translation[inner_value]
+        except KeyError:
             # If we don't have a translation for the value, we should just use what we were given
-            trow.append_new_tag('th').append(inner_value)
+            translated_inner_value = inner_value
+        trow.append_new_tag('th').append(translated_inner_value)
         for cell in data:
             trow.append(get_cell_contents(cell))
 
