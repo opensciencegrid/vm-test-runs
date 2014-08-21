@@ -65,7 +65,10 @@ def canonical_pkg_string(package):
         'osg-tested-internal': 'All',
         'osg-voms, rsv': 'VOMS'
         }
-    return mapping[package]
+    try:
+        return mapping[package]
+    except KeyError:
+        return package
 
 def canonical_src_string(sources):
     result = re.sub(r'\s*>\s*', ' -> ', sources)
