@@ -11,6 +11,8 @@ RECIPIENTS = (
     'Brian Lin <blin@cs.wisc.edu>',
     'Carl Edquist <edquist@cs.wisc.edu>',
     'Edgar Fajardo <emfajard@ucsd.edu>',
+    'John Hover <jhover@bnl.gov>',
+    'Jose Caballero <jcaballero@bnl.gov>',
     'Mat Selmeci <matyas@cs.wisc.edu>',
     'Suchandra Thapa <sthapa@ci.uchicago.edu>',
     'Tim Cartwright <cat@cs.wisc.edu>',
@@ -66,7 +68,8 @@ if os.path.getsize(ANALYSIS_FILENAME) == 0:
     mail_message(subject, message, RECIPIENTS)
     sys.exit(0)
 
-subject = 'OSG VMU test results'
+subject = 'OSG VMU test results: ' + file_contents(LABEL_FILENAME, as_single_string=True)
+truncated_subject = subject[:77] + '...' if len(subject) > 80 else subject
 
 for line in file_contents(ANALYSIS_FILENAME):
     message += re.sub(r'\x1b.*?m', '', line)
@@ -76,4 +79,4 @@ if os.path.exists(ERROR_FILENAME) and (os.path.getsize(ERROR_FILENAME) > 0):
     message += '=' * 75
     message += '\n' + ERROR_FILENAME + ' contents:\n\n' + file_contents(ERROR_FILENAME, as_single_string=True)
 
-mail_message(subject, message, RECIPIENTS)
+mail_message(truncated_subject, message, RECIPIENTS)
