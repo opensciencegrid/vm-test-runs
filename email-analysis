@@ -68,7 +68,7 @@ if os.path.getsize(ANALYSIS_FILENAME) == 0:
     mail_message(subject, message, RECIPIENTS)
     sys.exit(0)
 
-subject = 'OSG VMU test results: ' + file_contents(LABEL_FILENAME, as_single_string=True)
+subject = 'OSG VMU test results: ' + file_contents(LABEL_FILENAME, as_single_string=True).strip()
 truncated_subject = subject[:77] + '...' if len(subject) > 80 else subject
 
 for line in file_contents(ANALYSIS_FILENAME):
