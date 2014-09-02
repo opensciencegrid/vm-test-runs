@@ -16,7 +16,7 @@ def mail_message(subject, message, recipients):
     payload += 'To: %s\r\n' % (', '.join(recipients))
     payload += '\r\n'
     payload += message
-    smtp = smtplib.SMTP('wid-service-1.chtc.wisc.edu')
+    smtp = smtplib.SMTP('gypsum.cs.wisc.edu')
     smtp.sendmail(from_addr, recipients, payload)
     smtp.quit()
 
