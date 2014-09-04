@@ -79,7 +79,14 @@ log_command mount
 log_command cat /proc/net/dev
 
 # Set a hostname
-ip_address=`ip addr show eth0 | awk 'match($0, /inet ([0-9.]+)/, a) { print a[1] }'`
+if [[ -n `ip addr | grep eth0` ]]; then
+    ip_address=`ip addr show eth0 | awk 'match($0, /inet ([0-9.]+)/, a) { print a[1] }'`
+elif [[ -n `ip addr | grep ens3` ]]; then
+    ip_address=`ip addr show ens3 | awk 'match($0, /inet ([0-9.]+)/, a) { print a[1] }'`
+else
+    echo 'Could not find IP address'
+    exit 1
+fi
 echo "$ip_address osg-test.localdomain osg-test" >> /etc/hosts
 log_command cat /etc/hosts
 log_command cat /etc/host.conf
