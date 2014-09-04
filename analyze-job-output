@@ -181,15 +181,6 @@ osg_test_log = read_file(osg_test_logfile)
 data['run_status'] = 0
 data['osg_test_logfile'] = osg_test_logfile
 
-# Extract package list
-installed_string = re_extract(r'^\s+-\s+Install:\s+(.*)$', osg_test_log, re.MULTILINE, group=1)
-installed_list = re.split(r'\s*,\s*', installed_string)
-if len(installed_list) == 2:
-    installed_string = ' and '.join(installed_list)
-elif len(installed_list) > 2:
-    installed_string = ', '.join(installed_list[0:-1]) + ', and ' + installed_list[-1]
-
-
 # Extract problems
 problems = []
 for m in re.finditer(r'^(ERROR|FAIL): (\w+) \(osgtest\.tests\.(\w+)\.(\w+)\)', osg_test_log, re.MULTILINE):
