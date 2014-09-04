@@ -36,11 +36,15 @@ def re_extract(regexp, data, flags=0, default=None, group=None):
     else:
         return m.group(group)
 
-def extract_eth0_inet_address(run_job_log):
+def extract_inet_address(run_job_log):
     eth0_block = re_extract(r'^\d:\s*eth0:(.*?)(?:^\d)', run_job_log, re.MULTILINE | re.DOTALL, group=1)
-    if eth0_block is None:
+    ens3_block = re_extract(r'^\d:\s*ens3:(.*?)(?:^\d)', run_job_log, re.MULTILINE | re.DOTALL, group=1)
+    if eth0_block:
+        return re_extract(r'^\s+inet\s+(.*?)\/', eth0_block, re.MULTILINE, group=1)
+    elif ens3_block:
+        return re_extract(r'^\s+inet\s+(.*?)\/', ens3_block, re.MULTILINE, group=1)
+    else:
         return None
-    return re_extract(r'^\s+inet\s+(.*?)\/', eth0_block, re.MULTILINE, group=1)
 
 def extract_last(run_job_log, regexp):
     all_installs = re.findall(regexp, run_job_log, re.MULTILINE)
@@ -143,10 +147,10 @@ os_string = re.sub(r'\s*\(.*\)$', '', os_string)
 data['os_release'] = os_string
 
 # Look for whole-run failures
-eth0_inet_address = extract_eth0_inet_address(run_job_log)
-if eth0_inet_address is None:
-    write_failure_and_exit(data, 1, 'No apparent eth0 IP address')
-data['guest_address'] = eth0_inet_address
+inet_address = extract_inet_address(run_job_log)
+if inet_address is None:
+    write_failure_and_exit(data, 1, 'No apparent IP address')
+data['guest_address'] = inet_address
 
 # See if the final rpm install of epel-release failed
 final_epel_install = extract_last(run_job_log, r'^.*rpm --upgrade.*epel-release(?:.*\n)*?^==>.*$')
@@ -184,6 +188,7 @@ if len(installed_list) == 2:
     installed_string = ' and '.join(installed_list)
 elif len(installed_list) > 2:
     installed_string = ', '.join(installed_list[0:-1]) + ', and ' + installed_list[-1]
+
 
 # Extract problems
 problems = []
