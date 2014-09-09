@@ -124,11 +124,14 @@ if rc == 0:
 (rc, stdout, _) = run_command(('condor_history', '-format', '%s\\n', 'LastRemoteHost', job_id, '-match', '1'))
 if rc ==0:
     data['host_name'] = re_extract(r'^\S+@(\S+)$', stdout, group=1)
-if 'host_name' in data:
-    try:
-        data['host_address'] = socket.gethostbyname(data['host_name'])
-    except socket.gaierror:
-        data['host_address'] = 'unavailable'
+try:
+    data['host_address'] = socket.gethostbyname(data['host_name'])
+except TypeError:
+    # Missing hostname from condor_history
+    data['host_address'] = 'unavailable'
+except socket.gaierror:
+    # When gethostbyname can't find address by hostname1
+    data['host_address'] = 'unavailable'
 
 # Read osg-test.conf
 conf_file_name = os.path.join(test_run_dir, 'input', 'osg-test.conf')
