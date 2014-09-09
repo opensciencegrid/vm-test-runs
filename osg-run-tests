@@ -4,7 +4,7 @@ safe_run()
 {
     "$@"
     exit_status=$?
-    if [ $exit_status -ne 0 ]; then
+    if [[ $exit_status -ne 0 ]]; then
         echo "==> FAILED with exit status $exit_status"
         exit $exit_status
     fi
@@ -45,7 +45,7 @@ while getopts :l:sh opt; do
 done
 
 TEST_HOME=/osgtest/runs
-if [ ! -d $TEST_HOME ]; then
+if [[ ! -d $TEST_HOME ]]; then
     safe_run mkdir -p $TEST_HOME
 fi
 
@@ -77,14 +77,17 @@ safe_run cp \
 cp /osgtest/rpms/osg-test-*.rpm $RUN_DIRECTORY/ 2> /dev/null
 cd $RUN_DIRECTORY
 if [ "x$TEMP_DIR" != 'x' ]; then
-    rm -fr $TEMP_DIR
+    rm -fr "$TEMP_DIR"
 fi
 
-if [ -z "$LABEL" ]; then
+if [[ -z $LABEL ]]; then
     # User has not specified a description for this run
     touch $RUN_DIRECTORY/run_label
+elif [[ $LABEL != "nightly" ]]; then
+    # If it's a manual run, record the user
+    echo "$LABEL ($USER)" > $RUN_DIRECTORY/run_label
 else
-    echo $LABEL > $RUN_DIRECTORY/run_label
+    echo "$LABEL" > $RUN_DIRECTORY/run_label
 fi
 
 if [ $SKIP -eq 1 ]; then
