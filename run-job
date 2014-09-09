@@ -53,6 +53,7 @@ case $os_major_version in
         python_lib_dir='/usr/lib/python2.4'
         ;;
     6 )
+
         epel_url='http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm'
         osg_url="http://repo.grid.iu.edu/osg/$osg_series/osg-$osg_series-el6-release-latest.rpm"
         priorities_rpm='yum-plugin-priorities'
@@ -110,7 +111,7 @@ if [ $? -ne 0 ]; then
     echo 'Could not install EPEL repository'
     exit 1
 fi
-run_command_with_retries 8 yum -y install $priorities_rpm --disablerepo=osg
+run_command_with_retries 8 yum -y install $priorities_rpm
 log_command sed -i -e 's/^plugins=.*$/plugins=1/' /etc/yum.conf
 run_command_with_retries 8 rpm --upgrade $osg_url
 if [ $? -ne 0 ]; then
