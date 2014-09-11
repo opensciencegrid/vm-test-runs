@@ -128,6 +128,7 @@ try:
     data['host_address'] = socket.gethostbyname(data['host_name'])
 except TypeError:
     # Missing hostname from condor_history
+    data['host_name'] = 'unavailable'
     data['host_address'] = 'unavailable'
 except socket.gaierror:
     # When gethostbyname can't find address by hostname1
