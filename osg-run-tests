@@ -10,40 +10,46 @@ safe_run()
     fi
 }
 
-SKIP=0
-LABEL=''
+print_help()
+{
+    echo "help: $0 [-n] <label>"
+    echo "Options:"
+    echo "    -n"
+    echo "       Run as nightly test i.e. immediately submit the DAG after setting up the test run"
+    echo '    -h, -help, --help'
+    echo "       Print this dialogue"
 
-# Submit DAG (or print and skip)
-while getopts :l:sh opt; do
+}
+
+NIGHTLY=0
+
+# Parse options and required label arg
+while getopts :nh opt; do
     case $opt in
-        s)
-            SKIP=1
-            ;;
-        l)
-            LABEL=$OPTARG
+        n)
+            NIGHTLY=1
             ;;
         h)
-            echo "usage: $0 <option>"
-            echo "Options:"
-            echo "    -s"
-            echo "       Do not automatically submit DAG. Allows for patching before jobs are submitted."
-            echo "    -l <description>"
-            echo "       Assign a description to the test run. Used to create report web page."
-            echo '    -h, -help, --help'
-            echo "       Print this dialogue"
+            print_help
             exit 0
             ;;
         \?)
-            echo "Invalid option: -$OPTARG" 
-            exit 1
-            ;;
-        :)
-            echo "Option -$OPTARG requires an argument." 
+            echo "Invalid option: -$OPTARG"
+            print_help
             exit 1
             ;;
     esac
 done
 
+shift $(($OPTIND-1)) # Pop options we've already read
+
+if [[ $# -ne 1 ]]; then
+    echo "ERROR: Received incorrect number of arguments: $#. Expecting one 'label' argument"
+    print_help
+    exit 1
+fi
+
+LABEL="$1"
 TEST_HOME=/osgtest/runs
 if [[ ! -d $TEST_HOME ]]; then
     safe_run mkdir -p $TEST_HOME
@@ -80,21 +86,13 @@ if [ "x$TEMP_DIR" != 'x' ]; then
     rm -fr "$TEMP_DIR"
 fi
 
-if [[ -z $LABEL ]]; then
-    # User has not specified a description for this run
-    touch $RUN_DIRECTORY/run_label
-elif [[ $LABEL != "nightly" ]]; then
-    # If it's a manual run, record the user
-    echo "$LABEL ($USER)" > $RUN_DIRECTORY/run_label
-else
+if [ $NIGHTLY -eq 1 ]; then
     echo "$LABEL" > $RUN_DIRECTORY/run_label
-fi
-
-if [ $SKIP -eq 1 ]; then
+    condor_submit_dag master-run.dag
+else
+    echo "$LABEL ($USER)" > $RUN_DIRECTORY/run_label
     echo 'Run tests with:'
     echo "    cd $RUN_DIRECTORY"
     echo '    condor_submit_dag master-run.dag'
     exit 0
-else
-    condor_submit_dag master-run.dag
 fi
