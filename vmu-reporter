@@ -160,7 +160,7 @@ def create_table_header(table, organization_scheme='repos'):
             num_el[m.group(1)] = 1
 
     # If we have at least 1 platform in a dver, we should create the dver column
-    for dver in num_el:
+    for dver in sorted(num_el):
         if num_el[dver] > 0:
             row_1.append_new_tag("th", colspan=num_el[dver]).append("EL%s" % dver)
 
