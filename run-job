@@ -60,7 +60,7 @@ case $os_major_version in
         python_lib_dir='/usr/lib/python2.6'
         ;;
     7 )
-        epel_url='http://download.fedoraproject.org/pub/epel/beta/7/x86_64/epel-release-7-1.noarch.rpm'
+        epel_url='http://download.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-2.noarch.rpm'
         osg_url="http://repo.grid.iu.edu/osg/3.2/el7/development/x86_64/osg-release-3.2-6.osg32.el7.noarch.rpm"
         priorities_rpm='yum-plugin-priorities'
         python_lib_dir='/usr/lib/python2.7'
