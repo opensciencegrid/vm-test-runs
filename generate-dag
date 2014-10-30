@@ -52,8 +52,10 @@ def write_osg_test_configuration(serial, combo, directory):
     else:
         release_series, repositories = sources_parts
     repo_parts = re.split(r'\s*>\s*', repositories)
-    if repo_parts[0] != 'osg':
-        contents += 'extrarepos = %s\n' % (repo_parts[0])
+    # Remove osg production from any part of the extra repos string
+    extrarepos = re.sub('osg\s*,\s*', '', repo_parts[0])
+    extrarepos = re.sub('[,\s]*osg(?!-)', '', extrarepos)
+    contents += 'extrarepos = %s\n' % (extrarepos)
     if len(repo_parts) > 1:
         update_parts = re.split(r'\s*/\s*', repo_parts[1])
         if len(update_parts) == 1:

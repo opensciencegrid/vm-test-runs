@@ -90,9 +90,10 @@ def read_source_params(sources_list):
         result = re.sub(r'osg-prerelease', 'Prerelease', result)
         result = re.sub(r'osg-upcoming', 'Upcoming', result)
         result = re.sub(r'osg-upcoming-testing', 'Upcoming Testing', result)
-        result = re.sub(r'osg', 'Release', result) # Must come after osg-testing
+        result = re.sub(r'osg', 'Release', result) # Must come after other repos
         result = re.sub(r';', '', result)
         result = re.sub(r'/', ' ', result)
+        result = re.sub(r',', ' + ', result)
         result = re.sub(r'^(\d+\.\d+)(.*-> )(?!\d)', '\\1\\2\\1 ', result) # Duplicate release series, when needed
         result = re.sub(r'^trunk\s*(.*)$', '\\1 (TRUNK)', result)
         source_translation[source] = result
