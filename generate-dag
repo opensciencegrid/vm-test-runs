@@ -61,7 +61,7 @@ def write_osg_test_configuration(serial, combo, directory):
     if len(repo_parts) > 1:
         update_parts = re.split(r'\s*/\s*', repo_parts[1])
         if len(update_parts) == 1:
-            contents += 'updaterepo = %s\n' % (update_parts[0])
+            contents += 'updaterepos = %s\n' % (update_parts[0])
         else:
             contents += 'updaterelease = %s\n' % (update_parts[0])
             if update_parts[1] != 'osg':
