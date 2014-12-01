@@ -217,9 +217,10 @@ elif 'osg_test_status' not in data: # catch missed failures
 # Extract start time
 data['start_time'] = re_extract(r'^Start time: (.*)$', osg_test_log, re.MULTILINE, group=1)
 
-# Determine if the run timed out
-timeout_re = re.compile('message: (.*): \n*Caught alarm:')
-timeout_match = timeout_re.search(osg_test_log, re.MULTILINE)
+# Determine if the run timed out which can be found at the end of the log
+timeout_re = re.compile('Caught alarm:\n.*message: (.*):')
+reversed_osg_test_log = '\n'.join(reversed(osg_test_log.split('\n'))) 
+timeout_match = timeout_re.search(reversed_osg_test_log, re.MULTILINE)
 if timeout_match:
     data['osg_test_status'] = 'timeout'
 
@@ -227,10 +228,8 @@ if timeout_match:
     start_time = datetime.datetime.strptime(data['start_time'], '%Y-%m-%d %H:%M:%S')
     data['run_time'] = end_time - start_time
 
-    timeout_exception_re = re.compile(r'.*: Caught alarm:', re.DOTALL)
-    timeout_exception = timeout_exception_re.sub('', osg_test_log)
     last_test_re = re.compile(r'File .*osgtest\/tests\/(.*)\".*in (.*)')
-    last_test = last_test_re.search(timeout_exception)
+    last_test = last_test_re.search(reversed_osg_test_log)
     failed_module, failed_test = last_test.groups()
     data['timeout_test'] = failed_test + ' (' + failed_module + ')'
 
