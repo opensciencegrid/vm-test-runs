@@ -234,7 +234,7 @@ if timeout_match:
     data['timeout_test'] = failed_test + ' (' + failed_module + ')'
 
 # Extract summary statistics
-summary_re = re.compile(r'(Ran \d+ tests in .*)\s+((?:OK|FAILED)\s*\([^)]+\))')
+summary_re = re.compile(r'(Ran \d+ tests in .*)\s+((?:OK|FAILED)\s*\([^)]+\))\n(?!STDOUT)')
 summary_lines = re_extract(summary_re, osg_test_log)
 data['tests_total'] = data['tests_failed'] = data['tests_error'] = data['tests_bad_skip'] = data['tests_ok_skip'] = 0
 if summary_lines is None:
