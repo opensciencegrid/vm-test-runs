@@ -7,11 +7,10 @@ import itertools
 import yaml
 import taglib
 from taglib import Tag
-
+from glob import glob
 
 CSS_URI =  "http://vdt.cs.wisc.edu/tests/vmu.css"
-m = re.search(r'run-((\d*)-\d*)', os.getcwd())
-date = m.group(2)
+m = re.search(r'run-(\d*-\d*)', os.getcwd())
 timestamp = m.group(1)
 vmu_tests_url = "http://vdt.cs.wisc.edu/tests/"
 run_url = vmu_tests_url + timestamp + "/"
@@ -249,10 +248,14 @@ def get_cell_contents(run):
                     '</br><b>&emsp;%s:</b> %s (%s,%s): %s' % (status, test, filename, module, msg)
         
         # Construct link tag
-        success = run['tests_ok']
-        skip = run['tests_ok_skip']
-        fail =  run['tests_failed'] + run['tests_error'] + run['tests_bad_skip']
-        link_location = run_dir + '/osg-test-' + date + '.log'
+        success_count = run['tests_ok']
+        skip_count = run['tests_ok_skip']
+        fail_count =  run['tests_failed'] + run['tests_error'] + run['tests_bad_skip']
+
+        test_log_path = glob('output-%s/output/osg-test*.log' % run['job_serial'])[0]
+        test_log_filename = os.path.basename(test_log_path)
+        link_location = '%s/%s' % (run_dir, test_log_filename)
+
         if run['osg_test_status'] == 'timeout':
             link = Tag('a', href=link_location).append('TIMEOUT')
         elif run['osg_test_status'] == 'install':
@@ -260,7 +263,7 @@ def get_cell_contents(run):
         elif run['osg_test_status'] == 'update':
             link = Tag('a', href=link_location).append('UPDATE')
         else:
-            link = Tag('a', href=link_location).append("%s %s %s" % (success, skip, fail))
+            link = Tag('a', href=link_location).append("%s %s %s" % (success_count, skip_count, fail_count))
     else:
         mouseover_text = mouseover_text + '<b>Run Summary</b>: ' + run['run_summary']
         link_location = run_dir + '/run-job.log'
