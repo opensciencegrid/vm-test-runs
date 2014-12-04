@@ -6,7 +6,8 @@ import re
 import socket
 import subprocess
 import sys
-import datetime
+from datetime import datetime, date
+import yaml
 
 def run_command(command, shell=False):
     # Preprocess command
@@ -185,22 +186,30 @@ osg_test_log = read_file(osg_test_logfile)
 data['run_status'] = 0
 data['osg_test_logfile'] = osg_test_logfile
 
+# Read list of tests failures to ignore
+test_exceptions_file = read_file('test-exceptions.yaml')
+test_exceptions = yaml.load(test_exceptions_file)
+
 # Extract problems
+today = date.today()
 problems = []
+data['ignored_failures'] = 0
 for m in re.finditer(r'^(ERROR|FAIL): (\w+) \(osgtest\.tests\.(\w+)\.(\w+)\)', osg_test_log, re.MULTILINE):
     status, function, module, module_name = m.groups()
+    for test_exception in test_exceptions:
+        ex_function, ex_module, ex_start, ex_finish = test_exception
+        if status == 'FAIL' and ex_function == function and ex_module == module and \
+           today >= ex_start and today <= ex_finish:
+            data['ignored_failures'] += 1            
     problems.append('|'.join((module, function, module_name, status, '-')))
 
-# Cleanup failures should only be marked as such if they're the only failure type
-if all('special_cleanup' in problem for problem in problems):
+if data['ignored_failures']:
+    data['osg_test_status'] = 'ignored'
+elif all('special_cleanup' in problem for problem in problems):
     data['osg_test_status'] = 'cleanup'
-
-# Update failures
-if any('_update_' in problem for problem in problems):
+elif any('_update_' in problem for problem in problems):
     data['osg_test_status'] = 'update'
-
-# Install failures trump all other failures
-if any('install_packages' in problem for problem in problems):
+elif any('install_packages' in problem for problem in problems):
     data['osg_test_status'] = 'install'
 
 m = re.search(r'^=+\nBAD SKIPS:\n-+\n(.*?)\n\n', osg_test_log, re.MULTILINE | re.DOTALL)
@@ -224,8 +233,8 @@ timeout_match = timeout_re.search(reversed_osg_test_log, re.MULTILINE)
 if timeout_match:
     data['osg_test_status'] = 'timeout'
 
-    end_time = datetime.datetime.strptime(timeout_match.group(1), '%Y-%m-%d %H:%M:%S')
-    start_time = datetime.datetime.strptime(data['start_time'], '%Y-%m-%d %H:%M:%S')
+    end_time = datetime.strptime(timeout_match.group(1), '%Y-%m-%d %H:%M:%S')
+    start_time = datetime.strptime(data['start_time'], '%Y-%m-%d %H:%M:%S')
     data['run_time'] = end_time - start_time
 
     last_test_re = re.compile(r'File .*osgtest\/tests\/(.*)\".*in (.*)')

@@ -47,7 +47,9 @@ def process_run(run):
             deaths_by_host[host] = [report]
         status = 1
     elif (run['tests_bad_skip'] + run['tests_failed'] + run['tests_error']) > 0:
-        if re.match('special_cleanup', run['tests_messages'][0]):
+        if run['osg_test_status'] == 'ignored':
+            status = 4
+        elif re.match('special_cleanup', run['tests_messages'][0]):
             status = 3
         else:
             status = 2
@@ -91,7 +93,7 @@ def canonical_src_string(sources):
 
 def tally_run_results(container, key, status):
     if key not in container:
-        container[key] = [0, 0, 0, 0]
+        container[key] = [0, 0, 0, 0, 0]
     container[key][status] += 1
 
 def print_tallied_results(container, key_label):
@@ -100,10 +102,12 @@ def print_tallied_results(container, key_label):
         if len(key) > key_column_width:
             key_column_width = len(key)
 
-    print '%-*s    OK    DIED   FAIL   CLEANUP' % (key_column_width, key_label.upper())
-    print '%s   ----   ----   ----   ------' % ('-' * key_column_width)
+    print '%-*s    OK    DIED   FAIL   CLEAN  IGNORE' % (key_column_width, key_label.upper())
+    print '%s   ----   ----   ----   ----   ----' % ('-' * key_column_width)
     for key in sorted(container.keys()):
-        print '%-*s   %4d   %4d   %4d   %4d' % (key_column_width, key, container[key][0], container[key][1], container[key][2], container[key][3])
+        print '%-*s   %4d   %4d   %4d   %4d   %4d' % \
+            (key_column_width, key, container[key][0], \
+             container[key][1], container[key][2], container[key][3], container[key][4])
     print
 
 # ------------------------------------------------------------------------------

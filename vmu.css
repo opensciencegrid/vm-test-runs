@@ -25,6 +25,7 @@ td.result a {
 
 /* Test result colors */
 
+.ignored {background-color: #B195DE;}
 .timeout {background-color: #6A94D4;}
 .install {background-color: #FFA240;}
 .update {background-color: #FFA240;}
@@ -32,7 +33,7 @@ td.result a {
 .success {background-color: #67E46F;} 
 .pass {background-color: #67E46F;} 
 .fail {background-color: #FF7673;}
-.die {background-color: #EAF;}
+.died {background-color: #EAF;}
 
 /* Organization link hover */
 
@@ -47,27 +48,6 @@ td.result:hover {background-color: #0099CC;}
 
 /* Mouseover CSS */
 
-/* Here to support the old layout.
-   Can be removed after 2/2014
-*/
-span.mouseover{
-   position:absolute;
-   left:4em;
-   visibility:hidden;
-   white-space:nowrap;
-   background:#F8F8F8;
-   border: 2px solid #8F8F8F;
-   text-align:left;
-   line-height:1.5em;
-   padding:.5em 1em;
-   z-index:101;
-}
-
-td:hover span.mouseover{
-    visibility:visible;
-}
-
-/* New layout */
 div.mouseover{
    position:absolute;
    left:4em;

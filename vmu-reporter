@@ -21,7 +21,7 @@ pkg_organized_homepage = run_url + pkg_filename
 
 os_translation = {'centos': 'CentOS', 'rhel': 'Red Hat', 'sl': 'Scientific'}
 
-def create_html_and_table():
+def create_header_and_table():
     html = taglib.Html(page_title='OSG VMU Automated Test Results', css_link=CSS_URI)
     html.body.append_new_tag('h1').append('OSG VMU Automated Test Results')
 
@@ -45,7 +45,14 @@ def create_html_and_table():
     if os.stat('test-changes.patch').st_size != 0:
         header_links.append_new_tag('a', href = run_url + 'test-changes.patch').\
             append('Click to view osg-test patches')
-        
+
+    # Create cell color legend
+    legend = ['PASS', 'FAIL', 'INSTALL', 'UPDATE', 'CLEANUP', 'IGNORED', 'TIMEOUT', 'DIED']
+    legend_container = html.body.append_new_tag('p')
+    for status in legend:
+        legend_container.append_new_tag('span', class_ = 'legend ' + status.lower()).append(status)
+
+
     table = html.body.append_new_tag('table')
     return html, table
 
@@ -284,8 +291,8 @@ def print_html_to_file(html, filename):
 
 if __name__ == "__main__":
     # setup html objects
-    html_repo, table_repo = create_html_and_table()
-    html_pkg, table_pkg = create_html_and_table()
+    html_repo, table_repo = create_header_and_table()
+    html_pkg, table_pkg = create_header_and_table()
 
     # Read test parameters
     f = open('test-parameters.yaml', 'r')

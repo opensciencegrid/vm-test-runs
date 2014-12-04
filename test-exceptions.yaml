@@ -1,0 +1,12 @@
+# To have the reporting tools ignore test failures for a period of time, specify
+# them with the following format:
+#
+# - [test_function, test_module, start date, end date]. 
+#
+# Example:
+#
+# - [test_04_trace, test_55_condorce, 2014-12-01, 2015-01-14]
+#
+
+- [test_04_trace, test_55_condorce, 2014-12-01, 2015-01-14]
+- [test_05_pbs_trace, test_55_condorce, 2014-12-01, 2015-01-14]
