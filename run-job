@@ -97,7 +97,7 @@ log_command hostname
 
 # Prevent IBM Java from being installed
 echo >> /etc/yum.conf
-echo 'exclude=java-1.7.0-ibm*' >> /etc/yum.conf
+echo 'exclude=java-*-ibm*' >> /etc/yum.conf
 log_command cat /etc/yum.conf
 
 # Do initial check of gethostbyname()
