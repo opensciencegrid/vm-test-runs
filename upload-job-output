@@ -10,7 +10,7 @@
 
 # Assume that we are in the run directory.
 
-NOTIFY_ON_ERROR=(matyas@cs.wisc.edu matyasbot@gmail.com)
+NOTIFY_ON_ERROR=(osg-software@opensciencegrid.org)
 
 UPLOAD_USER=cndrutil
 UPLOAD_MACHINE=ingwe.cs.wisc.edu
