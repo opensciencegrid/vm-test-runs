@@ -10,7 +10,7 @@
 
 # Assume that we are in the run directory.
 
-NOTIFY_ON_ERROR=(matyas@cs.wisc.edu)
+NOTIFY_ON_ERROR=(matyas@cs.wisc.edu matyasbot@gmail.com)
 
 UPLOAD_USER=cndrutil
 UPLOAD_MACHINE=ingwe.cs.wisc.edu
@@ -75,17 +75,11 @@ send_fail_email () {
     from_addr="`whoami`@`hostname`"
     email_file=$WORK_DIR/fail.eml
     (
-        echo "From: OSG VMU Automated tests <$from_addr>"
-        echo "Subject: OSG VMU Automated Tests upload failed"
-        for recipient in "${NOTIFY_ON_ERROR[@]}"; do
-            echo "To: $recipient"
-        done
-        echo
         echo "Uploading results failed."
         cat upload.log
     ) > "$email_file"
 
-    /bin/mailx -S 'smtp=wid-service-1.chtc.wisc.edu' -t -S "from=$from_addr" < "$email_file"
+    /bin/mailx -S 'smtp=wid-service-1.chtc.wisc.edu' -S "from=OSG VMU Automated tests <$from_addr>" -s "OSG VMU Automated Tests upload failed" "${NOTIFY_ON_ERROR[@]}" < "$email_file"
 }
 
 
