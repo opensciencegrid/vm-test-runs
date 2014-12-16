@@ -223,6 +223,9 @@ if not problems:
 elif 'osg_test_status' not in data: # catch missed failures
     data['osg_test_status'] = 'fail'
 
+if re.search('AssertionError: Retries terminated after timeout period', osg_test_log, re.MULTILINE):
+    data['osg_test_status'] += ' yum_timeout'
+
 # Extract start time
 data['start_time'] = re_extract(r'^Start time: (.*)$', osg_test_log, re.MULTILINE, group=1)
 

@@ -263,13 +263,14 @@ def get_cell_contents(run):
         test_log_filename = os.path.basename(test_log_path)
         link_location = '%s/%s' % (run_dir, test_log_filename)
 
-        if run['osg_test_status'] == 'timeout':
-            link = Tag('a', href=link_location).append('TIMEOUT')
-        elif run['osg_test_status'] == 'install':
-            link = Tag('a', href=link_location).append('INSTALL')
-        elif run['osg_test_status'] == 'update':
-            link = Tag('a', href=link_location).append('UPDATE')
-        else:
+        try:
+            status, yum_timeout = re.match(r'(install|update|timeout)\s*(yum_timeout)?', run['osg_test_status']).groups()
+            if yum_timeout:
+                link_text = status.upper() + '&#0153;'
+            else:
+                link_text = status.upper()
+            link = Tag('a', href=link_location).append(link_text)                
+        except AttributeError:
             link = Tag('a', href=link_location).append("%s %s %s" % (success_count, skip_count, fail_count))
     else:
         mouseover_text = mouseover_text + '<b>Run Summary</b>: ' + run['run_summary']
@@ -278,7 +279,7 @@ def get_cell_contents(run):
         link = Tag('a', href = link_location).append('DIED')
 
     # Construct html
-    result_class = 'result ' + run['osg_test_status']        
+    result_class = 'result ' + run['osg_test_status']
     link_div = Tag('div', class_ = 'link').append(link)
     mouseover_div = Tag('div', class_ = 'mouseover').append(mouseover_text)        
     container = Tag('div', class_ = 'data').extend((link_div, mouseover_div))
