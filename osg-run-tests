@@ -74,7 +74,7 @@ safe_run cp \
     generate-dag.sub generate-dag test-parameters.yaml test-exceptions.yaml\
     create-io-images.sub create-io-images \
     run-job osg-test.patch test-changes.patch osg-release.patch single-test-run.sub inner-dag.config \
-    process-job-output extract-job-output analyze-job-output \
+    process-job-output extract-job-output analyze_job_output.py \
     combine-job-analyses analyze-test-run.sub analyze-test-run email-analysis \
     report-job-failures report-job-failures.sub \
     vmu-reporter vmu-reporter.sub taglib.py \

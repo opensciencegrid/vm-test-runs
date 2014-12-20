@@ -12,4 +12,4 @@ unlink input-image-$serial.qcow2
 ./extract-job-output result-image-$serial.qcow2 output-$serial
 
 # Analyze output files
-./analyze-job-output $serial $job_id > output-$serial/analysis.yaml
+analyze_job_output.py $serial $job_id > output-$serial/analysis.yaml
