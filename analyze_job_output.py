@@ -28,6 +28,10 @@ def read_file(path):
     data_file.close()
     return data
 
+def load_yaml(filename):
+    yaml_file = read_file(filename)
+    return yaml.load(yaml_file)
+
 def re_extract(regexp, data, flags=0, default=None, group=None):
     m = re.search(regexp, data, flags)
     if m is None:
@@ -93,9 +97,6 @@ def write_failure_and_exit(data, status, message, extra=None):
     write_yaml(data)
     sys.exit(0)
 
-def set_fail_status(test_module, test_function):
-    return status
-
 def parse_log(osg_test_log, test_exceptions):
     # Extract problems
     today = date.today()
@@ -107,11 +108,12 @@ def parse_log(osg_test_log, test_exceptions):
         status, function, module, module_name = m.groups()
         if module == 'special_cleanup':
             cleanup_failures += 1
-        for exception in test_exceptions:
-            ex_function, ex_module, ex_start, ex_finish = exception
-            if status == 'FAIL' and ex_function == function and ex_module == module and \
-               today >= ex_start and today <= ex_finish:
-                ignored_failures += 1            
+        if test_exceptions:
+            for exception in test_exceptions:
+                ex_function, ex_module, ex_start, ex_finish = exception
+                if status == 'FAIL' and ex_function == function and ex_module == module and \
+                   today >= ex_start and today <= ex_finish:
+                    ignored_failures += 1            
         problems.append('|'.join((module, function, module_name, status, '-')))
 
     if ignored_failures and ignored_failures == len(problems) - cleanup_failures:
@@ -234,11 +236,7 @@ if __name__ == '__main__':
     data['run_status'] = 0
     data['osg_test_logfile'] = osg_test_logfile
     
-    # Read list of tests failures to ignore
-    test_exceptions_file = read_file('test-exceptions.yaml')
-    test_exceptions = yaml.load(test_exceptions_file)
-    
-    data['osg_test_status'], data['tests_messages'] = parse_log(osg_test_log, test_exceptions)
+    data['osg_test_status'], data['tests_messages'] = parse_log(osg_test_log, load_yaml('test-exceptions.yaml'))
   
     # Extract start time
     data['start_time'] = re_extract(r'^Start time: (.*)$', osg_test_log, re.MULTILINE, group=1)
