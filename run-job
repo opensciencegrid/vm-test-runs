@@ -95,11 +95,6 @@ log_command hostname
 log_command hostname osg-test.localdomain
 log_command hostname
 
-# Prevent IBM Java from being installed
-echo >> /etc/yum.conf
-echo 'exclude=java-*-ibm*' >> /etc/yum.conf
-log_command cat /etc/yum.conf
-
 # Do initial check of gethostbyname()
 # log_command yum -y install strace
 # log_command strace -s 8192 -v $INPUT_DIR/check-hostname osg-test.localdomain

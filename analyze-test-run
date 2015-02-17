@@ -63,12 +63,12 @@ def canonical_os_string(os_release):
 
 def canonical_pkg_string(package):
     mapping = {
-        'condor.x86_64, osg-ce-condor, rsv': 'Condor',
-        'osg-gridftp, edg-mkgridmap, rsv': 'GridFTP',
-        'osg-gums, rsv': 'GUMS',
-        'osg-se-bestman, rsv': 'BeStMan',
-        'osg-tested-internal': 'All',
-        'osg-voms, rsv': 'VOMS'
+        'java-1.7.0-openjdk, osg-java7-compat, condor.x86_64, osg-ce-condor, rsv': 'Condor',
+        'java-1.7.0-openjdk, osg-java7-compat, osg-gridftp, edg-mkgridmap, rsv': 'GridFTP',
+        'java-1.7.0-openjdk, osg-java7-compat, osg-gums, rsv': 'GUMS',
+        'java-1.7.0-openjdk, osg-java7-compat, osg-se-bestman, rsv': 'BeStMan',
+        'java-1.7.0-openjdk, osg-java7-compat, osg-tested-internal': 'All',
+        'java-1.7.0-openjdk, osg-java7-compat, osg-voms, rsv': 'VOMS'
         }
     try:
         return mapping[package]

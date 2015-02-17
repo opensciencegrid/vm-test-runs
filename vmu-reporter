@@ -181,12 +181,12 @@ def create_table_header(table, organization_scheme='repos'):
 
 def populate_table_data(table, data, test_params, organization_scheme='repos'):
     source_translation = read_source_params(test_params['sources'])
-    pkg_translation = {'osg-tested-internal':'Everything',
-                       'condor.x86_64, osg-ce-condor, rsv':'Condor',
-                       'osg-gridftp, edg-mkgridmap, rsv':'GridFTP',
-                       'osg-se-bestman, rsv':'BeStMan',
-                       'osg-voms, rsv':'VOMS',
-                       'osg-gums, rsv':'GUMS'}
+    pkg_translation = {'java-1.7.0-openjdk, osg-java7-compat, osg-tested-internal':'Everything',
+                       'java-1.7.0-openjdk, osg-java7-compat, condor.x86_64, osg-ce-condor, rsv':'Condor',
+                       'java-1.7.0-openjdk, osg-java7-compat, osg-gridftp, edg-mkgridmap, rsv':'GridFTP',
+                       'java-1.7.0-openjdk, osg-java7-compat, osg-se-bestman, rsv':'BeStMan',
+                       'java-1.7.0-openjdk, osg-java7-compat, osg-voms, rsv':'VOMS',
+                       'java-1.7.0-openjdk, osg-java7-compat, osg-gums, rsv':'GUMS'}
 
     if organization_scheme == 'packages':
         outer_org = test_params['packages']
