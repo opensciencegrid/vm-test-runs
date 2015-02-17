@@ -195,6 +195,9 @@ if __name__ == '__main__':
     run_job_logfile = os.path.join(test_run_dir, 'run-job.log')
     run_job_log = read_file(run_job_logfile)
     
+    # Get VM creation date
+    data['vm_creation_date'] = re_extract(r'cat /etc/creation_date\n(.*?)\n==> OK', run_job_log, group=1)
+
     # Get and simplify OS release string
     os_long_string = re_extract(r'cat /etc/redhat-release\n(.*?)\n==> OK', run_job_log, group=1)
     os_string = re.sub(r'release\s+', '', os_long_string)

@@ -241,6 +241,7 @@ def get_cell_contents(run):
         # Info for all runs of osg-test
         osg_test_version = re.sub('yum.*(\d+\.\d+\.\d+-\d+).*', '\\1', run['osg_test_version'])
         mouseover_text = mouseover_text + \
+            '<b>VM Creation Date</b>: ' + run['vm_creation_date'] + '</br>' + \
             '<b>Run Dir</b>: ' + run['run_directory'] + '/output-' + run['job_serial'] + '</br>' + \
             '<b>Guest IP</b>: ' + run['guest_address'] + '</br>' + \
             '<b>OSG Test Version</b>: ' + osg_test_version + '</br>' + \
