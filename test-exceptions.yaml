@@ -7,5 +7,5 @@
 #
 # - [test_04_trace, test_55_condorce, 2014-12-01, 2015-01-14]
 #
-- [test_02_fetch_crl, test_06_fetch_crl, 2015-02-09, 2015-03-10]
-- [test_03_fetch_crl_dir, test_06_fetch_crl, 2015-02-09, 2015-03-10]
+- [test_01_copy_local_to_server_gfal2_util, test_58_gfal2util, 2015-02-18, 2016-02-18]
+- [test_02_copy_server_to_local_gfal2_util, test_58_gfal2util, 2015-02-18, 2016-02-18]
