@@ -6,6 +6,7 @@ import string
 import itertools
 import yaml
 import taglib
+import vmu
 from taglib import Tag
 from glob import glob
 
@@ -78,33 +79,6 @@ def concat_packages(packages):
     for idx, package_set in enumerate(packages):
         packages[idx] = string.join(package_set, ', ')
     
-def read_source_params(sources_list):
-    """
-    Generate source_translation from sources attribute of test_params. Sources can take the following forms:
-    '3.1; osg' # 3.1 Release
-    '3.2; osg > osg-testing' # 3.2 Release ->  3.2 Testing
-    '3.1; osg > 3.2/osg' # 3.1 Release -> 3.2 Release
-    'trunk; 3.2; osg-testing' # 3.2 Testing (TRUNK)
-    """
-    source_translation = {}
-    re_sources = re.compile(r'(trunk)?[; ]*(\d.\d)[; ]*([\w-]*)[> ]*(\d.\d)?\/?([\w-]+)?')
-    for source in sources_list:
-        result = re.sub(r'\s*>\s*', ' -> ', source)
-        result = re.sub(r'osg-minefield', 'Minefield', result)
-        result = re.sub(r'osg-development', 'Development', result)
-        result = re.sub(r'osg-testing', 'Testing', result)
-        result = re.sub(r'osg-prerelease', 'Prerelease', result)
-        result = re.sub(r'osg-upcoming', 'Upcoming', result)
-        result = re.sub(r'osg-upcoming-testing', 'Upcoming Testing', result)
-        result = re.sub(r'osg', 'Release', result) # Must come after other repos
-        result = re.sub(r';', '', result)
-        result = re.sub(r'/', ' ', result)
-        result = re.sub(r',', ' + ', result)
-        result = re.sub(r'^(\d+\.\d+)(.*-> )(?!\d)', '\\1\\2\\1 ', result) # Duplicate release series, when needed
-        result = re.sub(r'^trunk\s*(.*)$', '\\1 (TRUNK)', result)
-        source_translation[source] = result
-    return source_translation
-
 def make_data_grid(runs, test_params, organization_scheme='repos'):
     num_rows = range(0, len(runs)/len(test_params['platform'])) 
     organized_runs = [[None] * len(test_params['platform']) for i in num_rows] # Create a 2D array to hold the runs
@@ -180,24 +154,12 @@ def create_table_header(table, organization_scheme='repos'):
     return table
 
 def populate_table_data(table, data, test_params, organization_scheme='repos'):
-    source_translation = read_source_params(test_params['sources'])
-    pkg_translation = {'java-1.7.0-openjdk, osg-java7-compat, osg-tested-internal':'Everything',
-                       'java-1.7.0-openjdk, osg-java7-compat, condor.x86_64, osg-ce-condor, rsv':'Condor',
-                       'java-1.7.0-openjdk, osg-java7-compat, osg-gridftp, edg-mkgridmap, rsv':'GridFTP',
-                       'java-1.7.0-openjdk, osg-java7-compat, osg-se-bestman, rsv':'BeStMan',
-                       'java-1.7.0-openjdk, osg-java7-compat, osg-voms, rsv':'VOMS',
-                       'java-1.7.0-openjdk, osg-java7-compat, osg-gums, rsv':'GUMS'}
-
     if organization_scheme == 'packages':
         outer_org = test_params['packages']
         inner_org = test_params['sources']
-        outer_translation = pkg_translation
-        inner_translation = source_translation
     else:
         outer_org = test_params['sources']
         inner_org = test_params['packages']
-        outer_translation = source_translation
-        inner_translation = pkg_translation
 
     tbody = table.append_new_tag('tbody')
 
@@ -211,19 +173,17 @@ def populate_table_data(table, data, test_params, organization_scheme='repos'):
             tbody.append_new_tag('tr').append_new_tag('td', class_ = 'divider')
             trow = tbody.append_new_tag('tr')
             outer_value = outer_org[row_num/rowspan_size]
-            try:
-                translated_outer_value = outer_translation[outer_value]
-            except KeyError:
-                # If we don't have a translation for the value, we should just use what we were given
-                translated_outer_value = outer_value
+            if organization_scheme == 'packages':
+                translated_outer_value = vmu.canonical_pkg_string(outer_value)
+            else:
+                translated_outer_value = vmu.canonical_src_string(outer_value)
             trow.append_new_tag('th', valign='top', rowspan=rowspan_size).append(translated_outer_value)
         else:
             trow = tbody.append_new_tag('tr')
-        try:
-            translated_inner_value = inner_translation[inner_value]
-        except KeyError:
-            # If we don't have a translation for the value, we should just use what we were given
-            translated_inner_value = inner_value
+        if organization_scheme == 'packages':
+            translated_inner_value = vmu.canonical_src_string(inner_value)
+        else:
+            translated_inner_value = vmu.canonical_pkg_string(inner_value)
         trow.append_new_tag('th').append(translated_inner_value)
         for cell in data:
             trow.append(get_cell_contents(cell))
