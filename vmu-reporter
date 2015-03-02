@@ -48,7 +48,7 @@ def create_header_and_table():
             append('Click to view osg-test patches')
 
     # Create cell color legend
-    legend = ['PASS', 'FAIL', 'INSTALL', 'UPDATE', 'CLEANUP', 'IGNORED', 'TIMEOUT', 'DIED']
+    legend = ['PASS', 'FAIL', 'INSTALL', 'UPDATE', 'CLEANUP', 'IGNORE', 'TIMEOUT', 'DIE']
     legend_container = html.body.append_new_tag('p')
     for status in legend:
         legend_container.append_new_tag('span', class_ = 'legend ' + status.lower()).append(status)

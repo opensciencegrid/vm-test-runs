@@ -24,7 +24,7 @@ td.result a {
 
 /* Test result colors */
 
-.ignored {background-color: #B7EBBA;}
+.ignore {background-color: #B7EBBA;}
 .timeout {background-color: #6A94D4;}
 .install {background-color: #FFA240;}
 .update {background-color: #FFA240;}
