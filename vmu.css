@@ -32,7 +32,7 @@ td.result a {
 .success {background-color: #67E46F;} 
 .pass {background-color: #67E46F;} 
 .fail {background-color: #FF7673;}
-.died {background-color: #EAF;}
+.die {background-color: #EAF;}
 
 /* Organization link hover */
 
