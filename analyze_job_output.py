@@ -121,7 +121,7 @@ def parse_log(osg_test_log, test_exceptions):
         # as 'ignored' since 'cleanup' failures are mostly due to errors in the
         # test framework and are thus less interesting. Checking that ignored_
         # failures is non-zero ensures that we don't capture cleanup-only failures.
-        run_status = 'ignored'
+        run_status = 'ignore'
     elif all('special_cleanup' in problem for problem in problems):
         run_status = 'cleanup'
     elif any('_update_' in problem for problem in problems):

@@ -71,7 +71,7 @@ class TestAnalyzeJobOutput(unittest.TestCase):
         expected_failures = ['test_55_condorce|test_04_trace|TestCondorCE|FAIL|-',
                              'test_55_condorce|test_05_pbs_trace|TestCondorCE|FAIL|-',
                              'special_cleanup|test_03_remove_packages|TestCleanup|FAIL|-']
-        self._run_parse_log('ignore.log', 'ignored', expected_failures)
+        self._run_parse_log('ignore.log', 'ignore', expected_failures)
 
     def test_cleanup_status(self):
         expected_failures = ['special_cleanup|test_03_remove_packages|TestCleanup|FAIL|-']
