@@ -14,6 +14,8 @@ th {
 
 .divider {padding: .1em;}
 
+.yheader {text-align: left}
+
 div.data {position:relative;}
 
 td.result a {
@@ -25,6 +27,7 @@ td.result a {
 /* Test result colors */
 
 .ignore {background-color: #B7EBBA;}
+.ignored {background-color: #B7EBBA;}
 .timeout {background-color: #6A94D4;}
 .install {background-color: #FFA240;}
 .update {background-color: #FFA240;}
@@ -33,6 +36,7 @@ td.result a {
 .pass {background-color: #67E46F;} 
 .fail {background-color: #FF7673;}
 .die {background-color: #EAF;}
+.died {background-color: #EAF;}
 
 /* Organization link hover */
 

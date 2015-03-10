@@ -23,8 +23,8 @@ def canonical_pkg_string(package):
         }
     try:
         strip_java = re.sub(r'java-1.7.0-openjdk-devel,\s*osg-java7-compat,\s*osg-java7-devel-compat',
-                            'Java', package)
-        java_prefix, package = re.match(r'(Java[,\s]*)(.*)', strip_java).groups()
+                            '*', package)
+        java_prefix, package = re.match(r'(\*)[,\s]*(.*)', strip_java).groups()
     except AttributeError:
         java_prefix = ''
 

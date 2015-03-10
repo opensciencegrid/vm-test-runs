@@ -52,6 +52,8 @@ def create_header_and_table():
     legend_container = html.body.append_new_tag('p')
     for status in legend:
         legend_container.append_new_tag('span', class_ = 'legend ' + status.lower()).append(status)
+    legend_container.append_new_tag('p').append('* = Java pre-installed')
+    legend_container.append_new_tag('p').append('&#0153; = Yum timeout failure')
 
 
     table = html.body.append_new_tag('table')
@@ -177,14 +179,14 @@ def populate_table_data(table, data, test_params, organization_scheme='repos'):
                 translated_outer_value = vmu.canonical_pkg_string(outer_value)
             else:
                 translated_outer_value = vmu.canonical_src_string(outer_value)
-            trow.append_new_tag('th', valign='top', rowspan=rowspan_size).append(translated_outer_value)
+            trow.append_new_tag('th', class_='yheader', valign='top', rowspan=rowspan_size).append(translated_outer_value)
         else:
             trow = tbody.append_new_tag('tr')
         if organization_scheme == 'packages':
             translated_inner_value = vmu.canonical_src_string(inner_value)
         else:
             translated_inner_value = vmu.canonical_pkg_string(inner_value)
-        trow.append_new_tag('th').append(translated_inner_value)
+        trow.append_new_tag('th', class_='yheader').append(translated_inner_value)
         for cell in data:
             trow.append(get_cell_contents(cell))
 
