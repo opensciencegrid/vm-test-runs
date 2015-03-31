@@ -1,8 +1,6 @@
 platform:
   - centos_5_x86_64
   - centos_6_x86_64
-  - rhel_5_x86_64
-  - rhel_6_x86_64
   - sl_5_x86_64
   - sl_6_x86_64
 
