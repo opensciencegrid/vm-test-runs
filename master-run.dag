@@ -18,7 +18,8 @@ SCRIPT POST AnalyzeOutput email-analysis
 JOB ReportJobFailures report-job-failures.sub
 
 # 6. Produce html output
-JOB HtmlOutput vmu-reporter.sub
+JOB HtmlSrcOutput vmu-report-by-src.sub
+JOB HtmlPkgOutput vmu-report-by-pkg.sub
 
 # 7. Upload output to CSL
 JOB UploadJobOutput upload-job-output.sub
@@ -28,5 +29,6 @@ PARENT GenerateDAG CHILD CreateImages
 PARENT CreateImages CHILD RunTests
 PARENT RunTests CHILD AnalyzeOutput
 PARENT AnalyzeOutput CHILD ReportJobFailures
-PARENT ReportJobFailures CHILD HtmlOutput
-PARENT HtmlOutput CHILD UploadJobOutput
+PARENT ReportJobFailures CHILD HtmlSrcOutput
+PARENT HtmlSrcOutput CHILD HtmlPkgOutput
+PARENT HtmlPkgOutput CHILD UploadJobOutput

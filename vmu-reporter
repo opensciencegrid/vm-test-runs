@@ -1,198 +1,143 @@
 #!/usr/bin/python
+'''A script that takes a VMU test run directory and generates results in HTML'''
 
 import re
 import os
+import sys
 import string
-import itertools
 import yaml
-import taglib
 import vmu
-from taglib import Tag
+from taglib import Html, Tag
 from glob import glob
 
-CSS_URI =  "http://vdt.cs.wisc.edu/tests/vmu.css"
-m = re.search(r'run-(\d*-\d*)', os.getcwd())
-timestamp = m.group(1)
-vmu_tests_url = "http://vdt.cs.wisc.edu/tests/"
-run_url = vmu_tests_url + timestamp + "/"
-repo_filename = "results.html"
-pkg_filename = "packages.html" 
-homepage = run_url +  repo_filename
-pkg_organized_homepage = run_url + pkg_filename
+VMU_TESTS_URL = "http://vdt.cs.wisc.edu/tests/"
+OS_TRANSLATION = {'centos': 'CentOS', 'rhel': 'RHEL', 'sl': 'SL'}
 
-os_translation = {'centos': 'CentOS', 'rhel': 'Red Hat', 'sl': 'Scientific'}
-
-def create_header_and_table():
-    html = taglib.Html(page_title='OSG VMU Automated Test Results', css_link=CSS_URI)
+def generate_header():
+    '''Create the HTML object and its header'''
+    css = VMU_TESTS_URL + 'vmu.css'
+    html = Html(page_title='OSG VMU Automated Test Results', css_link=css)
     html.body.append_new_tag('h1').append('OSG VMU Automated Test Results')
 
     # Read description file
-    f = open('run_label', 'r')
-    label = f.read().strip()
-    f.close()
-    html.body.append_new_tag('h2').append('%s: %s ' % (timestamp, label.strip()))
-
-    header_links = html.body.append_new_tag('p')
+    label_file = open(RUN_DIR + '/run_label', 'r')
+    label = label_file.read().strip()
+    label_file.close()
+    html.body.append_new_tag('h2').append('%s: %s ' % (TIMESTAMP, label.strip()))
 
     # Link back to latest nightly or manual run
+    header_links = html.body.append_new_tag('p')
     if label == 'nightly':
-        header_links.append_new_tag('a', href = vmu_tests_url + 'latest.html').\
+        header_links.append_new_tag('a', href=VMU_TESTS_URL + 'latest.html').\
             append('&lt;&lt; Back to latest nightly').append_new_tag('br')
     else:
-        header_links.append_new_tag('a', href = vmu_tests_url + 'latest_manual.html').\
+        header_links.append_new_tag('a', href=VMU_TESTS_URL + 'latest_manual.html').\
             append('&lt;&lt; Back to latest manual run').append_new_tag('br')
 
     # Create patch link if we applied any patches
-    if os.stat('test-changes.patch').st_size != 0:
-        header_links.append_new_tag('a', href = run_url + 'test-changes.patch').\
+    if os.stat(RUN_DIR + 'test-changes.patch').st_size != 0:
+        header_links.append_new_tag('a', href=RUN_URL + 'test-changes.patch').\
             append('Click to view osg-test patches')
 
-    # Create cell color legend
-    legend = ['PASS', 'FAIL', 'INSTALL', 'UPDATE', 'CLEANUP', 'IGNORE', 'TIMEOUT', 'DIE']
+    # Create legend
+    legend = ['PASS', 'FAIL', 'INSTALL', 'UPDATE', 'CLEANUP', 'IGNORE', 'TIMEOUT', 'DIE', 'NONE']
     legend_container = html.body.append_new_tag('p')
     for status in legend:
-        legend_container.append_new_tag('span', class_ = 'legend ' + status.lower()).append(status)
+        legend_container.append_new_tag('span', class_='legend ' + status.lower()).append(status)
     legend_container.append_new_tag('p').append('* = Java pre-installed')
     legend_container.append_new_tag('p').append('&#0153; = Yum timeout failure')
 
+    return html
 
-    table = html.body.append_new_tag('table')
-    return html, table
+def generate_table():
+    '''Create the table that holds the results'''
 
-def sort_platforms_by_dver(platform_list):
-    # Sorts the OS's by dver so that we know which column to put each run
-    # Assumes the OS's have the format: <flavor>_<dver>_<arch>
-    
-    # Sort platforms into different dver buckets
-    el = {}
-    for platform in platform_list:
-        m = re.search('_(\d+)_', platform)
-        try:
-            el[m.group(1)].append(platform)
-        except KeyError:
-            el[m.group(1)] = [platform]
+    if SORT_BY == 'release':
+        sort_header_name = 'OSG Release -> Upgrade &#9660;'
+        mouseover_text = 'Sort by Package &#9660;'
+        sort_link = RUN_URL+'packages.html'
+        second_header_name = 'Packages'
+    elif SORT_BY == 'package':
+        sort_header_name = 'Packages &#9660;'
+        mouseover_text = 'Sort by Release &#9660;'
+        sort_link = RUN_URL+'results.html'
+        second_header_name = 'OSG Release -> Upgrade'
 
-    # Add them all into one list
-    del platform_list[:] # clear list in place
-    for dver in sorted(el):
-        platform_list += el[dver]
-
-def concat_packages(packages):
-    for idx, package_set in enumerate(packages):
-        packages[idx] = string.join(package_set, ', ')
-    
-def make_data_grid(runs, test_params, organization_scheme='repos'):
-    num_rows = range(0, len(runs)/len(test_params['platform'])) 
-    organized_runs = [[None] * len(test_params['platform']) for i in num_rows] # Create a 2D array to hold the runs
-    for run in runs:
-        # Find column value in the grid
-        for idx, platform in enumerate(test_params['platform']):
-            m = re.match('([^_]*)_(\d)_', platform)
-            os, dver = m.groups()
-            if (re.match(os_translation[os], run['os_release']) and
-                re.search(' %s\.' % dver, run['os_release'])):
-                column = idx
-                break
-            
-        # Find row value in the grid
-        for idx, package in enumerate(test_params['packages']):
-            if package == run['param_packages']:
-                package_idx = idx
-                break
-
-        for idx, repo in enumerate(test_params['sources']):
-            if repo == run['param_sources']:
-                repo_idx = idx
-                break
-
-        if organization_scheme == 'packages':
-            row = repo_idx + package_idx * len(test_params['sources'])
-        else:
-            row = package_idx + repo_idx * len(test_params['packages'])
-
-        organized_runs[row][column] = run
-    return organized_runs
-
-def create_table_header(table, organization_scheme='repos'):
-    if organization_scheme == 'packages':
-        sort_link = homepage
-        sort_link_text = 'Sort by Release &#9660;'
-        first_column_text = 'Parent Package &#9660;'
-        second_column_text = 'OSG Release/Upgrade'
-    else:
-        sort_link = pkg_organized_homepage
-        sort_link_text = 'Sort by Package &#9660;'
-        first_column_text = 'OSG Release/Upgrade &#9660;'
-        second_column_text = 'Parent Package'
-
-    header = table.append_new_tag("thead")
-    row_1 = header.append_new_tag("tr")
-    th = row_1.append_new_tag("th", rowspan="2", id = 'sort')
-    th.append_new_tag('span', id = 'hide_text').append(first_column_text)
-    th.append_new_tag('a', href=sort_link, id = 'sort_link').\
-        append(sort_link_text) # mouseover text/link
-    row_1.append_new_tag("th", rowspan="2").append(second_column_text)
+    # Print first two column names describing row headers
+    dver_row = Tag('tr')
+    sort_header = dver_row.append_new_tag('th', rowspan='2', id='sort')
+    sort_header.append_new_tag('span', id='hide_text').append(sort_header_name)
+    sort_header.append_new_tag('a', href=sort_link, id='sort_link').\
+        append(mouseover_text) # mouseover text/link
+    dver_row.append_new_tag('th', rowspan='2').append(second_header_name)
 
     # Get number of platforms per dver so we know the length of the dver columns
     num_el = {}
-    for platform in test_params['platform']:
-        m =  re.search('_(\d+)_', platform)
+    for platform in TEST_PARAMS['platform']:
+        dver_regex = re.search(r'_(\d+)_', platform)
         try:
-            num_el[m.group(1)] += 1
+            num_el[dver_regex.group(1)] += 1
         except KeyError:
-            num_el[m.group(1)] = 1
+            num_el[dver_regex.group(1)] = 1
 
-    # If we have at least 1 platform in a dver, we should create the dver column
+    # Create dver columns for dvers with at least 1 platform
     for dver in sorted(num_el):
         if num_el[dver] > 0:
-            row_1.append_new_tag("th", colspan=num_el[dver]).append("EL%s" % dver)
+            dver_row.append_new_tag('th', colspan=num_el[dver]).append("EL%s" % dver)
 
     # Print out all the OS flavors
-    row_2 = header.append_new_tag("tr")
-    for platform in test_params['platform']:
-        m = re.match('([^_]*)', platform)
-        row_2.append_new_tag("th").append(os_translation[m.group(1)])
+    os_row = Tag('tr')
+    for platform in TEST_PARAMS['platform']:
+        os_regex = re.match(r'([^_]*)', platform)
+        os_row.append_new_tag('th').append(OS_TRANSLATION[os_regex.group(1)])
 
+    header = Tag('thead').extend([dver_row, os_row])
+    body = generate_table_body()
+    table = Tag('table').extend([header, body])
     return table
 
-def populate_table_data(table, data, test_params, organization_scheme='repos'):
-    if organization_scheme == 'packages':
-        outer_org = test_params['packages']
-        inner_org = test_params['sources']
-    else:
-        outer_org = test_params['sources']
-        inner_org = test_params['packages']
+def generate_table_body():
+    '''Create the contents of the table'''
+    results_file = open(RUN_DIR + '/combined-analysis.yaml', 'r')
+    yaml_data = results_file.read()
+    results_file.close()
+    sorted_tests = sort_tests(yaml.load(yaml_data))
 
-    tbody = table.append_new_tag('tbody')
+    if SORT_BY == 'release':
+        sort_size = len(TEST_PARAMS['packages'])
+        primary_sort_column = TEST_PARAMS['sources']
+        secondary_sort_column = TEST_PARAMS['packages']
+    elif SORT_BY == 'package':
+        sort_size = len(TEST_PARAMS['sources'])
+        primary_sort_column = TEST_PARAMS['packages']
+        secondary_sort_column = TEST_PARAMS['sources']
 
-    # Every time we finish looping over the inner organization scheme,
-    # we need to move onto the next item in the outer organization scheme.
-    for row_tuple, inner_value in itertools.izip(enumerate(data), itertools.cycle(inner_org)):
-        row_num = row_tuple[0]
-        data = row_tuple[1]
-        rowspan_size = len(inner_org)
-        if row_num % rowspan_size == 0:
-            tbody.append_new_tag('tr').append_new_tag('td', class_ = 'divider')
-            trow = tbody.append_new_tag('tr')
-            outer_value = outer_org[row_num/rowspan_size]
-            if organization_scheme == 'packages':
-                translated_outer_value = vmu.canonical_pkg_string(outer_value)
-            else:
-                translated_outer_value = vmu.canonical_src_string(outer_value)
-            trow.append_new_tag('th', class_='yheader', valign='top', rowspan=rowspan_size).append(translated_outer_value)
-        else:
-            trow = tbody.append_new_tag('tr')
-        if organization_scheme == 'packages':
-            translated_inner_value = vmu.canonical_src_string(inner_value)
-        else:
-            translated_inner_value = vmu.canonical_pkg_string(inner_value)
-        trow.append_new_tag('th', class_='yheader').append(translated_inner_value)
-        for cell in data:
-            trow.append(get_cell_contents(cell))
+    tbody = Tag('tbody')
+    for primary_sort_val in primary_sort_column:
+        tbody.append_new_tag('tr').append_new_tag('td', class_='divider')
+        trow = tbody.append_new_tag('tr')
+        trow.append_new_tag('th', class_='yheader', valign='top', rowspan=sort_size).append(primary_sort_val)
+        for secondary_sort_val in secondary_sort_column:
+            if secondary_sort_val != secondary_sort_column[0]:
+                trow = tbody.append_new_tag('tr')
+            trow.append_new_tag('th', class_='yheader').append(secondary_sort_val)
+            for raw_os in TEST_PARAMS['platform']:
+                os_regex = re.match(r'(\w+)_(\d)_', raw_os)
+                platform = OS_TRANSLATION[os_regex.group(1)] + ' ' + os_regex.group(2)
+                try:
+                    if SORT_BY == 'release':
+                        cell = generate_cell(sorted_tests[platform][primary_sort_val][secondary_sort_val])
+                    elif SORT_BY == 'package':
+                        cell = generate_cell(sorted_tests[platform][secondary_sort_val][primary_sort_val])
+                except KeyError:
+                    trow.append_new_tag('td', class_='result none', align='center').append('NONE')
+                trow.append(cell)
+    return tbody
 
-def get_cell_contents(run):
-    run_dir = run_url + run['job_serial']
-    
+def generate_cell(run):
+    '''Inspect a specific test run and parse out interesting information'''
+    run_url_output_dir = RUN_URL + run['job_serial']
+
     # Generic info for each run
     mouseover_text = '<b>Hostname</b>: ' + run['host_name'] + '</br>' + \
         '<b>Host IP</b>: ' + run['host_address'] + '</br>' + \
@@ -201,9 +146,8 @@ def get_cell_contents(run):
 
     if run['run_status'] == 0:
         # Info for all runs of osg-test
-        osg_test_version = re.sub('yum.*(\d+\.\d+\.\d+-\d+).*', '\\1', run['osg_test_version'])
-        mouseover_text = mouseover_text + \
-            '<b>VM Creation Date</b>: ' + run['vm_creation_date'] + '</br>' + \
+        osg_test_version = re.sub(r'yum.*(\d+\.\d+\.\d+-\d+).*', r'\1', run['osg_test_version'])
+        mouseover_text += '<b>VM Creation Date</b>: ' + run['vm_creation_date'] + '</br>' + \
             '<b>Run Dir</b>: ' + run['run_directory'] + '/output-' + run['job_serial'] + '</br>' + \
             '<b>Guest IP</b>: ' + run['guest_address'] + '</br>' + \
             '<b>OSG Test Version</b>: ' + osg_test_version + '</br>' + \
@@ -211,78 +155,135 @@ def get_cell_contents(run):
             '<b>Run Time</b>: ' + str(run['run_time'])
         # and for the failures...
         if run['tests_messages']:
-            mouseover_text = mouseover_text + '</br><b>Failures:</b>'
+            mouseover_text += '</br><b>Failures:</b>'
             for test in run['tests_messages']:
                 filename, test, module, status, msg = test.split('|')
-                mouseover_text = mouseover_text + \
-                    '</br><b>&emsp;%s:</b> %s (%s,%s): %s' % (status, test, filename, module, msg)
-        
-        # Construct link tag
-        success_count = run['tests_ok']
-        skip_count = run['tests_ok_skip']
-        fail_count =  run['tests_failed'] + run['tests_error'] + run['tests_bad_skip']
+                mouseover_text += '</br><b>&emsp;%s:</b> %s (%s,%s): %s' % (status, test, filename, module, msg)
 
-        test_log_path = glob('output-%s/output/osg-test*.log' % run['job_serial'])[0]
+        # Construct link tag
+        fail_count = run['tests_failed'] + run['tests_error'] + run['tests_bad_skip']
+        test_log_path = glob('%soutput-%s/output/osg-test*.log' % (RUN_DIR, run['job_serial']))[0]
         test_log_filename = os.path.basename(test_log_path)
-        link_location = '%s/%s' % (run_dir, test_log_filename)
+        link_location = '%s/%s' % (run_url_output_dir, test_log_filename)
 
         try:
-            status, yum_timeout = re.match(r'(install|update|timeout)\s*(yum_timeout)?', run['osg_test_status']).groups()
+            status_regex = r'(install|update|timeout)\s*(yum_timeout)?'
+            status, yum_timeout = re.match(status_regex, run['osg_test_status']).groups()
             if yum_timeout:
                 link_text = status.upper() + '&#0153;'
             else:
                 link_text = status.upper()
-            link = Tag('a', href=link_location).append(link_text)                
+            link = Tag('a', href=link_location).append(link_text)
         except AttributeError:
-            link = Tag('a', href=link_location).append("%s %s %s" % (success_count, skip_count, fail_count))
+            link = Tag('a', href=link_location).append("%s %s %s" % (run['tests_ok'], run['tests_ok_skip'], fail_count))
     else:
-        mouseover_text = mouseover_text + '<b>Run Summary</b>: ' + run['run_summary']
-        link_location = run_dir + '/run-job.log'
+        mouseover_text += '<b>Run Summary</b>: ' + run['run_summary']
+        link_location = run_url_output_dir + '/run-job.log'
         run['osg_test_status'] = 'die'
-        link = Tag('a', href = link_location).append('DIED')
+        link = Tag('a', href=link_location).append('DIED')
 
     # Construct html
     result_class = 'result ' + run['osg_test_status']
-    link_div = Tag('div', class_ = 'link').append(link)
-    mouseover_div = Tag('div', class_ = 'mouseover').append(mouseover_text)        
-    container = Tag('div', class_ = 'data').extend((link_div, mouseover_div))
-    return Tag('td', class_ = result_class, align = 'center').append(container)
+    link_div = Tag('div', class_='link').append(link)
+    mouseover_div = Tag('div', class_='mouseover').append(mouseover_text)
+    container = Tag('div', class_='data').extend((link_div, mouseover_div))
+    return Tag('td', class_=result_class, align='center').append(container)
 
-def print_html_to_file(html, filename):
-    f = open(filename, 'w')
-    f.write(str(html))
-    f.close()
+def sort_platforms_by_dver(platform_list):
+    '''Sorts the OS's by dver so that we know which column to put each run
+     Assumes the OS's have the format: <flavor>_<dver>_<arch>'''
+    dvers = {}
+    for platform in platform_list:
+        dver_regex = re.search(r'_(\d+)_', platform)
+        try:
+            dvers[dver_regex.group(1)].append(platform)
+        except KeyError:
+            dvers[dver_regex.group(1)] = [platform]
+    platforms = []
+    for dver in sorted(dvers):
+        platforms += dvers[dver]
+    return platforms
+
+def pkg_list_to_string(packages):
+    '''Translate package list into a string'''
+    translated_pkgs = []
+    for package_set in packages:
+        concat_pkgs = string.join(package_set, ', ')
+        translated_pkgs.append(vmu.canonical_pkg_string(concat_pkgs))
+    return translated_pkgs
+
+def sort_tests(tests):
+    '''Sort each test into a nested dictionary for easier population of the results table'''
+    sorted_tests = dict()
+    for test in tests:
+        platform = vmu.canonical_os_string(test['os_release'])
+        src = vmu.canonical_src_string(test['param_sources'])
+        pkg = vmu.canonical_pkg_string(test['param_packages'])
+        try:
+            sorted_tests[platform][src][pkg] = test
+        except KeyError:
+            try:
+                sorted_tests[platform][src] = {pkg: test}
+            except KeyError:
+                sorted_tests[platform] = {src: {pkg: test}}
+    return sorted_tests
 
 if __name__ == "__main__":
-    # setup html objects
-    html_repo, table_repo = create_header_and_table()
-    html_pkg, table_pkg = create_header_and_table()
 
-    # Read test parameters
-    f = open('test-parameters.yaml', 'r')
-    yaml_data = f.read()
-    f.close()
-    test_params = yaml.load(yaml_data)
-    sort_platforms_by_dver(test_params['platform'])
-    concat_packages(test_params['packages'])
+    # Define paths
+    SCRIPT_NAME = os.path.basename(sys.argv.pop(0))
 
-    # Map runs to their rows
-    f = open('combined-analysis.yaml', 'r')
-    yaml_data = f.read()
-    f.close()
-    runs = yaml.load(yaml_data)
+    usage_text = "usage: %s [-s <sort>|-h] RUN-DIR\n" % (SCRIPT_NAME)
+    help_text = usage_text + "\t-s\tSort results by 'release' or 'package'. Defaults to 'release'." \
+                + " \n\t-h\tPrint this help message\n"
 
-    # Create and print repo organized html
-    repo_organized_runs = make_data_grid(runs, test_params)
-    populate_table_data(create_table_header(table_repo),
-                        repo_organized_runs,
-                        test_params)
-    print_html_to_file(html_repo, repo_filename)
-    
-    # Create and print pkg organized html
-    pkg_organized_runs = make_data_grid(runs, test_params, organization_scheme='packages')
-    populate_table_data(create_table_header(table_pkg, organization_scheme='packages'),
-                        pkg_organized_runs,
-                        test_params,
-                        organization_scheme='packages')
-    print_html_to_file(html_pkg, pkg_filename)
+    # Process options
+    SORT_BY = 'release'
+    while len(sys.argv) > 1:
+        arg = sys.argv.pop(0)
+        if arg == '-h':
+            sys.stderr.write(help_text)
+            sys.exit(0)
+        elif arg == '-s':
+            SORT_BY = sys.argv.pop(0)
+            if SORT_BY != 'release' and SORT_BY != 'package':
+                bad_sort_text = "Unrecognized sort option: %s\n\n" % SORT_BY
+                sys.stderr.write(bad_sort_text + help_text)
+                sys.exit(1)
+        else:
+            bad_option_text = "Unrecognized option %s\n\n" % arg
+            sys.stderr.write(bad_option_text + help_text)
+            sys.exit(1)
+
+    # Process arguments
+    RUN_DIR = os.path.abspath(sys.argv.pop()) + '/'
+    if not os.path.exists(RUN_DIR):
+        sys.stderr.write('%s: run directory "%s" does not exist\n' % (SCRIPT_NAME, RUN_DIR))
+        sys.exit(1)
+
+    TIMESTAMP_REGEX = re.search(r'run-(\d*-\d*)', RUN_DIR)
+    try:
+        TIMESTAMP = TIMESTAMP_REGEX.group(1)
+        RUN_URL = VMU_TESTS_URL + TIMESTAMP + "/"
+    except AttributeError:
+        sys.stderr.write('%s: could not get timestamp of run directory "%s"\n' % (SCRIPT_NAME, RUN_DIR))
+        sys.exit(1)
+
+    # Read, sort, and translate test parameters
+    test_params_file = open(RUN_DIR + '/test-parameters.yaml', 'r')
+    test_params_contents = test_params_file.read()
+    test_params_file.close()
+    TEST_PARAMS = yaml.load(test_params_contents)
+    TEST_PARAMS['platform'] = sort_platforms_by_dver(TEST_PARAMS['platform'])
+    TEST_PARAMS['packages'] = pkg_list_to_string(TEST_PARAMS['packages'])
+
+    sources = []
+    for source in TEST_PARAMS['sources']:
+        sources.append(vmu.canonical_src_string(source))
+    TEST_PARAMS['sources'] = sources
+
+    # Construct and print results
+    HTML = generate_header()
+    TABLE = generate_table()
+    HTML.body.append(TABLE)
+    sys.stdout.write(str(HTML))

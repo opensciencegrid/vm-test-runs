@@ -37,6 +37,7 @@ td.result a {
 .fail {background-color: #FF7673;}
 .die {background-color: #EAF;}
 .died {background-color: #EAF;}
+.none {background-color: #EFEFEF;}
 
 /* Organization link hover */
 
