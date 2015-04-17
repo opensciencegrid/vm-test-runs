@@ -3,8 +3,8 @@ executable = vmu-reporter
 arguments  = "."
 
 output = results.html
-error  = vmu-reporter-by-source.err
-log    = vmu-reporter-by-source.log
+error  = vmu-report-by-source.err
+log    = vmu-report-by-source.log
 
 should_transfer_files = NO
 

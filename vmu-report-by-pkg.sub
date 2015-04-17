@@ -3,8 +3,8 @@ executable = vmu-reporter
 arguments  = "-s package ."
 
 output = packages.html
-error  = vmu-reporter-by-pkg.err
-log    = vmu-reporter-by-pkg.log
+error  = vmu-report-by-pkg.err
+log    = vmu-report-by-pkg.log
 
 should_transfer_files = NO
 
