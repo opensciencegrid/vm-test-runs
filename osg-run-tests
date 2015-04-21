@@ -69,9 +69,9 @@ safe_run svn export https://vdt.cs.wisc.edu/svn/new-test/trunk/vm-test-runs $SVN
 
 # Copy needed files to the run directory
 cd $SVN_CHECKOUT_DIR
-safe_run cp \
+safe_run cp -r \
     master-run.dag \
-    generate-dag.sub generate-dag test-parameters.yaml test-exceptions.yaml\
+    generate-dag.sub generate-dag parameters.d test-exceptions.yaml\
     create-io-images.sub create-io-images \
     run-job osg-test.patch test-changes.patch osg-release.patch single-test-run.sub inner-dag.config \
     process-job-output extract-job-output analyze_job_output.py \
