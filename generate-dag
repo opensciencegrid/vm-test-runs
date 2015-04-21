@@ -3,21 +3,10 @@
 import itertools
 import os
 import re
-import shutil
 import sys
 import time
 
-import yaml
-
-
-def die(message, code=1):
-    sys.stderr.write(message + '\n')
-    sys.exit(code)
-
-def write_file(contents, file_path):
-    f = open(file_path, 'w')
-    f.write(contents)
-    f.close()
+import vmu
 
 def generate_dag_fragment(serial, combo):
     platform, sources, packages = combo
@@ -37,7 +26,7 @@ def generate_dag_fragment(serial, combo):
     return contents
 
 def write_osg_test_configuration(serial, combo, directory):
-    platform, sources, packages = combo
+    _, sources, packages = combo
     contents = '[Config]\n'
     contents += 'adduser = True\n'
     contents += 'dumpout = True\n'
@@ -53,10 +42,10 @@ def write_osg_test_configuration(serial, combo, directory):
         release_series, repositories = sources_parts
     repo_parts = re.split(r'\s*>\s*', repositories)
     # Remove osg production from any part of the extra repos string
-    extrarepos = re.sub('osg\s*,\s*', '', repo_parts[0])
-    extrarepos = re.sub('[,\s]*osg(?!-)', '', extrarepos)
+    extrarepos = re.sub(r'osg\s*,\s*', '', repo_parts[0])
+    extrarepos = re.sub(r'[,\s]*osg(?!-)', '', extrarepos)
     # Don't add any extra repos if there aren't any
-    if extrarepos: 
+    if extrarepos:
         contents += 'extrarepos = %s\n' % (extrarepos)
     if len(repo_parts) > 1:
         update_parts = re.split(r'\s*/\s*', repo_parts[1])
@@ -70,7 +59,7 @@ def write_osg_test_configuration(serial, combo, directory):
     contents += 'series = %s\n' % (release_series)
     contents += 'sources = %s\n' % (sources)
 
-    write_file(contents, os.path.join(directory, 'osg-test-%s.conf' % (serial)))
+    vmu.write_file(contents, os.path.join(directory, 'osg-test-%s.conf' % (serial)))
 
 
 # ------------------------------------------------------------------------------
@@ -84,16 +73,12 @@ if __name__ == '__main__':
 
     # Process command-line arguments
     if len(sys.argv) != 2:
-        die('usage: %s PARAMETER-FILE' % (script_name))
-    parameter_path = sys.argv[1]
-    if not os.path.exists(parameter_path):
-        die('%s: parameter file "%s" does not exist' % (script_name, parameter_path))
+        vmu.die('usage: %s PARAMETER-DIR' % (script_name))
+    param_dir = sys.argv[1]
+    if not os.path.exists(param_dir):
+        vmu.die('%s: parameter directory "%s" does not exist' % (script_name, param_dir))
 
-    # Load run parameters
-    yaml_file = open(parameter_path)
-    yaml_contents = yaml_file.read()
-    yaml_file.close()
-    run_params = yaml.load(yaml_contents)
+    run_params = vmu.load_run_params(param_dir)
 
     # Set up test run directory
     test_run_directory = os.getcwd()
@@ -104,9 +89,13 @@ if __name__ == '__main__':
 
     # Run parameter sweep
     process = 0
-    for combo in itertools.product(run_params['platform'], run_params['sources'], run_params['packages']):
-        serial = '%03d' % (process)
-        dag_contents += generate_dag_fragment(serial, combo)
-        write_osg_test_configuration(serial, combo, test_run_directory)
-        process += 1
-    write_file(dag_contents, os.path.join(test_run_directory, 'test-run.dag'))
+    run_combos = [] # keep track of all combinations so we can remove dupes
+    for param_file in run_params:
+        for combo in itertools.product(param_file['platform'], param_file['sources'], param_file['packages']):
+            if combo not in run_combos:
+                run_combos.append(combo)
+                serial = '%03d' % (process)
+                dag_contents += generate_dag_fragment(serial, combo)
+                write_osg_test_configuration(serial, combo, test_run_directory)
+                process += 1
+    vmu.write_file(dag_contents, os.path.join(test_run_directory, 'test-run.dag'))

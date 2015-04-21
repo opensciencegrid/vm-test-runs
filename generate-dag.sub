@@ -1,6 +1,6 @@
 universe   = local
 executable = generate-dag
-arguments  = "test-parameters.yaml"
+arguments  = "parameters.d"
 
 output = generate-dag.out
 error  = generate-dag.err

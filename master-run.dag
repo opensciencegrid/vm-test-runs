@@ -29,6 +29,5 @@ PARENT GenerateDAG CHILD CreateImages
 PARENT CreateImages CHILD RunTests
 PARENT RunTests CHILD AnalyzeOutput
 PARENT AnalyzeOutput CHILD ReportJobFailures
-PARENT ReportJobFailures CHILD HtmlSrcOutput
-PARENT HtmlSrcOutput CHILD HtmlPkgOutput
-PARENT HtmlPkgOutput CHILD UploadJobOutput
+PARENT ReportJobFailures CHILD HtmlSrcOutput HtmlPkgOutput
+PARENT HtmlSrcOutput HtmlPkgOutput CHILD UploadJobOutput

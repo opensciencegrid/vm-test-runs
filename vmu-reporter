@@ -74,11 +74,11 @@ def generate_table():
     # Get number of platforms per dver so we know the length of the dver columns
     num_el = {}
     for platform in TEST_PARAMS['platform']:
-        dver_regex = re.search(r'_(\d+)_', platform)
+        dver = platform[-1]
         try:
-            num_el[dver_regex.group(1)] += 1
+            num_el[dver] += 1
         except KeyError:
-            num_el[dver_regex.group(1)] = 1
+            num_el[dver] = 1
 
     # Create dver columns for dvers with at least 1 platform
     for dver in sorted(num_el):
@@ -88,8 +88,7 @@ def generate_table():
     # Print out all the OS flavors
     os_row = Tag('tr')
     for platform in TEST_PARAMS['platform']:
-        os_regex = re.match(r'([^_]*)', platform)
-        os_row.append_new_tag('th').append(OS_TRANSLATION[os_regex.group(1)])
+        os_row.append_new_tag('th').append(' ' + platform[:-1])
 
     header = Tag('thead').extend([dver_row, os_row])
     body = generate_table_body()
@@ -121,16 +120,14 @@ def generate_table_body():
             if secondary_sort_val != secondary_sort_column[0]:
                 trow = tbody.append_new_tag('tr')
             trow.append_new_tag('th', class_='yheader').append(secondary_sort_val)
-            for raw_os in TEST_PARAMS['platform']:
-                os_regex = re.match(r'(\w+)_(\d)_', raw_os)
-                platform = OS_TRANSLATION[os_regex.group(1)] + ' ' + os_regex.group(2)
+            for platform in TEST_PARAMS['platform']:
                 try:
                     if SORT_BY == 'release':
                         cell = generate_cell(sorted_tests[platform][primary_sort_val][secondary_sort_val])
                     elif SORT_BY == 'package':
                         cell = generate_cell(sorted_tests[platform][secondary_sort_val][primary_sort_val])
                 except KeyError:
-                    trow.append_new_tag('td', class_='result none', align='center').append('NONE')
+                    cell = Tag('td', class_='result none', align='center') # did not have a test for these params
                 trow.append(cell)
     return tbody
 
@@ -189,16 +186,25 @@ def generate_cell(run):
     container = Tag('div', class_='data').extend((link_div, mouseover_div))
     return Tag('td', class_=result_class, align='center').append(container)
 
+def merge_params(params_list):
+    '''Combines multiple run parameters files into a single dictionary (eliminating duplicates)'''
+    primary = params_list.pop(0)
+    for param in primary.iterkeys():
+        for secondary in params_list:
+            primary[param] += [val for val in secondary[param] if val not in primary[param]]
+    return primary
+
 def sort_platforms_by_dver(platform_list):
     '''Sorts the OS's by dver so that we know which column to put each run
      Assumes the OS's have the format: <flavor>_<dver>_<arch>'''
     dvers = {}
     for platform in platform_list:
-        dver_regex = re.search(r'_(\d+)_', platform)
+        translated_platform = vmu.canonical_os_string(platform)
+        dver = translated_platform[-1]
         try:
-            dvers[dver_regex.group(1)].append(platform)
+            dvers[dver].append(translated_platform)
         except KeyError:
-            dvers[dver_regex.group(1)] = [platform]
+            dvers[dver] = [translated_platform]
     platforms = []
     for dver in sorted(dvers):
         platforms += dvers[dver]
@@ -242,38 +248,34 @@ if __name__ == "__main__":
     while len(sys.argv) > 1:
         arg = sys.argv.pop(0)
         if arg == '-h':
-            sys.stderr.write(help_text)
-            sys.exit(0)
+            vmu.die(help_text, 0)
         elif arg == '-s':
             SORT_BY = sys.argv.pop(0)
             if SORT_BY != 'release' and SORT_BY != 'package':
                 bad_sort_text = "Unrecognized sort option: %s\n\n" % SORT_BY
-                sys.stderr.write(bad_sort_text + help_text)
-                sys.exit(1)
+                vmu.die(bad_sort_text + help_text)
         else:
             bad_option_text = "Unrecognized option %s\n\n" % arg
-            sys.stderr.write(bad_option_text + help_text)
-            sys.exit(1)
+            vmu.die(bad_option_text + help_text)
 
     # Process arguments
-    RUN_DIR = os.path.abspath(sys.argv.pop()) + '/'
+    try:
+        RUN_DIR = os.path.abspath(sys.argv.pop()) + '/'
+    except IndexError:
+        vmu.die(usage_text)
     if not os.path.exists(RUN_DIR):
-        sys.stderr.write('%s: run directory "%s" does not exist\n' % (SCRIPT_NAME, RUN_DIR))
-        sys.exit(1)
+        vmu.die('%s: run directory "%s" does not exist\n' % (SCRIPT_NAME, RUN_DIR))
 
     TIMESTAMP_REGEX = re.search(r'run-(\d*-\d*)', RUN_DIR)
     try:
         TIMESTAMP = TIMESTAMP_REGEX.group(1)
         RUN_URL = VMU_TESTS_URL + TIMESTAMP + "/"
     except AttributeError:
-        sys.stderr.write('%s: could not get timestamp of run directory "%s"\n' % (SCRIPT_NAME, RUN_DIR))
-        sys.exit(1)
+        vmu.die('%s: could not get timestamp of run directory "%s"\n' % (SCRIPT_NAME, RUN_DIR))
 
     # Read, sort, and translate test parameters
-    test_params_file = open(RUN_DIR + '/test-parameters.yaml', 'r')
-    test_params_contents = test_params_file.read()
-    test_params_file.close()
-    TEST_PARAMS = yaml.load(test_params_contents)
+    params = vmu.load_run_params(RUN_DIR + 'parameters.d')
+    TEST_PARAMS = merge_params(params)
     TEST_PARAMS['platform'] = sort_platforms_by_dver(TEST_PARAMS['platform'])
     TEST_PARAMS['packages'] = pkg_list_to_string(TEST_PARAMS['packages'])
 
