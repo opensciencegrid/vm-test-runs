@@ -113,22 +113,31 @@ def generate_table_body():
 
     tbody = Tag('tbody')
     for primary_sort_val in primary_sort_column:
-        tbody.append_new_tag('tr').append_new_tag('td', class_='divider')
+        tbody.append_new_tag('tr').append_new_tag('td', class_='divider') # divider between table header and contents
         trow = tbody.append_new_tag('tr')
-        trow.append_new_tag('th', class_='yheader', valign='top', rowspan=sort_size).append(primary_sort_val)
+        row_header = Tag('th', class_='yheader', valign='top')
+        trow.append(row_header).append(primary_sort_val)
+        num_rows = 0 # Used to set the height of the primary column header
         for secondary_sort_val in secondary_sort_column:
-            if secondary_sort_val != secondary_sort_column[0]:
-                trow = tbody.append_new_tag('tr')
-            trow.append_new_tag('th', class_='yheader').append(secondary_sort_val)
+            # If no values in this row, skip it!
+            empty_row = True
+            rest_of_row = Tag('th', class_='yheader').append(secondary_sort_val)
             for platform in TEST_PARAMS['platform']:
                 try:
                     if SORT_BY == 'release':
-                        cell = generate_cell(sorted_tests[platform][primary_sort_val][secondary_sort_val])
+                            cell = generate_cell(sorted_tests[platform][primary_sort_val][secondary_sort_val])
+                            empty_row = False
                     elif SORT_BY == 'package':
-                        cell = generate_cell(sorted_tests[platform][secondary_sort_val][primary_sort_val])
+                            cell = generate_cell(sorted_tests[platform][secondary_sort_val][primary_sort_val])
+                            empty_row = False
                 except KeyError:
                     cell = Tag('td', class_='result none', align='center') # did not have a test for these params
-                trow.append(cell)
+                rest_of_row.append(cell)
+            if not empty_row:
+                trow.append(rest_of_row)
+                num_rows += 1
+                trow.append_new_tag('tr') # divider between rows
+        row_header.set('rowspan',num_rows)
     return tbody
 
 def generate_cell(run):
@@ -277,7 +286,7 @@ if __name__ == "__main__":
     params = vmu.load_run_params(RUN_DIR + 'parameters.d')
     TEST_PARAMS = merge_params(params)
     TEST_PARAMS['platform'] = sort_platforms_by_dver(TEST_PARAMS['platform'])
-    TEST_PARAMS['packages'] = pkg_list_to_string(TEST_PARAMS['packages'])
+    TEST_PARAMS['packages'] = sorted(pkg_list_to_string(TEST_PARAMS['packages']))
 
     sources = []
     for source in TEST_PARAMS['sources']:
