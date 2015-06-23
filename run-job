@@ -178,7 +178,7 @@ log_command ls -lF /tmp
 log_command find /tmp/cvmfs -ls
 log_command find /etc/udev/rules.d -ls
 log_command find /var/log -ls
-log_command tar -czvf /var/log/log.tar.gz /var/log/
+log_command tar -czvf /var/log/log.tar.gz /var
 
 # System files
 if [ ! -e $SYSTEM_LOG_DIR ]; then
@@ -192,5 +192,5 @@ cp -r \
     /etc/selinux/config \
     /etc/sysconfig/network-scripts/ifcfg-* \
     /etc/udev/rules.d/70-persistent-net.rules \
-    /var/log/log.tar.gz \
+    /var/log.tar.gz \
     $SYSTEM_LOG_DIR/
