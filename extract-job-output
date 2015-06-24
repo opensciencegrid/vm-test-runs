@@ -33,6 +33,14 @@ if len(filesystems) != 1:
     sys.exit(2)
 
 g.mount(filesystems[0][0], '/')
+stat = g.statvfs('/')
+
+# Write IO image free space to a file, expecting the bsize to be 1024, or 1M
+free_space = format(float(stat['bavail'])/stat['bsize'], '.1f') + 'M'
+f = open(output_dir + '/io_free_size', 'w')
+f.write(free_space)
+f.close()
+
 paths = g.find('/')
 for image_path in paths:
     full_image_path = os.path.join('/', image_path)

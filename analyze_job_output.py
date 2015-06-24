@@ -191,6 +191,10 @@ if __name__ == '__main__':
     data['param_sources'] = re_extract(r'^sources\s*=\s*(.*)$', conf_file, re.MULTILINE, group=1)
     data['param_packages'] = re_extract(r'^packages\s*=\s*(.*)$', conf_file, re.MULTILINE, group=1)
     
+    # Read free size left in the IO image
+    io_free_size_file = os.path.join(test_run_dir, 'io_free_size')
+    data['io_free_size'] = read_file(io_free_size_file)
+
     # Read run-job.log
     run_job_logfile = os.path.join(test_run_dir, 'run-job.log')
     run_job_log = read_file(run_job_logfile)

@@ -154,6 +154,7 @@ def generate_cell(run):
         # Info for all runs of osg-test
         osg_test_version = re.sub(r'yum.*(\d+\.\d+\.\d+-\d+).*', r'\1', run['osg_test_version'])
         mouseover_text += '<b>VM Creation Date</b>: ' + run['vm_creation_date'] + '</br>' + \
+            '<b>VM IO Free Space</b>: ' + run['io_free_size'] + '</br>' + \
             '<b>Run Dir</b>: ' + run['run_directory'] + '/output-' + run['job_serial'] + '</br>' + \
             '<b>Guest IP</b>: ' + run['guest_address'] + '</br>' + \
             '<b>OSG Test Version</b>: ' + osg_test_version + '</br>' + \
