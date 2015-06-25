@@ -42,7 +42,7 @@ stage_run_dir () {
     # to stdout.
 
     mkdir -p "$STAGED_RUN_DIR"
-    cp packages.html results.html run_label test-changes.patch "$STAGED_RUN_DIR"
+    cp packages.html results.html run_label osg-test.patch test-changes.patch "$STAGED_RUN_DIR"
     
     (
         local output_dir staged_output_dir
