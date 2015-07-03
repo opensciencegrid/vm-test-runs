@@ -3,6 +3,7 @@ platform:
   - rhel_6_x86_64
   - sl_6_x86_64
   - centos_7_x86_64
+  - rhel_7_x86_64
   - sl_7_x86_64
 
 sources:
