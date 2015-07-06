@@ -166,7 +166,7 @@ if __name__ == '__main__':
     test_run_dir = 'output-' + job_serial
     
     # Read condor_history output for transfer-in time (in seconds)
-    (rc, stdout, _) = run_command(('condor_history', '-format', '%d ', 'JobCurrentStartExecutingDate - JobCurrentStartDate',
+    (rc, stdout, _) = run_command(('condor_history', '-format', '%d\\n ', 'JobCurrentStartExecutingDate - JobCurrentStartDate',
                                    job_id, '-match', '1'))
     if rc == 0:
         data['transfer_in'] = re_extract(r'^(\S+)$', stdout, group=1)
