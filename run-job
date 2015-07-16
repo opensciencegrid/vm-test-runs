@@ -54,21 +54,13 @@ case $os_major_version in
         ;;
     6 )
         epel_url='http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm'
-        if [ "$osg_series" == "3.3" ]; then
-            osg_url="http://repo.grid.iu.edu/osg/3.3/el6/development/x86_64/osg-release-3.3-1.osg33.el6.noarch.rpm"
-        else
-            osg_url="http://repo.grid.iu.edu/osg/$osg_series/osg-$osg_series-el6-release-latest.rpm"
-        fi
+        osg_url="http://repo.grid.iu.edu/osg/$osg_series/osg-$osg_series-el6-release-latest.rpm"
         priorities_rpm='yum-plugin-priorities'
         python_lib_dir='/usr/lib/python2.6'
         ;;
     7 )
         epel_url='http://download.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm'
-        if [ "$osg_series" == "3.3" ]; then
-            osg_url="http://repo.grid.iu.edu/osg/3.3/el7/development/x86_64/osg-release-3.3-1.osg33.el7.noarch.rpm"
-        else
-            osg_url="http://repo.grid.iu.edu/osg/3.2/el7/development/x86_64/osg-release-3.2-7.osg32.el7.noarch.rpm"
-        fi
+        osg_url="http://repo.grid.iu.edu/osg/$osg_series/osg-$osg_series-el7-release-latest.rpm"
         priorities_rpm='yum-plugin-priorities'
         python_lib_dir='/usr/lib/python2.7'
         ;;
