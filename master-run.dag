@@ -1,3 +1,4 @@
+#!/usr/bin/env condor_submit_dag
 # Master DAG for osg-test runs
 
 # 1. Generate the test-run DAG and configuration files
