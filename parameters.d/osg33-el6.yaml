@@ -4,6 +4,12 @@ platform:
   - sl_6_x86_64
 
 sources:
+  - 3.3; osg
+  - 3.3; osg-testing
+  - 3.3; osg > osg-testing
+  - 3.1; osg > 3.3/osg
+  - 3.2; osg > 3.3/osg
+  - 3.2; osg > 3.3/osg-testing
   - trunk; 3.3; osg-testing
 
 packages:
