@@ -184,5 +184,6 @@ cp -r \
     /etc/selinux/config \
     /etc/sysconfig/network-scripts/ifcfg-* \
     /etc/udev/rules.d/70-persistent-net.rules \
+    /etc/yum.repos.d \
     /var/log.tar.gz \
     $SYSTEM_LOG_DIR/
