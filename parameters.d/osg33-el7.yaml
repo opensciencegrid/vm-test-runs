@@ -5,6 +5,8 @@ platform:
 
 sources:
   - 3.3; osg
+  - 3.3; osg-testing
+  - 3.3; osg > osg-testing
   - trunk; 3.3; osg-testing
 
 packages:
