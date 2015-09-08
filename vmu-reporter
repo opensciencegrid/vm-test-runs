@@ -107,11 +107,9 @@ def generate_table_body():
     sorted_tests = sort_tests(yaml.load(yaml_data))
 
     if SORT_BY == 'release':
-        sort_size = len(TEST_PARAMS['packages'])
         primary_sort_column = TEST_PARAMS['sources']
         secondary_sort_column = TEST_PARAMS['packages']
     elif SORT_BY == 'package':
-        sort_size = len(TEST_PARAMS['sources'])
         primary_sort_column = TEST_PARAMS['packages']
         secondary_sort_column = TEST_PARAMS['sources']
 
@@ -129,11 +127,11 @@ def generate_table_body():
             for platform in TEST_PARAMS['platform']:
                 try:
                     if SORT_BY == 'release':
-                            cell = generate_cell(sorted_tests[platform][primary_sort_val][secondary_sort_val])
-                            empty_row = False
+                        cell = generate_cell(sorted_tests[platform][primary_sort_val][secondary_sort_val])
+                        empty_row = False
                     elif SORT_BY == 'package':
-                            cell = generate_cell(sorted_tests[platform][secondary_sort_val][primary_sort_val])
-                            empty_row = False
+                        cell = generate_cell(sorted_tests[platform][secondary_sort_val][primary_sort_val])
+                        empty_row = False
                 except KeyError:
                     cell = Tag('td', class_='result none', align='center') # did not have a test for these params
                 rest_of_row.append(cell)
@@ -141,7 +139,7 @@ def generate_table_body():
                 trow.append(rest_of_row)
                 num_rows += 1
                 trow.append_new_tag('tr') # divider between rows
-        row_header.set('rowspan',num_rows)
+        row_header.set('rowspan', num_rows)
     return tbody
 
 def generate_cell(run):
