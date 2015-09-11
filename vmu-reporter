@@ -35,8 +35,8 @@ def generate_header():
             append('&lt;&lt; Back to latest manual run').append_new_tag('br')
 
     # Link to the ticket of known OSG test bugs
-    header_links.append_new_tag('a', 'https://jira.opensciencegrid.org/browse/SOFTWARE-1996').\
-        append('Known issues with osg-test')
+    header_links.append_new_tag('a', href='https://jira.opensciencegrid.org/browse/SOFTWARE-1996').\
+        append('Known issues with osg-test').append_new_tag('br')
 
     # Create patch link if we applied any patches
     if os.stat(RUN_DIR + 'test-changes.patch').st_size != 0:
