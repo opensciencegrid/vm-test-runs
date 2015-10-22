@@ -60,7 +60,7 @@ def canonical_pkg_string(package):
         'condor.x86_64, osg-ce-condor, rsv': 'Condor',
         'osg-gridftp, edg-mkgridmap, rsv': 'GridFTP',
         'osg-gums, rsv': 'GUMS',
-        'osg-se-bestman, rsv': 'BeStMan',
+        'osg-se-bestman, globus-proxy-utils, rsv': 'BeStMan',
         'osg-tested-internal': 'All',
         'osg-voms, rsv': 'VOMS'
         }

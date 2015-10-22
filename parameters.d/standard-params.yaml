@@ -17,6 +17,6 @@ packages:
   - [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-tested-internal]
   - [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, condor.x86_64, osg-ce-condor, rsv]
   - [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-gridftp, edg-mkgridmap, rsv]
-  - [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-se-bestman, rsv]
+  - [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-se-bestman, globus-proxy-utils, rsv]
   - [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-voms, rsv]
   - [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-gums, rsv]
