@@ -7,4 +7,4 @@ sources:
   - trunk; 3.3; osg-development
 
 packages:
-  - [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-voms, rsv]
+  - [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-gums, rsv]
