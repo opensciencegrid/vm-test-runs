@@ -174,7 +174,9 @@ def generate_cell(run):
                 short_module = module_num + re.sub(r'^Test', '', module)
                 short_test = re.match(r'test_(.*)', test).group(1)
                 mouseover_text += '</br><b>&emsp;%s</b> %s (%s): %s' % (status, short_module, short_test, msg)
-
+        elif run['osg_test_status'] == 'timeout':
+            mouseover_text +='</br><b>Timeout Test</b>: %s' % run['timeout_test']
+        
         # Construct link tag
         fail_count = run['tests_failed'] + run['tests_error'] + run['tests_bad_skip']
         test_log_path = glob('%soutput-%s/output/osg-test*.log' % (RUN_DIR, run['job_serial']))[0]
