@@ -53,11 +53,13 @@ def process_run(run):
             status = 3
         else:
             status = 2
+    elif run['osg_test_status'] == 'timeout':
+        status = 5
     return status
 
 def tally_run_results(container, key, status):
     if key not in container:
-        container[key] = [0, 0, 0, 0, 0]
+        container[key] = [0, 0, 0, 0, 0, 0]
     container[key][status] += 1
 
 def print_tallied_results(container, key_label):
@@ -66,12 +68,12 @@ def print_tallied_results(container, key_label):
         if len(key) > key_column_width:
             key_column_width = len(key)
 
-    print '%-*s    OK    DIED   FAIL   CLEAN  IGNORE' % (key_column_width, key_label.upper())
-    print '%s   ----   ----   ----   ----   ----' % ('-' * key_column_width)
+    print '%-*s    OK    DIED   FAIL   CLEAN  IGNORE   TIMEOUT' % (key_column_width, key_label.upper())
+    print '%s   ----   ----   ----    ----   ----     ----' % ('-' * key_column_width)
     for key in sorted(container.keys()):
-        print '%-*s   %4d   %4d   %4d   %4d   %4d' % \
+        print '%-*s   %4d   %4d   %4d    %4d   %4d     %4d' % \
             (key_column_width, key, container[key][0], \
-             container[key][1], container[key][2], container[key][3], container[key][4])
+             container[key][1], container[key][2], container[key][3], container[key][4], container[key][5])
     print
 
 # ------------------------------------------------------------------------------
