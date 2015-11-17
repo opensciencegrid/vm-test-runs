@@ -14,9 +14,9 @@ sources:
   - 3.1; osg > 3.2/osg-testing
 
 packages:
-  - [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-tested-internal]
-  - [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, condor.x86_64, osg-ce-condor, rsv]
-  - [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-gridftp, edg-mkgridmap, rsv]
-  - [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-se-bestman, rsv]
-  - [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-voms, rsv]
-  - [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-gums, rsv]
+  - All: [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-tested-internal]
+  - HTCondor: [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, condor.x86_64, osg-ce-condor, rsv]
+  - GridFTP: [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-gridftp, edg-mkgridmap, rsv]
+  - BeStMan: [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-se-bestman, rsv]
+  - VOMS: [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-voms, rsv]
+  - GUMS: [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-gums, rsv]

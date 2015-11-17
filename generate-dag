@@ -79,7 +79,8 @@ if __name__ == '__main__':
         vmu.die('%s: parameter directory "%s" does not exist' % (script_name, param_dir))
 
     run_params = vmu.load_run_params(param_dir)
-
+    vmu.pkg_mapping(run_params) # verify uniqueness of package sets + labels
+    
     # Set up test run directory
     test_run_directory = os.getcwd()
 
@@ -89,9 +90,18 @@ if __name__ == '__main__':
 
     # Run parameter sweep
     process = 0
-    run_combos = [] # keep track of all combinations so we can remove dupes
+    run_combos = [] # keep track of all combos to remove dupes
     for param_file in run_params:
-        for combo in itertools.product(param_file['platform'], param_file['sources'], param_file['packages']):
+        packages = []
+        for package_set in param_file['packages']:
+            if type(package_set) is dict:
+                packages.append(package_set.values()[0])
+            elif type(package_set) is list:
+                packages.append(package_set)
+            else:
+                vmu.die("Got bad package list: '%s'" % package_set)
+
+        for combo in itertools.product(param_file['platform'], param_file['sources'], packages):
             if combo not in run_combos:
                 run_combos.append(combo)
                 serial = '%03d' % (process)

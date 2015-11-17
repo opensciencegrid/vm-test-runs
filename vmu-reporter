@@ -4,12 +4,12 @@
 import re
 import os
 import sys
-import string
 import yaml
 import vmu
 from taglib import Html, Tag
 from glob import glob
 
+global PACKAGE_MAPPING
 VMU_TESTS_URL = "http://vdt.cs.wisc.edu/tests/"
 OS_TRANSLATION = {'centos': 'CentOS', 'rhel': 'RHEL', 'sl': 'SL'}
 
@@ -168,7 +168,7 @@ def generate_cell(run):
             for test in run['tests_messages']:
                 filename, test, module, status, msg = test.split('|')
                 try:
-                    module_num =  re.match(r'test_(\d+).*', filename).group(1) + '.'
+                    module_num = re.match(r'test_(\d+).*', filename).group(1) + '.'
                 except AttributeError: # account for failures in special tests
                     module_num = ''
                 short_module = module_num + re.sub(r'^Test', '', module)
@@ -206,14 +206,6 @@ def generate_cell(run):
     container = Tag('div', class_='data').extend((link_div, mouseover_div))
     return Tag('td', class_=result_class, align='center').append(container)
 
-def merge_params(params_list):
-    '''Combines multiple run parameters files into a single dictionary (eliminating duplicates)'''
-    primary = params_list.pop(0)
-    for param in primary.iterkeys():
-        for secondary in params_list:
-            primary[param] += [val for val in secondary[param] if val not in primary[param]]
-    return primary
-
 def sort_platforms_by_dver(platform_list):
     '''Sorts the OS's by dver so that we know which column to put each run
      Assumes the OS's have the format: <flavor>_<dver>_<arch>'''
@@ -222,21 +214,13 @@ def sort_platforms_by_dver(platform_list):
         translated_platform = vmu.canonical_os_string(platform)
         dver = translated_platform[-1]
         try:
-            dvers[dver].append(translated_platform)
+            dvers[dver].add(translated_platform)
         except KeyError:
-            dvers[dver] = [translated_platform]
+            dvers[dver] = set([translated_platform])
     platforms = []
     for dver in sorted(dvers):
-        platforms += dvers[dver]
+        platforms += sorted(dvers[dver])
     return platforms
-
-def pkg_list_to_string(packages):
-    '''Translate package list into a string'''
-    translated_pkgs = []
-    for package_set in packages:
-        concat_pkgs = string.join(package_set, ', ')
-        translated_pkgs.append(vmu.canonical_pkg_string(concat_pkgs))
-    return translated_pkgs
 
 def sort_tests(tests):
     '''Sort each test into a nested dictionary for easier population of the results table'''
@@ -244,7 +228,7 @@ def sort_tests(tests):
     for test in tests:
         platform = vmu.canonical_os_string(test['os_release'])
         src = vmu.canonical_src_string(test['param_sources'])
-        pkg = vmu.canonical_pkg_string(test['param_packages'])
+        pkg = vmu.canonical_pkg_string(test['param_packages'], PACKAGE_MAPPING)
         try:
             sorted_tests[platform][src][pkg] = test
         except KeyError:
@@ -263,9 +247,9 @@ if __name__ == "__main__":
     help_text = usage_text + "\t-s\tSort results by 'release' or 'package'. Defaults to 'release'." \
                 + " \n\t-h\tPrint this help message\n"
 
-    # Process options
+    # Process options and arguments
     SORT_BY = 'release'
-    while len(sys.argv) > 1:
+    while len(sys.argv) > 0:
         arg = sys.argv.pop(0)
         if arg == '-h':
             vmu.die(help_text, 0)
@@ -275,16 +259,9 @@ if __name__ == "__main__":
                 bad_sort_text = "Unrecognized sort option: %s\n\n" % SORT_BY
                 vmu.die(bad_sort_text + help_text)
         else:
-            bad_option_text = "Unrecognized option %s\n\n" % arg
-            vmu.die(bad_option_text + help_text)
-
-    # Process arguments
-    try:
-        RUN_DIR = os.path.abspath(sys.argv.pop()) + '/'
-    except IndexError:
-        vmu.die(usage_text)
-    if not os.path.exists(RUN_DIR):
-        vmu.die('%s: run directory "%s" does not exist\n' % (SCRIPT_NAME, RUN_DIR))
+            RUN_DIR = os.path.abspath(arg) + '/'
+            if not os.path.exists(RUN_DIR):
+                vmu.die('%s: run directory "%s" does not exist\n' % (SCRIPT_NAME, RUN_DIR))
 
     TIMESTAMP_REGEX = re.search(r'run-(\d*-\d*)', RUN_DIR)
     try:
@@ -294,16 +271,25 @@ if __name__ == "__main__":
         vmu.die('%s: could not get timestamp of run directory "%s"\n' % (SCRIPT_NAME, RUN_DIR))
 
     # Read, sort, and translate test parameters
-    params = vmu.load_run_params(RUN_DIR + 'parameters.d')
-    TEST_PARAMS = merge_params(params)
+    param_dir = RUN_DIR + 'parameters.d'
+    params = vmu.load_run_params(param_dir)
+    TEST_PARAMS = vmu.flatten_run_params(params)
     TEST_PARAMS['platform'] = sort_platforms_by_dver(TEST_PARAMS['platform'])
-    TEST_PARAMS['packages'] = sorted(pkg_list_to_string(TEST_PARAMS['packages']))
 
-    sources = []
+    translated_pkgs = list()
+    PACKAGE_MAPPING = vmu.pkg_mapping(params)
+    for package_set in TEST_PARAMS['packages']:
+        if type(package_set) is dict:
+            package_set = package_set.values()[0]
+        package_set = ', '.join(package_set)
+        translated_pkgs.append(vmu.canonical_pkg_string(package_set, PACKAGE_MAPPING))
+    TEST_PARAMS['packages'] = translated_pkgs
+
+    sources = list()
     for source in TEST_PARAMS['sources']:
         sources.append(vmu.canonical_src_string(source))
     TEST_PARAMS['sources'] = sources
-
+    
     # Construct and print results
     HTML = generate_header()
     TABLE = generate_table()
