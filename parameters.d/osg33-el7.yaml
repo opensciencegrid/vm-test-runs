@@ -7,6 +7,8 @@ sources:
   - 3.3; osg
   - 3.3; osg-testing
   - 3.3; osg > osg-testing
+  - 3.3; osg-testing, osg-upcoming-testing
+  - 3.3; osg > osg-testing, osg-upcoming-testing
   - trunk; 3.3; osg-testing
 
 packages:
