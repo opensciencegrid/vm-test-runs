@@ -15,7 +15,8 @@ RECIPIENTS = (
     'Suchandra Thapa <sthapa@ci.uchicago.edu>',
     'Tim Cartwright <cat@cs.wisc.edu>',
     'Tim Theisen <tim@cs.wisc.edu>',
-    'Jeffrey Dost <jdost@ucsd.edu>'
+    'Jeffrey Dost <jdost@ucsd.edu>',
+    'Martin Kandes <mkandes@sdsc.edu>'
     )
 
 ANALYSIS_FILENAME = 'analyze-test-run.out'
