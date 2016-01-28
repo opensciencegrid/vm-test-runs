@@ -120,6 +120,7 @@ if [ -f $INPUT_DIR/osg-test-trunk.tar.bz2 ]; then
     cd /tmp/osg-test-trunk
     make install DESTDIR=/
     svn_revision=`cat svn-revision.txt`
+    run_command_with_retries 8 yum -y install osg-ca-generator --enablerepo=osg-testing --disablerepo=osg
     log_command echo "osg-test source: svn trunk@$svn_revision" # For post-run analysis
 else
     RPM_LOCATION=`ls -1 $INPUT_DIR/osg-test-*.el$os_major_version.noarch.rpm 2>/dev/null | tail -n 1`
