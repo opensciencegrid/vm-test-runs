@@ -97,7 +97,7 @@ def write_failure_and_exit(data, status, message, extra=None):
     write_yaml(data)
     sys.exit(0)
 
-def parse_log(osg_test_log, test_exceptions):
+def parse_log(osg_test_log, test_exceptions, components):
     # Extract problems
     today = date.today()
     run_status = ''
@@ -113,7 +113,7 @@ def parse_log(osg_test_log, test_exceptions):
                 ex_function, ex_module, ex_start, ex_finish = exception
                 if status == 'FAIL' and ex_function == function and ex_module == module and \
                    today >= ex_start and today <= ex_finish:
-                    ignored_failures += 1            
+                    ignored_failures += 1
         problems.append('|'.join((module, function, module_name, status, '-')))
 
     if ignored_failures and ignored_failures == len(problems) - cleanup_failures:
@@ -139,12 +139,25 @@ def parse_log(osg_test_log, test_exceptions):
     elif not run_status: # catch missed failures
         run_status = 'fail'
 
+    okskips = {}
+    m = re.finditer(r'\S+ \(osgtest\.tests\.([^\.]+).*okskip$', osg_test_log, re.MULTILINE)
+    if m is not None:
+        for module in m:
+            try:
+                tags = components[module.group(1)]
+            except KeyError:
+                continue
+            try:
+                for tag in tags:
+                    okskips[tag] += 1
+            except KeyError:
+                okskips[tag] = 1
+                
     if re.search('AssertionError: Retries terminated after timeout period', osg_test_log, re.MULTILINE):
         run_status += ' yum_timeout'
 
+    return run_status, problems, okskips
 
-    return run_status, problems
-    
 # ======================================================================================================================
 
 if __name__ == '__main__':
@@ -243,7 +256,9 @@ if __name__ == '__main__':
     data['run_status'] = 0
     data['osg_test_logfile'] = osg_test_logfile
     
-    data['osg_test_status'], data['tests_messages'] = parse_log(osg_test_log, load_yaml('test-exceptions.yaml'))
+    data['osg_test_status'], data['tests_messages'], data['ok_skips'] = parse_log(osg_test_log,
+                                                                                  load_yaml('test-exceptions.yaml'),
+                                                                                  load_yaml('component-tags.yaml'))
   
     # Extract start time
     data['start_time'] = re_extract(r'^Start time: (.*)$', osg_test_log, re.MULTILINE, group=1)
