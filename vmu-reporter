@@ -161,8 +161,16 @@ def generate_cell(run):
             '<b>Guest IP</b>: ' + run['guest_address'] + '</br>' + \
             '<b>OSG Test Version</b>: ' + osg_test_version + '</br>' + \
             '<b>Start Time</b>: ' + str(run['start_time']) + '</br>' + \
-            '<b>Run Time</b>: ' + str(run['run_time']) + '</br>' + \
-            '<b> OK Skips:</b> ' + ', '.join(['%s (%s)' % (tag, run['ok_skips'][tag]) for tag in run['ok_skips']])
+            '<b>Run Time</b>: ' + str(run['run_time']) + '</br>'
+        if run['osg_test_status'] not in ['install', 'update']:
+            formatted_skips = [[]]
+            for tag, skips in run['ok_skips'].iteritems():
+                tag_string = '%s (%s)' % (tag, skips)
+                if len(', '.join(formatted_skips[-1])) + len(tag_string) > 80:
+                    formatted_skips.append([tag_string])
+                else:
+                    formatted_skips[-1].append(tag_string)
+            mouseover_text += '<b>OK Skips:</b> ' + '</br>'.join(', '.join(line) for line in formatted_skips)
         # and for the failures...
         if run['tests_messages']:
             mouseover_text += '</br><b>Failures:</b>'
