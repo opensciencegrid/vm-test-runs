@@ -71,6 +71,7 @@ case $os_major_version in
 esac
 
 # Debugging (here, in case of early exit)
+log_command date
 log_command cat /etc/creation_date
 log_command cat /etc/redhat-release
 log_command echo $os_major_version
