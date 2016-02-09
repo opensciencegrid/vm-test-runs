@@ -148,6 +148,13 @@ log_command patch --directory=/usr/sbin --input=$INPUT_DIR/osg-test.patch --stri
 log_command patch --directory=$python_lib_dir/site-packages --input=$INPUT_DIR/test-changes.patch --strip=0
 log_command patch --directory=/etc/yum.repos.d --input=$INPUT_DIR/osg-release.patch --strip=0
 
+# Debug RHEL
+grep 'Red Hat' /etc/redhat-release > /dev/null 2>&1
+if [ $? -eq 0 ]; then
+    log_command subscription-manager list
+    log_command subscription-manager status
+fi
+
 # Run osg-test
 rpm --query --all > $OUTPUT_DIR/rpm-qa-start.log 2>&1
 osg-test --config=$MOUNT_DIR/input/osg-test.conf > $OUTPUT_DIR/osg-test-`date '+%Y%m%d'`.log 2>&1
