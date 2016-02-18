@@ -22,7 +22,9 @@ def write_file(contents, file_path):
 def load_run_params(param_dir):
     '''Read all yaml parameter files in a directory and add them to the list'''
     run_params = []
-    for param_file in sorted(glob("%s/*" % param_dir)):
+    # Slurp param files in reverse order so that the latest OSG versions show
+    # at the top of the results 
+    for param_file in reversed(sorted(glob("%s/*" % param_dir))):
         with open(param_file, 'r') as yaml_file:
             yaml_contents = yaml_file.read()
         try:
