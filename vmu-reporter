@@ -154,12 +154,15 @@ def generate_cell(run):
 
     if run['run_status'] == 0:
         # Info for all runs of osg-test
-        osg_test_version = re.sub(r'yum.*(\d+\.\d+\.\d+-\d+).*', r'\1', run['osg_test_version'])
+        version_re = r'yum.*(\d+\.\d+\.\d+-\d+).*'
+        osg_test_version = re.sub(version_re, r'\1', run['osg_test_version'])
+        osg_ca_gen_version = re.sub(version_re, r'\1', run['osg_ca_generator_version'])
         mouseover_text += '<b>VM Creation Date</b>: ' + run['vm_creation_date'] + '</br>' + \
             '<b>VM IO Free Space</b>: ' + run['io_free_size'] + '</br>' + \
             '<b>Run Dir</b>: ' + run['run_directory'] + '/output-' + run['job_serial'] + '</br>' + \
             '<b>Guest IP</b>: ' + run['guest_address'] + '</br>' + \
             '<b>OSG Test Version</b>: ' + osg_test_version + '</br>' + \
+            '<b>OSG CA Gen Version</b>: ' + osg_ca_gen_version + '</br>' + \
             '<b>Start Time</b>: ' + str(run['start_time']) + '</br>' + \
             '<b>Run Time</b>: ' + str(run['run_time'])
         if run['osg_test_status'] not in ['install', 'update']:

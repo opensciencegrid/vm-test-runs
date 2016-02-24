@@ -243,10 +243,11 @@ if __name__ == '__main__':
             write_failure_and_exit(data, 1, 'yum install of osg-test failed', final_osgtest_install)
     
     # Extract osg-test source string
-    osg_test_source_re = r'^osg-test source: (.*)$'
-    osg_test_source = re_extract(osg_test_source_re, run_job_log, re.MULTILINE, default='(unknown)', group=1)
-    data['osg_test_version'] = osg_test_source
-    
+    for package in ['osg-test', 'osg-ca-generator']:
+        source_re = r'^%s source: (.*)$' % package
+        data[package.replace('-', '_') + '_version'] = re_extract(source_re, run_job_log, re.MULTILINE,
+                                                                  default='(unknown)', group=1)
+
     # Read osg-test output
     osg_test_logfile_list = glob.glob(os.path.join(test_run_dir, 'output', 'osg-test-*.log'))
     if len(osg_test_logfile_list) == 0:

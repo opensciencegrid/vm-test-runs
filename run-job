@@ -115,14 +115,14 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Install osg-test
+# Install osg-test and osg-ca-generator
 if [ -f $INPUT_DIR/osg-test-trunk.tar.bz2 ]; then
-    tar xf $INPUT_DIR/osg-test-trunk.tar.bz2 --directory /tmp
-    cd /tmp/osg-test-trunk
-    make install DESTDIR=/
-    svn_revision=`cat svn-revision.txt`
-    run_command_with_retries 8 yum -y install osg-ca-generator --enablerepo=osg-testing --disablerepo=osg
-    log_command echo "osg-test source: svn trunk@$svn_revision" # For post-run analysis
+    for PACKAGE in 'osg-test' 'osg-ca-generator'; do
+        tar xf $INPUT_DIR/$PACKAGE-trunk.tar.bz2 --directory /tmp
+        cd /tmp/$PACKAGE-trunk
+        make install DESTDIR=/
+        log_command cat svn-revision.txt # For post-run analysis
+    done
 else
     RPM_LOCATION=`ls -1 $INPUT_DIR/osg-test-*.el$os_major_version.noarch.rpm 2>/dev/null | tail -n 1`
     if [ "x$RPM_LOCATION" != 'x' ]; then
@@ -136,9 +136,11 @@ else
             echo 'Could not install osg-test'
             exit 1
         fi
-        log_command rpm --verify osg-test
-        rpm_version=`rpm --query osg-test`
-        log_command echo "osg-test source: yum $rpm_version" # For post-run analysis
+        for PACKAGE in 'osg-test' 'osg-ca-generator'; do
+            log_command rpm --verify $PACKAGE
+            rpm_version=`rpm --query $PACKAGE`
+            log_command echo "$PACKAGE source: yum $rpm_version" # For post-run analysis
+        done
     fi
 fi
 
