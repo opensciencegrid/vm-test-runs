@@ -7,10 +7,9 @@ platform:
   - sl_6_x86_64
 
 sources:
-  - 3.2; osg
-  - 3.2; osg-testing
-  - 3.2; osg > osg-testing
-  # Grab osg-test from trunk so we don't have to maintain unsupported OSG repos
+  - trunk; 3.2; osg
+  - trunk; 3.2; osg-testing
+  - trunk; 3.2; osg > osg-testing
   - trunk; 3.1; osg > 3.2/osg
   - trunk; 3.1; osg > 3.2/osg-testing
 

@@ -4,15 +4,14 @@ platform:
   - sl_6_x86_64
 
 sources:
-  - 3.3; osg
-  - 3.3; osg-testing
-  - 3.3; osg > osg-testing
-  - 3.3; osg-testing, osg-upcoming-testing
-  - 3.3; osg > osg-testing, osg-upcoming-testing
-  - 3.1; osg > 3.3/osg
-  - 3.2; osg > 3.3/osg
-  - 3.2; osg > 3.3/osg-testing
+  - trunk; 3.3; osg
   - trunk; 3.3; osg-testing
+  - trunk; 3.3; osg > osg-testing
+  - trunk; 3.3; osg-testing, osg-upcoming-testing
+  - trunk; 3.3; osg > osg-testing, osg-upcoming-testing
+  - trunk; 3.1; osg > 3.3/osg
+  - trunk; 3.2; osg > 3.3/osg
+  - trunk; 3.2; osg > 3.3/osg-testing
 
 packages:
   - All: [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-tested-internal]
