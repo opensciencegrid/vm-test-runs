@@ -38,6 +38,9 @@ def generate_header():
     header_links.append_new_tag('a', href='https://jira.opensciencegrid.org/browse/SOFTWARE-1996').\
         append('Known issues with osg-test').append_new_tag('br')
 
+    header_links.append_new_tag('a', href='https://jira.opensciencegrid.org/browse/SOFTWARE-2086').\
+        append('OKSKIP tag to test module mapping').append_new_tag('br')
+
     # Create patch link if we applied any patches
     if os.stat(RUN_DIR + 'test-changes.patch').st_size != 0:
         header_links.append_new_tag('a', href=RUN_URL + 'test-changes.patch').\
