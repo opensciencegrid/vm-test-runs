@@ -227,21 +227,18 @@ if __name__ == '__main__':
         write_failure_and_exit(data, 1, 'No apparent IP address')
     data['guest_address'] = inet_address
     
-    # See if the final rpm install of epel-release failed
-    final_epel_install = extract_last(run_job_log, r'^.*rpm --upgrade.*epel-release(?:.*\n)*?^==>.*$')
-    if final_epel_install is None:
-        write_failure_and_exit(data, 1, 'Could not find an rpm install of epel-release')
-    install_result = re_extract(r'^==> (\w+)', final_epel_install, re.MULTILINE, group=1)
-    if install_result != 'OK':
-        write_failure_and_exit(data, 1, 'rpm install of epel-release failed', final_epel_install)
-    
+    # See if the rpm install of epel-release failed
+    failed_epel_install = re.search(r'Could not install EPEL repository', run_job_log)
+    if failed_epel_install:
+        write_failure_and_exit(data, 1, 'rpm install of epel-release failed')
+
     # See if the final yum install of osg-test failed
     final_osgtest_install = extract_last(run_job_log, r'^.*install osg-test(?:.*\n)*?^==>.*$')
     if final_osgtest_install is not None:
         install_result = re_extract(r'^==> (\w+)', final_osgtest_install, re.MULTILINE, group=1)
         if install_result != 'OK':
             write_failure_and_exit(data, 1, 'yum install of osg-test failed', final_osgtest_install)
-    
+
     # Extract osg-test source string
     for package in ['osg-test', 'osg-ca-generator']:
         source_re = r'^%s source: (.*)$' % package

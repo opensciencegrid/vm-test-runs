@@ -102,16 +102,17 @@ log_command hostname
 
 # Install repositories
 # See, e.g., https://twiki.opensciencegrid.org/bin/view/Documentation/Release3/YumRepositories
-run_command_with_retries 8 rpm --upgrade $epel_url
+rpm -q epel-release || run_command_with_retries 8 rpm --upgrade $epel_url
 if [ $? -ne 0 ]; then
-    echo 'Could not install EPEL repository'
+    log_command echo 'Could not install EPEL repository'
     exit 1
 fi
+
 run_command_with_retries 8 yum -y install $priorities_rpm
 log_command sed -i -e 's/^plugins=.*$/plugins=1/' /etc/yum.conf
-run_command_with_retries 8 rpm --upgrade $osg_url
+rpm -q osg-release || run_command_with_retries 8 rpm --upgrade $osg_url
 if [ $? -ne 0 ]; then
-    echo 'Could not install OSG repository'
+    log_command echo 'Could not install OSG repository'
     exit 1
 fi
 
