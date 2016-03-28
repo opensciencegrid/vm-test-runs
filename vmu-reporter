@@ -153,15 +153,15 @@ def generate_cell(run):
     mouseover_text = '<b>Hostname</b>: ' + run['host_name'] + '</br>' + \
         '<b>Host IP</b>: ' + run['host_address'] + '</br>' + \
         '<b>Job ID:</b> ' + str(run['job_id']) + '</br>' + \
-        '<b>Job Serial</b>: ' + run['job_serial'] + '</br>'
+        '<b>Job Serial</b>: ' + run['job_serial'] + '</br>' + \
+        '<b>VM Creation Date</b>: ' + run['vm_creation_date'] + '</br>'
 
     if run['run_status'] == 0:
-        # Info for all runs of osg-test
+        # Info for non-dying runs of osg-test
         version_re = r'yum.*(\d+\.\d+\.\d+-\d+).*'
         osg_test_version = re.sub(version_re, r'\1', run['osg_test_version'])
         osg_ca_gen_version = re.sub(version_re, r'\1', run['osg_ca_generator_version'])
-        mouseover_text += '<b>VM Creation Date</b>: ' + run['vm_creation_date'] + '</br>' + \
-            '<b>VM IO Free Space</b>: ' + run['io_free_size'] + '</br>' + \
+        mouseover_text += '<b>VM IO Free Space</b>: ' + run['io_free_size'] + '</br>' + \
             '<b>Run Dir</b>: ' + run['run_directory'] + '/output-' + run['job_serial'] + '</br>' + \
             '<b>Guest IP</b>: ' + run['guest_address'] + '</br>' + \
             '<b>OSG Test Version</b>: ' + osg_test_version + '</br>' + \
