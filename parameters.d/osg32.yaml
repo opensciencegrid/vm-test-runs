@@ -10,8 +10,6 @@ sources:
   - trunk; 3.2; osg
   - trunk; 3.2; osg-testing
   - trunk; 3.2; osg > osg-testing
-  - trunk; 3.1; osg > 3.2/osg
-  - trunk; 3.1; osg > 3.2/osg-testing
 
 packages:
   - All: [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-tested-internal]
