@@ -64,11 +64,11 @@ safe_run mkdir $RUN_DIRECTORY
 
 # Check out files to a temporary directory
 TEMP_DIR=`mktemp --directory`
-SVN_CHECKOUT_DIR=$TEMP_DIR/svn-files
-safe_run svn export https://vdt.cs.wisc.edu/svn/new-test/trunk/vm-test-runs $SVN_CHECKOUT_DIR --quiet
+GIT_CHECKOUT_DIR=$TEMP_DIR/git-files
+safe_run git clone --quiet --depth 1 https://github.com/opensciencegrid/vm-test-runs $GIT_CHECKOUT_DIR
 
 # Copy needed files to the run directory
-cd $SVN_CHECKOUT_DIR
+cd $GIT_CHECKOUT_DIR
 safe_run cp -r \
     master-run.dag \
     generate-dag.sub generate-dag parameters.d test-exceptions.yaml component-tags.yaml \
