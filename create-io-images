@@ -22,6 +22,43 @@ def run_command(command, shell=False):
     (stdout, stderr) = p.communicate()
     return (p.returncode, stdout, stderr)
 
+
+def make_source_tarball_from_github(package, revision='master'):
+    source_dir_name = package + '-' + revision
+    source_tarball_name = source_dir_name + '.tar.gz'
+    # Return immediately if the source tarball seems to exist already
+    if os.path.exists(source_tarball_name):
+        return source_tarball_name
+
+    # Clone the repo into a temporary directory
+    temp_directory = tempfile.mkdtemp()
+    clone_directory = os.path.join(temp_directory, source_dir_name + '.git')
+    command = ('git', 'clone', '--bare', 'https://github.com/opensciencegrid/' + package, clone_directory)
+    (exit_status, stdout, stderr) = run_command(command)
+    if exit_status != 0:
+        print 'git clone failed with exit status %d' % exit_status
+        print stdout
+        print stderr
+        sys.exit(1)
+
+    # Make source tarball from the specified revision
+    print 'Making "%s" from "%s"' % (source_tarball_name, clone_directory)
+    command = ('git', '--git-dir=' + clone_directory,
+               'archive', '--prefix=' + source_dir_name + '/', '--output=' + source_tarball_name,
+               revision)
+    (exit_status, stdout, stderr) = run_command(command)
+    if exit_status != 0:
+        print 'git archive failed with exit status %d' % exit_status
+        print stdout
+        print stderr
+        sys.exit(1)
+
+    # Clean up
+    shutil.rmtree(temp_directory)
+
+    return source_tarball_name
+
+
 def make_source_tarball(package):
     source_dir_name = package + '-trunk'
     source_tarball_name = source_dir_name + '.tar.bz2'
@@ -87,9 +124,11 @@ def create_image(config_filename):
         for rpm in glob.glob(os.path.join(svn_dir, 'osg-test-*.rpm')):
             shutil.copy(rpm, input_directory)
 
-        if 'testsource = trunk' in config_contents:
+        if 'testsource = trunk' in config_contents or \
+                'testsource = master' in config_contents:
+
             for package in ['osg-test', 'osg-ca-generator']:
-                tarball_name = make_source_tarball(package)
+                tarball_name = make_source_tarball_from_github(package)
                 shutil.copy(tarball_name, input_directory)
 
         os.mkdir(os.path.join(image_directory, 'output'))
