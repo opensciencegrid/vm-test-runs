@@ -45,21 +45,19 @@ osg_series=`grep series $INPUT_DIR/osg-test.conf | sed -e 's/series *= *//'`
 
 # Set variables based on OS major version
 os_major_version=`sed -e 's/^[^0-9]*//' -e 's/\..*$//' /etc/redhat-release`
+epel_url="https://dl.fedoraproject.org/pub/epel/epel-release-latest-$os_major_version.noarch.rpm"
 case $os_major_version in
     5 )
-        epel_url='http://dl.fedoraproject.org/pub/epel/5/i386/epel-release-5-4.noarch.rpm'
         osg_url="http://repo.grid.iu.edu/osg/$osg_series/osg-$osg_series-el5-release-latest.rpm"
         priorities_rpm='yum-priorities'
         python_lib_dir='/usr/lib/python2.4'
         ;;
     6 )
-        epel_url='http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm'
         osg_url="http://repo.grid.iu.edu/osg/$osg_series/osg-$osg_series-el6-release-latest.rpm"
         priorities_rpm='yum-plugin-priorities'
         python_lib_dir='/usr/lib/python2.6'
         ;;
     7 )
-        epel_url='http://download.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm'
         osg_url="http://repo.grid.iu.edu/osg/$osg_series/osg-$osg_series-el7-release-latest.rpm"
         priorities_rpm='yum-plugin-priorities'
         python_lib_dir='/usr/lib/python2.7'
