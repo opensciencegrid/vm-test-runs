@@ -148,8 +148,8 @@ fi
 
 # Patch osg-test
 log_command yum -y install patch --disablerepo=osg
-log_command patch --directory=/usr/sbin --input=$INPUT_DIR/osg-test.patch --strip=0
-log_command patch --directory=$python_lib_dir/site-packages --input=$INPUT_DIR/test-changes.patch --strip=0
+log_command patch --directory=/usr/sbin --input=$INPUT_DIR/osg-test.patch --strip=1
+log_command patch --directory=$python_lib_dir/site-packages --input=$INPUT_DIR/test-changes.patch --strip=1
 log_command patch --directory=/etc/yum.repos.d --input=$INPUT_DIR/osg-release.patch --strip=0
 
 # Debug RHEL
