@@ -23,8 +23,16 @@ def run_command(command, shell=False):
     return (p.returncode, stdout, stderr)
 
 
-def make_source_tarball_from_github(package, revision='master'):
-    source_dir_name = package + '-' + revision
+def make_source_tarball_from_github(package, repo='opensciencegrid', branch='master'):
+    """
+    Generate a tarball containing the bare github clone of 'package' using the
+    'branch' from 'repo'.
+
+    package: name of the package on github
+    repo: source github repository
+    branch: source branch or tag
+    """
+    source_dir_name = package + '-git'
     source_tarball_name = source_dir_name + '.tar.gz'
     # Return immediately if the source tarball seems to exist already
     if os.path.exists(source_tarball_name):
@@ -33,7 +41,7 @@ def make_source_tarball_from_github(package, revision='master'):
     # Clone the repo into a temporary directory
     temp_directory = tempfile.mkdtemp()
     clone_directory = os.path.join(temp_directory, source_dir_name + '.git')
-    command = ('git', 'clone', '--bare', 'https://github.com/opensciencegrid/' + package, clone_directory)
+    command = ('git', 'clone', '--bare', '--branch', branch, 'https://github.com/%s/%s' % (repo, package), clone_directory)
     (exit_status, stdout, stderr) = run_command(command)
     if exit_status != 0:
         print 'git clone failed with exit status %d' % exit_status
@@ -41,11 +49,11 @@ def make_source_tarball_from_github(package, revision='master'):
         print stderr
         sys.exit(1)
 
-    # Make source tarball from the specified revision
+    # Make source tarball from the specified branch
     print 'Making "%s" from "%s"' % (source_tarball_name, clone_directory)
     command = ('git', '--git-dir=' + clone_directory,
                'archive', '--prefix=' + source_dir_name + '/', '--output=' + source_tarball_name,
-               revision)
+               branch)
     (exit_status, stdout, stderr) = run_command(command)
     if exit_status != 0:
         print 'git archive failed with exit status %d' % exit_status
@@ -124,12 +132,18 @@ def create_image(config_filename):
         for rpm in glob.glob(os.path.join(svn_dir, 'osg-test-*.rpm')):
             shutil.copy(rpm, input_directory)
 
-        if 'testsource = trunk' in config_contents or \
-                'testsource = master' in config_contents:
+        tarballs = []
+        try:
+            # Clone osg-test from source
+            repo, branch = re.search(r'testsource = (.*)/(.*)', config_contents).groups()
+            tarballs.append(make_source_tarball_from_github('osg-test', repo, branch))
+            tarballs.append(make_source_tarball_from_github('osg-ca-generator'))
+        except AttributeError:
+            # user did not request osg-test from source i.e. install from yum repos instead
+            pass
+        for tarball_name in tarballs:
+            shutil.copy(tarball_name, input_directory)
 
-            for package in ['osg-test', 'osg-ca-generator']:
-                tarball_name = make_source_tarball_from_github(package)
-                shutil.copy(tarball_name, input_directory)
 
         os.mkdir(os.path.join(image_directory, 'output'))
 
