@@ -7,5 +7,7 @@
 #
 # - [test_04_trace, test_55_condorce, 2014-12-01, 2015-01-14]
 #
+
+# Catch 'No Route to Host' error (https://bugzilla.nikhef.nl/show_bug.cgi?id=29)
 - [test_02_fetch_crl, test_06_fetch_crl, 2016-03-29, 2017-03-29]
 - [test_03_fetch_crl_dir, test_06_fetch_crl, 2016-03-29, 2017-03-29]
