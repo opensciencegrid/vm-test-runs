@@ -12,5 +12,10 @@ sources:
 
 packages:
   - All: [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-tested-internal]
+  # Explicitly add GRAM packages since they were dropped from osg-ce (SOFTWARE-2278, SOFTWARE-2291)
+  - GRAM: [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-tested-internal,
+           globus-gatekeeper, globus-gram-client-tools, globus-gram-job-manager, globus-gram-job-manager-fork,
+           globus-gram-job-manager-fork-setup-poll, gratia-probe-gram, globus-gram-job-manager-scripts,
+           globus-gram-job-manager-condor, globus-gram-job-manager-pbs-setup-seg]
   - HTCondor: [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, condor.x86_64, osg-ce-condor, rsv]
   - GridFTP: [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-gridftp, edg-mkgridmap, rsv]
