@@ -109,9 +109,10 @@ def canonical_src_string(sources):
     result = re.sub(r'osg-upcoming', 'Upcoming', result)
     result = re.sub(r'osg-upcoming-testing', 'Upcoming Testing', result)
     result = re.sub(r'osg', 'Release', result) # Must come after other repos
+    result = re.sub(r'(^\w*/\w*)(.*)', '\\2 (\\1)', result)
     result = re.sub(r';', '', result)
     result = re.sub(r'/', ' ', result)
+    result = re.sub(r'\((\w*) (\w*)\)', '(\\1/\\2)', result)
     result = re.sub(r',', ' + ', result)
     result = re.sub(r'^(\d+\.\d+)(.*-> )(?!\d)', '\\1\\2\\1 ', result) # Duplicate release series, when needed
-    result = re.sub(r'^trunk\s*(.*)$', '\\1 (TRUNK)', result)
-    return result
+    return result.strip()
