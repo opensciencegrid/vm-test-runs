@@ -7,7 +7,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
-
+import vmu
 
 def run_command(command, shell=False):
     # Preprocess command
@@ -124,7 +124,7 @@ if __name__ == '__main__':
 
     # Process command-line arguments
     if len(sys.argv) != 1:
-        die('usage: %s' % (script_name))
+        vmu.die('usage: %s' % (script_name))
 
     # Write files
     contents_to_filename = {}
