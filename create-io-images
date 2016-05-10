@@ -41,7 +41,7 @@ def make_source_tarball_from_github(package, repo='opensciencegrid', branch='mas
     # Clone the repo into a temporary directory
     temp_directory = tempfile.mkdtemp()
     clone_directory = os.path.join(temp_directory, source_dir_name + '.git')
-    command = ('git', 'clone', '--bare', '--branch', branch, 'https://github.com/%s/%s' % (repo, package), clone_directory)
+    command = ('git', 'clone', '--bare', 'https://github.com/%s/%s' % (repo, package), clone_directory)
     (exit_status, stdout, stderr) = run_command(command)
     if exit_status != 0:
         print 'git clone failed with exit status %d' % exit_status
