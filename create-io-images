@@ -96,7 +96,7 @@ def create_image(config_filename):
         tarballs = []
         try:
             # Clone osg-test from source
-            repo, branch = re.search(r'testsource = (.*)/(.*)', config_contents).groups()
+            repo, branch = re.search(r'testsource = (.*):(.*)', config_contents).groups()
             tarballs.append(make_source_tarball_from_github('osg-test', repo, branch))
             tarballs.append(make_source_tarball_from_github('osg-ca-generator'))
         except AttributeError:
