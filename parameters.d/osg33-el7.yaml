@@ -4,11 +4,11 @@ platform:
   - sl_7_x86_64
 
 sources:
-  - trunk; 3.3; osg
-  - trunk; 3.3; osg-testing
-  - trunk; 3.3; osg > osg-testing
-  - trunk; 3.3; osg-testing, osg-upcoming-testing
-  - trunk; 3.3; osg > osg-testing, osg-upcoming-testing
+  - opensciencegrid:master; 3.3; osg
+  - opensciencegrid:master; 3.3; osg-testing
+  - opensciencegrid:master; 3.3; osg > osg-testing
+  - opensciencegrid:master; 3.3; osg-testing, osg-upcoming-testing
+  - opensciencegrid:master; 3.3; osg > osg-testing, osg-upcoming-testing
 
 packages:
   - All: [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-tested-internal]

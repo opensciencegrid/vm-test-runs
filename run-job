@@ -115,15 +115,15 @@ if [ $? -ne 0 ]; then
 fi
 
 # Install osg-test and osg-ca-generator
-if [ -f $INPUT_DIR/osg-test-master.tar.gz ]; then
+if [ -f $INPUT_DIR/osg-test-git.tar.gz ]; then
     run_command_with_retries 8 yum -y install git
 
     for PACKAGE in 'osg-test' 'osg-ca-generator'; do
-        tarball=$INPUT_DIR/$PACKAGE-master.tar.gz
+        tarball=$INPUT_DIR/$PACKAGE-git.tar.gz
         tar xzf $tarball --directory /tmp
-        cd /tmp/$PACKAGE-master
+        cd /tmp/$PACKAGE-git
         make install DESTDIR=/
-        log_command printf "%s source: git master (%s)\n"  $PACKAGE  $(zcat $tarball | git get-tar-commit-id | cut -c 1-7)
+        log_command printf "%s source: git (%s)\n"  $PACKAGE  $(zcat $tarball | git get-tar-commit-id | cut -c 1-7)
     done
 else
     RPM_LOCATION=`ls -1 $INPUT_DIR/osg-test-*.el$os_major_version.noarch.rpm 2>/dev/null | tail -n 1`
