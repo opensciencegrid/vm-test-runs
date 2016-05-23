@@ -7,6 +7,7 @@ sources:
   - opensciencegrid:master; 3.3; osg
   - opensciencegrid:master; 3.3; osg-testing
   - opensciencegrid:master; 3.3; osg > osg-testing
+  - opensciencegrid:master; 3.3; osg, osg-upcoming
   - opensciencegrid:master; 3.3; osg-testing, osg-upcoming-testing
   - opensciencegrid:master; 3.3; osg > osg-testing, osg-upcoming-testing
   - opensciencegrid:master; 3.2; osg > 3.3/osg
