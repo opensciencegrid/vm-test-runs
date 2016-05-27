@@ -27,12 +27,9 @@ def generate_dag_fragment(serial, combo):
 
 def write_osg_test_configuration(serial, combo, directory):
     _, sources, packages = combo
-    contents = '[Config]\n'
-    contents += 'adduser = True\n'
-    contents += 'dumpout = True\n'
-    contents += 'verbose = True\n'
-    contents += 'timeout = 14400\n'  # 4 hours
-    contents += 'hostcert = True\n'
+    base_config = open('osg-test.conf', 'r')
+    contents = base_config.read() + '\n' # ensure newline in case user forgets it
+    base_config.close()
 
     sources_parts = re.split(r'\s*;\s*', sources)
     if len(sources_parts) == 3:

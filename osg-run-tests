@@ -71,7 +71,7 @@ safe_run git clone --quiet --depth 1 https://github.com/opensciencegrid/vm-test-
 cd $GIT_CHECKOUT_DIR
 safe_run cp -r \
     master-run.dag \
-    generate-dag.sub generate-dag parameters.d test-exceptions.yaml component-tags.yaml \
+    generate-dag.sub generate-dag osg-test.conf parameters.d test-exceptions.yaml component-tags.yaml \
     create-io-images.sub create-io-images \
     run-job osg-test.patch test-changes.patch osg-release.patch single-test-run.sub inner-dag.config \
     process-job-output extract-job-output analyze_job_output.py \
