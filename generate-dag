@@ -91,9 +91,9 @@ if __name__ == '__main__':
     for param_file in run_params:
         packages = []
         for package_set in param_file['packages']:
-            if type(package_set) is dict:
+            if isinstance(package_set, dict):
                 packages.append(package_set.values()[0])
-            elif type(package_set) is list:
+            elif isinstance(package_set, list):
                 packages.append(package_set)
             else:
                 vmu.die("Got bad package list: '%s'" % package_set)
