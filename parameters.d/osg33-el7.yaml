@@ -20,3 +20,4 @@ packages:
                  globus-gram-job-manager-condor, globus-gram-job-manager-pbs-setup-seg]
   - HTCondor: [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, condor.x86_64, osg-ce-condor, rsv]
   - GridFTP: [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-gridftp, edg-mkgridmap, rsv]
+  - GUMS: [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-gums, rsv]
