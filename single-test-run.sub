@@ -9,7 +9,7 @@ vm_no_output_vm         = false
 vm_vnc                  = true
 # osg-test timeout is 4h, give it a 4h buffer
 periodic_hold           = (time() - JobCurrentStartDate > 28800)
-periodic_release        = (HoldReasonCode==3) || ( (HoldReasonCode == 6) && regexp("VMGAHP_ERR_INTERNAL", HoldReason) )
+periodic_release        = ( (HoldReasonCode==3) && (NumJobStarts < 2) ) || ( (HoldReasonCode == 6) && regexp("VMGAHP_ERR_INTERNAL", HoldReason) )
 
 request_disk            = 6GB
 requirements            = ((HasGluster == True) && (HasVirshDefaultNetwork =?= True))
