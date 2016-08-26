@@ -1,9 +1,19 @@
+###################
+# OSG 3.3 EL7 tests
+# File format documention:
+# https://twiki.opensciencegrid.org/bin/view/SoftwareTeam/TestRunsAsVMs
+###################
+
 platform:
   - centos_7_x86_64
   - rhel_7_x86_64
   - sl_7_x86_64
 
 sources:
+  ###################
+  # Format:
+  # [<Github account>:<branch of osg-test>;] <Initial OSG Version>; <Intial yum repo> [>] [<Update OSG Version>/][<Update yum repo>]
+  ###################
   - opensciencegrid:master; 3.3; osg
   - opensciencegrid:master; 3.3; osg-testing
   - opensciencegrid:master; 3.3; osg > osg-testing
@@ -12,6 +22,14 @@ sources:
   - opensciencegrid:master; 3.3; osg > osg-testing, osg-upcoming-testing
 
 packages:
+  ###################
+  # i.  If you are testing any java components, you should pre-install the
+  #     necessary java packages by prepending any package lists with the java
+  #     packages
+  # ii. Package sets can take labels that will be reflected in the test result
+  #     reporting. This can be specified with the following format:
+  #     Label: [Package Set]
+  ###################
   - All: [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-tested-internal]
   # Explicitly add GRAM packages since they were dropped from osg-ce (SOFTWARE-2278, SOFTWARE-2291)
   - All + GRAM: [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-tested-internal,

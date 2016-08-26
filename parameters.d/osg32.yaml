@@ -1,3 +1,9 @@
+###################
+# OSG 3.2 tests
+# File format documention:
+# https://twiki.opensciencegrid.org/bin/view/SoftwareTeam/TestRunsAsVMs
+###################
+
 platform:
   - centos_5_x86_64
   - centos_6_x86_64
@@ -7,11 +13,23 @@ platform:
   - sl_6_x86_64
 
 sources:
+  ###################
+  # Format:
+  # [<Github account>:<branch of osg-test>;] <Initial OSG Version>; <Intial yum repo> [>] [<Update OSG Version>/][<Update yum repo>]
+  ###################
   - opensciencegrid:master; 3.2; osg
   - opensciencegrid:master; 3.2; osg-testing
   - opensciencegrid:master; 3.2; osg > osg-testing
 
 packages:
+  ###################
+  # i.  If you are testing any java components, you should pre-install the
+  #     necessary java packages by prepending any package lists with the java
+  #     packages
+  # ii. Package sets can take labels that will be reflected in the test result
+  #     reporting. This can be specified with the following format:
+  #     Label: [Package Set]
+  ###################
   - All: [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-tested-internal]
   - HTCondor: [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, condor.x86_64, osg-ce-condor, rsv]
   - GridFTP: [java-1.7.0-openjdk-devel, osg-java7-compat, osg-java7-devel-compat, osg-gridftp, edg-mkgridmap, rsv]
