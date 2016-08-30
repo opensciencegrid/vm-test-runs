@@ -1,0 +1,11 @@
+universe   = local
+executable = vmu-reporter
+arguments  = "$(args)"
+
+output = $(output)
+error  = html-report.$(type).err
+log    = html-report.$(type).log
+
+should_transfer_files = NO
+
+queue
