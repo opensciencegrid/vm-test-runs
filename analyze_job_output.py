@@ -177,6 +177,8 @@ if __name__ == '__main__':
     
     # Construct expected directory name
     test_run_dir = 'output-' + job_serial
+    if not os.path.exists(test_run_dir):
+        sys.exit("Missing output dir '%s'" % test_run_dir)
     
     # Read condor_history output for transfer-in time (in seconds)
     (rc, stdout, _) = run_command(('condor_history', '-format', '%d\\n ', 'JobCurrentStartExecutingDate - JobCurrentStartDate',

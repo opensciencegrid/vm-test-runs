@@ -1,0 +1,5 @@
+universe = local
+executable = /bin/true
+# workaround for gittrac #5299 (fixed in 8.4.5)
+log = /dev/null
+queue

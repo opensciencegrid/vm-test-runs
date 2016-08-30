@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import errno
 import guestfs
 import os
 import sys
@@ -16,15 +17,20 @@ g = guestfs.GuestFS()
 image_filename = sys.argv[1]
 output_dir = sys.argv[2]
 
-if os.path.exists(output_dir):
-    print "Output directory '%s' already exists, will not overwrite, try again" % (output_dir)
-    sys.exit(1)
-os.makedirs(output_dir)
+if os.path.getsize(image_filename) == 0:
+    os.remove(image_filename)
+    sys.exit("Empty result image '%s'" % image_filename)
+
+try:
+    os.makedirs(output_dir)
+except OSError, exc:
+    if exc.errno == errno.EEXIST:
+        sys.exit("Output directory '%s' already exists, will not overwrite, try again" % output_dir)
+    raise
 
 g.add_drive_opts(image_filename, readonly=1)
 
 print_now("Extracting files from '%s'..." % (image_filename))
-# print
 g.launch()
 
 filesystems = g.list_filesystems()

@@ -105,4 +105,8 @@ if __name__ == '__main__':
                 dag_contents += generate_dag_fragment(serial, combo)
                 write_osg_test_configuration(serial, combo, test_run_directory)
                 process += 1
+
+    dag_contents += '\n'
+    dag_contents += '# Allow DAG to complete successfully if any tests have failed\n'
+    dag_contents += 'FINAL MarkDagSuccessful true.sub\n'
     vmu.write_file(dag_contents, os.path.join(test_run_directory, 'test-run.dag'))
