@@ -55,6 +55,8 @@ def write_osg_test_configuration(serial, combo, directory):
     contents += 'packages = %s\n' % (', '.join(packages))
     contents += 'series = %s\n' % (release_series)
     contents += 'sources = %s\n' % (sources)
+    if NIGHTLY:
+            contents += 'nightly = True\n'
 
     vmu.write_file(contents, os.path.join(directory, 'osg-test-%s.conf' % (serial)))
 
@@ -80,6 +82,11 @@ if __name__ == '__main__':
     
     # Set up test run directory
     test_run_directory = os.getcwd()
+
+    # Check if nightly
+    with open('run_label', 'r') as f:
+        global NIGHTLY
+        NIGHTLY = f.read().strip() == 'nightly'
 
     # Start DAG file
     dag_contents = '# osg-test run generated %s\n' % (time.strftime('%Y-%m-%d %H:%M'))
