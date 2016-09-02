@@ -19,8 +19,10 @@ SCRIPT POST AnalyzeOutput email-analysis
 JOB ReportJobFailures report-job-failures.sub
 
 # 6. Produce html output
-JOB HtmlSrcOutput vmu-report-by-src.sub
-JOB HtmlPkgOutput vmu-report-by-pkg.sub
+JOB HtmlSrcOutput html-report.sub
+VARS HtmlSrcOutput type="src" args="." output="results.html"
+JOB HtmlPkgOutput html-report.sub
+VARS HtmlPkgOutput type="pkg" args="-s package ." output="packages.html"
 
 # 7. Upload output to CSL
 JOB UploadJobOutput upload-job-output.sub
