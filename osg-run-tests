@@ -73,11 +73,11 @@ safe_run cp -r \
     master-run.dag \
     generate-dag.sub generate-dag osg-test.conf parameters.d test-exceptions.yaml component-tags.yaml \
     create-io-images.sub create-io-images \
-    run-job osg-test.patch test-changes.patch osg-release.patch single-test-run.sub inner-dag.config \
+    run-job osg-test.patch test-changes.patch osg-release.patch single-test-run.sub true.sub inner-dag.config \
     process-job-output extract-job-output analyze_job_output.py \
     combine-job-analyses analyze-test-run.sub analyze-test-run email-analysis vmu.py \
     report-job-failures report-job-failures.sub \
-    vmu-reporter vmu-report-by-src.sub vmu-report-by-pkg.sub taglib.py \
+    vmu-reporter html-report.sub \
     upload-job-output upload-job-output.sub \
     $RUN_DIRECTORY/
 cp /osgtest/rpms/osg-test-*.rpm $RUN_DIRECTORY/ 2> /dev/null
