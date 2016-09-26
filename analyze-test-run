@@ -44,7 +44,7 @@ def process_run(run):
             deaths_by_host[host] = [report]
         status = 1
     elif (run['tests_bad_skip'] + run['tests_failed'] + run['tests_error']) > 0:
-        if run['osg_test_status'] == 'ignored':
+        if run['osg_test_status'] == 'ignore':
             status = 4
         elif re.match('special_cleanup', run['tests_messages'][0]):
             status = 3
