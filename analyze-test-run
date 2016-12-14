@@ -93,7 +93,7 @@ yaml_file.close()
 runs = yaml.load(yaml_contents)
 combined_param_path = os.path.join(run_directory, 'parameters.d')
 run_params = vmu.load_run_params(combined_param_path)
-package_mapping = vmu.pkg_mapping(run_params)
+PACKAGE_MAPPING = vmu.package_mapping(vmu.flatten_run_params(run_params))
 
 # Report on one run at a time
 total_jobs = 0
@@ -108,7 +108,7 @@ for run in runs:
     if status == 1:
         jobs_died += 1
     tally_run_results(results_by_os, vmu.canonical_os_string(run['os_release']), status)
-    tally_run_results(results_by_pkg, vmu.canonical_pkg_string(run['param_packages'], package_mapping), status)
+    tally_run_results(results_by_pkg, PACKAGE_MAPPING[run['param_packages']], status)
     tally_run_results(results_by_src, vmu.canonical_src_string(run['param_sources']), status)
 
 print_tallied_results(results_by_os, 'OS Release')
@@ -123,7 +123,8 @@ if len(deaths_by_host) > 0:
     print >> sys.stderr, 'Subject: VM universe failures for OSG tests on %s' % (time.strftime('%Y-%m-%d'))
     print >> sys.stderr
 
-    paragraph = 'The OSG Software team runs automated tests in VM universe every morning.  The following jobs failed today, for the reasons shown below.  The jobs are grouped by hypervisor host.'
+    paragraph = '''The OSG Software team runs automated tests in VM universe every morning.  The following jobs failed
+    today, for the reasons shown below.  The jobs are grouped by hypervisor host.'''
     print >> sys.stderr, textwrap.fill(paragraph, 75)
     print >> sys.stderr
 

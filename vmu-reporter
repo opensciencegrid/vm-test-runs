@@ -9,7 +9,6 @@ import vmu
 from taglib import Html, Tag
 from glob import glob
 
-global PACKAGE_MAPPING
 VMU_TESTS_URL = "http://vdt.cs.wisc.edu/tests/"
 OS_TRANSLATION = {'centos': 'CentOS', 'rhel': 'RHEL', 'sl': 'SL'}
 
@@ -51,7 +50,6 @@ def generate_header():
     legend_container = html.body.append_new_tag('p')
     for status in legend:
         legend_container.append_new_tag('span', class_='legend ' + status.lower()).append(status)
-    legend_container.append_new_tag('p').append('* = Java pre-installed')
     legend_container.append_new_tag('p').append('&#0153; = Yum timeout failure')
 
     return html
@@ -80,7 +78,7 @@ def generate_table():
 
     # Get number of platforms per dver so we know the length of the dver columns
     num_el = {}
-    for platform in TEST_PARAMS['platform']:
+    for platform in TABLE_LABELS['platform']:
         dver = platform[-1]
         try:
             num_el[dver] += 1
@@ -94,7 +92,7 @@ def generate_table():
 
     # Print out all the OS flavors
     os_row = Tag('tr')
-    for platform in TEST_PARAMS['platform']:
+    for platform in TABLE_LABELS['platform']:
         os_row.append_new_tag('th').append(' ' + platform[:-1])
 
     header = Tag('thead').extend([dver_row, os_row])
@@ -110,11 +108,11 @@ def generate_table_body():
     sorted_tests = sort_tests(yaml.load(yaml_data))
 
     if SORT_BY == 'release':
-        primary_sort_column = TEST_PARAMS['sources']
-        secondary_sort_column = TEST_PARAMS['packages']
+        primary_sort_column = TABLE_LABELS['sources']
+        secondary_sort_column = TABLE_LABELS['packages']
     elif SORT_BY == 'package':
-        primary_sort_column = TEST_PARAMS['packages']
-        secondary_sort_column = TEST_PARAMS['sources']
+        primary_sort_column = TABLE_LABELS['packages']
+        secondary_sort_column = TABLE_LABELS['sources']
 
     tbody = Tag('tbody')
     for primary_sort_val in primary_sort_column:
@@ -127,7 +125,7 @@ def generate_table_body():
             # If no values in this row, skip it!
             empty_row = True
             rest_of_row = Tag('th', class_='yheader').append(secondary_sort_val)
-            for platform in TEST_PARAMS['platform']:
+            for platform in TABLE_LABELS['platform']:
                 try:
                     if SORT_BY == 'release':
                         cell = generate_cell(sorted_tests[platform][primary_sort_val][secondary_sort_val])
@@ -243,7 +241,7 @@ def sort_tests(tests):
     for test in tests:
         platform = vmu.canonical_os_string(test['os_release'])
         src = vmu.canonical_src_string(test['param_sources'])
-        pkg = vmu.canonical_pkg_string(test['param_packages'], PACKAGE_MAPPING)
+        pkg = PACKAGE_MAPPING[test['param_packages']]
         try:
             sorted_tests[platform][src][pkg] = test
         except KeyError:
@@ -288,23 +286,13 @@ if __name__ == "__main__":
     # Read, sort, and translate test parameters
     param_dir = RUN_DIR + 'parameters.d'
     params = vmu.load_run_params(param_dir)
-    TEST_PARAMS = vmu.flatten_run_params(params)
-    TEST_PARAMS['platform'] = sort_platforms_by_dver(TEST_PARAMS['platform'])
+    FLAT_PARAMS = vmu.flatten_run_params(params)
+    PACKAGE_MAPPING = vmu.package_mapping(FLAT_PARAMS)
+    TABLE_LABELS = {}
+    TABLE_LABELS['platform'] = sort_platforms_by_dver(FLAT_PARAMS['platform'])
+    TABLE_LABELS['packages'] = [x.label for x in FLAT_PARAMS['package_sets']]
+    TABLE_LABELS['sources'] = [vmu.canonical_src_string(x) for x in FLAT_PARAMS['sources']]
 
-    translated_pkgs = list()
-    PACKAGE_MAPPING = vmu.pkg_mapping(params)
-    for package_set in TEST_PARAMS['packages']:
-        if type(package_set) is dict:
-            package_set = package_set.values()[0]
-        package_set = ', '.join(package_set)
-        translated_pkgs.append(vmu.canonical_pkg_string(package_set, PACKAGE_MAPPING))
-    TEST_PARAMS['packages'] = translated_pkgs
-
-    sources = list()
-    for source in TEST_PARAMS['sources']:
-        sources.append(vmu.canonical_src_string(source))
-    TEST_PARAMS['sources'] = sources
-    
     # Construct and print results
     HTML = generate_header()
     TABLE = generate_table()

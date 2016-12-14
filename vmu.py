@@ -55,32 +55,10 @@ def flatten_run_params(params_list):
                 result[section].sort()
     return result
 
-def pkg_mapping(run_params):
-    '''Takes a list of params (i.e. output of load_run_params) and extracts the unique packages and their labels, 
-    if any, returning a dictionary with strings of packages and labels as key/value pairs'''
-    mapping = {}
-    labels = {} # for verifying uniqueness of labels
-    flat_params = flatten_run_params(run_params)
-    for pkg_list in flat_params['packages']:
-        # Items in the 'packages' section can be dicts or lists (i.e. labeled or not)
-        if type(pkg_list) is dict:
-            label, pkg_list = pkg_list.items()[0]
-            pkg_list = ', '.join(pkg_list)
-        else:
-            continue
-        if mapping.has_key(pkg_list):
-            if mapping[pkg_list] == label:
-                continue
-            else:
-                die("ERROR: Two different labels ('%s', '%s') are being used to describe the same package set:\n"
-                    % (label, mapping[pkg_list]) + "[%s]" % pkg_list, code=2)
-        elif labels.has_key(label):
-            die("ERROR: The label '%s' describes two different package sets:\n" % label +
-                "[%s]\n[%s]" % (labels[label], pkg_list), code=2)
-        else:
-            mapping.update({pkg_list: label})
-            labels.update({label: pkg_list})
-    return mapping
+def package_mapping(flat_params):
+    '''Takes the unique parameters (i.e. the output from flatten_run_params) and returns a dictionary of stringified
+    lists of packages as keys and their labels as values'''
+    return dict((', '.join(x.packages), x.label) for x in flat_params['package_sets'])
 
 def canonical_os_string(os_release):
     '''Make the OS release from test parameters or /etc/redhat/release human readable'''
@@ -95,15 +73,6 @@ def canonical_os_string(os_release):
     result = result.replace('centos', 'CentOS')
     result = re.sub(r'_(\d)_.*', r' \1', result)
     return result
-
-def canonical_pkg_string(package, mapping):
-    '''Take a package set and a dictionary mapping of package sets to packages human readable strings'''
-    try:
-        return mapping[package]
-    except KeyError:
-        # Replace commonly installed java packages with an *
-        return re.sub(r'java-1.7.0-openjdk-devel,\s*osg-java7-compat,\s*osg-java7-devel-compat,\s+',
-                      '*', package)
 
 def canonical_src_string(sources):
     '''Make the repo source string human readable'''
