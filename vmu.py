@@ -41,12 +41,19 @@ def load_run_params(param_dir):
     return run_params
 
 def flatten_run_params(params_list):
-    '''Combines multiple run parameters files into a single dictionary (eliminating duplicates)'''
-    primary = copy.deepcopy(params_list[0])
-    for param in primary.iterkeys():
-        for secondary in params_list[1:]:
-            primary[param] += [val for val in secondary[param] if val not in primary[param]]
-    return primary
+    '''Combines multiple run parameter files into a single dictionary eliminating duplicates in the 'platforms',
+    'sources', and 'package_sets' sections. Sorts the 'package_sets' section, leaving the others unsorted. '''
+    result = {'platform': [], 'sources': [], 'package_sets': []}
+    for param_file_contents in params_list:
+        for section in param_file_contents.iterkeys():
+            section_contents = param_file_contents[section]
+            for item in section_contents:
+                if item in result[section]:
+                    continue
+                result[section] += [item]
+            if section == 'package_sets':
+                result[section].sort()
+    return result
 
 def pkg_mapping(run_params):
     '''Takes a list of params (i.e. output of load_run_params) and extracts the unique packages and their labels, 
