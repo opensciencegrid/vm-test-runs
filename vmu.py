@@ -23,7 +23,7 @@ def load_run_params(param_dir):
     '''Read all yaml parameter files in a directory and add them to the list'''
     run_params = []
     # Slurp param files in reverse order so that the latest OSG versions show
-    # at the top of the results 
+    # at the top of the results
     for param_file in reversed(sorted(glob("%s/*" % param_dir))):
         with open(param_file, 'r') as yaml_file:
             yaml_contents = yaml_file.read()
@@ -33,12 +33,11 @@ def load_run_params(param_dir):
             # skip non-yaml files
             pass
         else:
-            if param_contents.has_key('platform') \
-               and param_contents.has_key('sources') \
-               and param_contents.has_key('packages'):
+            if set(param_contents.iterkeys()) == set(['platform', 'sources', 'package_sets']):
+                param_contents['package_sets'] = [PackageSet.from_dict(x) for x in param_contents['package_sets']]
                 run_params.append(param_contents)
     if not run_params:
-        die("Could not find parameter files in parameter directory '%s'" % param_dir)
+        raise ParamError('Could not find parameter files in parameter directory: %s' % param_dir)
     return run_params
 
 def flatten_run_params(params_list):

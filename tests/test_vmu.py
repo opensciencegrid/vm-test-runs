@@ -5,6 +5,7 @@
 #pylint: disable=R0904
 
 import copy
+import mock
 import os
 import sys
 import unittest
@@ -99,6 +100,49 @@ class TestPackageSet(TestVmu):
         self.assertEqualWithResults(vmu.PackageSet.from_dict(pkg_set_dict),
                                     vmu.PackageSet('gums', ['osg-gums', 'rsv'], False, True),
                                     'Manually generated PackageSet differs from one generated from a dict')
+
+class TestLoadRunParams(TestVmu):
+
+    param_dir = '../parameters.d'
+
+    def missing_param_section(self, section):
+        patch_glob = mock.patch('vmu.glob')
+        mock_glob = patch_glob.start()
+        mock_glob.return_value = [1]
+
+        params = {'platform': ['foo'], 'sources': ['bar'], 'package_sets': [{'label': 'foo', 'packages': [1, 2, 3]}]}
+        params.pop(section, None)
+
+        patch_yaml_load = mock.patch('vmu.yaml.load')
+        mock_yaml_load = patch_yaml_load.start()
+        mock_yaml_load.return_value = params
+
+        self.addCleanup(mock._patch_stopall)
+
+        with mock.patch('__builtin__.open', mock.mock_open()):
+            self.assertRaises(vmu.ParamError, vmu.load_run_params, self.param_dir)
+
+    @mock.patch('vmu.glob')
+    def test_no_yaml(self, mock_glob):
+        mock_glob.return_value = []
+        self.assertRaises(vmu.ParamError, vmu.load_run_params, self.param_dir)
+
+    def test_no_platform_section(self):
+        self.missing_param_section('platform')
+
+    def test_no_sources_section(self):
+        self.missing_param_section('sources')
+
+    def test_no_package_sets_section(self):
+        self.missing_param_section('package_sets')
+
+    def test_actual_param_dir(self):
+        params = vmu.load_run_params('../parameters.d')
+        self.assert_(params, 'Failed to read parameters.d')
+        for param_set in params:
+            for pkg_set in param_set['package_sets']:
+                self.assert_(isinstance(pkg_set, vmu.PackageSet),
+                             'Did not convert package_set dicts into PackageSet objects')
 
 class TestFlattenParams(TestVmu):
 
