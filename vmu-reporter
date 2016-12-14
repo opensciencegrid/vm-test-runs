@@ -195,6 +195,8 @@ def generate_cell(run):
         test_log_path = glob('%soutput-%s/output/osg-test*.log' % (RUN_DIR, run['job_serial']))[0]
         test_log_filename = os.path.basename(test_log_path)
         link_location = '%s/%s' % (run_url_output_dir, test_log_filename)
+        link_text = "%s %s %s%s" % (run['tests_ok'], run['tests_ok_skip'], fail_count,
+                                    ' &#128274;' if run['selinux'] else '')
 
         try:
             status_regex = r'(install|update|timeout)\s*(yum_timeout)?'
@@ -203,9 +205,9 @@ def generate_cell(run):
                 link_text = status.upper() + '&#0153;'
             else:
                 link_text = status.upper()
-            link = Tag('a', href=link_location).append(link_text)
         except AttributeError:
-            link = Tag('a', href=link_location).append("%s %s %s" % (run['tests_ok'], run['tests_ok_skip'], fail_count))
+            pass
+        link = Tag('a', href=link_location).append(link_text)
     else:
         mouseover_text += '<b>Run Summary</b>: ' + run['run_summary']
         link_location = run_url_output_dir + '/run-job.log'

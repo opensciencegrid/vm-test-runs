@@ -55,6 +55,7 @@ def write_osg_test_configuration(serial, combo, directory, nightly=False):
     contents += 'packages = %s\n' % (', '.join(package_set.packages))
     contents += 'series = %s\n' % (release_series)
     contents += 'sources = %s\n' % (sources)
+    contents += 'selinux = %s\n' % package_set.selinux
     contents += 'nightly = %s\n' % nightly
 
     vmu.write_file(contents, os.path.join(directory, 'osg-test-%s.conf' % (serial)))
