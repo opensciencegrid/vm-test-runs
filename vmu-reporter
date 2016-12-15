@@ -78,7 +78,7 @@ def generate_table():
 
     # Get number of platforms per dver so we know the length of the dver columns
     num_el = {}
-    for platform in TABLE_LABELS['platform']:
+    for platform in TABLE_LABELS['platforms']:
         dver = platform[-1]
         try:
             num_el[dver] += 1
@@ -92,7 +92,7 @@ def generate_table():
 
     # Print out all the OS flavors
     os_row = Tag('tr')
-    for platform in TABLE_LABELS['platform']:
+    for platform in TABLE_LABELS['platforms']:
         os_row.append_new_tag('th').append(' ' + platform[:-1])
 
     header = Tag('thead').extend([dver_row, os_row])
@@ -125,7 +125,7 @@ def generate_table_body():
             # If no values in this row, skip it!
             empty_row = True
             rest_of_row = Tag('th', class_='yheader').append(secondary_sort_val)
-            for platform in TABLE_LABELS['platform']:
+            for platform in TABLE_LABELS['platforms']:
                 try:
                     if SORT_BY == 'release':
                         cell = generate_cell(sorted_tests[platform][primary_sort_val][secondary_sort_val])
@@ -291,7 +291,7 @@ if __name__ == "__main__":
     FLAT_PARAMS = vmu.flatten_run_params(params)
     PACKAGE_MAPPING = vmu.package_mapping(FLAT_PARAMS)
     TABLE_LABELS = {}
-    TABLE_LABELS['platform'] = sort_platforms_by_dver(FLAT_PARAMS['platform'])
+    TABLE_LABELS['platforms'] = sort_platforms_by_dver(FLAT_PARAMS['platforms'])
     TABLE_LABELS['packages'] = [x.label for x in FLAT_PARAMS['package_sets']]
     TABLE_LABELS['sources'] = [vmu.canonical_src_string(x) for x in FLAT_PARAMS['sources']]
 

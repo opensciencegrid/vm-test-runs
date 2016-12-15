@@ -4,7 +4,7 @@
 # https://twiki.opensciencegrid.org/bin/view/SoftwareTeam/TestRunsAsVMs
 ###################
 
-platform:
+platforms:
   - centos_7_x86_64
   - rhel_7_x86_64
   - sl_7_x86_64

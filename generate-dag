@@ -95,7 +95,7 @@ if __name__ == '__main__':
     process = 0
     run_combos = [] # keep track of all combos to remove dupes
     for param_file in run_params:
-        for combo in itertools.product(param_file['platform'], param_file['sources'], param_file['package_sets']):
+        for combo in itertools.product(param_file['platforms'], param_file['sources'], param_file['package_sets']):
             if combo not in run_combos:
                 run_combos.append(combo)
                 serial = '%03d' % (process)

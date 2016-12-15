@@ -110,7 +110,7 @@ class TestLoadRunParams(TestVmu):
         mock_glob = patch_glob.start()
         mock_glob.return_value = [1]
 
-        params = {'platform': ['foo'], 'sources': ['bar'], 'package_sets': [{'label': 'foo', 'packages': [1, 2, 3]}]}
+        params = {'platforms': ['foo'], 'sources': ['bar'], 'package_sets': [{'label': 'foo', 'packages': [1, 2, 3]}]}
         params.pop(section, None)
 
         patch_yaml_load = mock.patch('vmu.yaml.load')
@@ -127,8 +127,8 @@ class TestLoadRunParams(TestVmu):
         mock_glob.return_value = []
         self.assertRaises(vmu.ParamError, vmu.load_run_params, self.param_dir)
 
-    def test_no_platform_section(self):
-        self.missing_param_section('platform')
+    def test_no_platforms_section(self):
+        self.missing_param_section('platforms')
 
     def test_no_sources_section(self):
         self.missing_param_section('sources')
@@ -148,7 +148,7 @@ class TestFlattenParams(TestVmu):
 
     def test_single_file(self):
         run_params = [
-            {'platform': ['foo'],
+            {'platforms': ['foo'],
              'sources': ['bar', 'foo'],
              'package_sets':
              [
@@ -175,24 +175,24 @@ class TestFlattenParams(TestVmu):
         list1 = ['foo', 'bar']
         list2 = ['baz']
         run_params = [
-            {'platform': list1},
-            {'platform': list1},
-            {'platform': list2},
+            {'platforms': list1},
+            {'platforms': list1},
+            {'platforms': list2},
         ]
         expected = list1 + list2
-        self.assertEqualWithResults(expected, vmu.flatten_run_params(run_params)['platform'],
+        self.assertEqualWithResults(expected, vmu.flatten_run_params(run_params)['platforms'],
                                     "Failed to combine multiple files with single 'platforms' section sections")
 
     def test_multi_file_multi_param(self):
         run_params = [
-            {'platform': ['foo'],
+            {'platforms': ['foo'],
              'sources': ['foo', 'bar'],
              'package_sets':
              [
                  vmu.PackageSet('foo', ['foo', 'bar'])
              ]
             },
-            {'platform': ['foo'],
+            {'platforms': ['foo'],
              'sources': ['foo', 'bar'],
              'package_sets':
              [

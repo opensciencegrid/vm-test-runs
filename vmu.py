@@ -33,7 +33,7 @@ def load_run_params(param_dir):
             # skip non-yaml files
             pass
         else:
-            if set(param_contents.iterkeys()) == set(['platform', 'sources', 'package_sets']):
+            if set(param_contents.iterkeys()) == set(['platforms', 'sources', 'package_sets']):
                 param_contents['package_sets'] = [PackageSet.from_dict(x) for x in param_contents['package_sets']]
                 run_params.append(param_contents)
     if not run_params:
@@ -43,7 +43,7 @@ def load_run_params(param_dir):
 def flatten_run_params(params_list):
     '''Combines multiple run parameter files into a single dictionary eliminating duplicates in the 'platforms',
     'sources', and 'package_sets' sections. Sorts the 'package_sets' section, leaving the others unsorted. '''
-    result = {'platform': [], 'sources': [], 'package_sets': []}
+    result = {'platforms': [], 'sources': [], 'package_sets': []}
     for param_file_contents in params_list:
         for section in param_file_contents.iterkeys():
             section_contents = param_file_contents[section]
@@ -67,7 +67,7 @@ def canonical_os_string(os_release):
     result = result.replace('Scientific Linux', 'SL')
     result = result.replace('CentOS Linux', 'CentOS')
     result = re.sub(r'(\d)\.\d+.*', r'\1', result)
-    # Handle OS string from 'platform' test parameters
+    # Handle OS string from 'platforms' test parameters
     result = result.replace('rhel', 'RHEL')
     result = result.replace('sl', 'SL')
     result = result.replace('centos', 'CentOS')
