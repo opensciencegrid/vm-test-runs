@@ -150,7 +150,13 @@ fi
 log_command yum -y install patch --disablerepo=osg
 log_command patch --directory=/usr/sbin --input=$INPUT_DIR/osg-test.patch --strip=1
 log_command patch --directory=$python_lib_dir/site-packages --input=$INPUT_DIR/test-changes.patch --strip=1
-log_command patch --directory=/etc/yum.repos.d --input=$INPUT_DIR/osg-release.patch --strip=0
+if head -1 $INPUT_DIR/osg-release.patch | grep -qE '^From [0-9a-f]{40} '; then
+    # git made this patch, so strip off the 'a/' and 'b/' from the filenames
+    strip=1
+else
+    strip=0
+fi
+log_command patch --directory=/etc/yum.repos.d --input=$INPUT_DIR/osg-release.patch --strip=$strip
 
 # Debug RHEL
 grep 'Red Hat' /etc/redhat-release > /dev/null 2>&1
