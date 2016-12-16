@@ -68,14 +68,14 @@ class TestPackageSet(TestVmu):
 
     def test_sorting(self):
         unsorted_pkgs = [vmu.PackageSet('All + GRAM', [1]),
-                vmu.PackageSet('GridFTP', [1]),
-                vmu.PackageSet('VOMS', [1]),
-                vmu.PackageSet('All + GRAM (3.2)', [1]),
-                vmu.PackageSet('All', [1]),
-                vmu.PackageSet('HTCondor', [1]),
-                vmu.PackageSet('GUMS', [1]),
-                vmu.PackageSet('BeStMan', [1]),
-                vmu.PackageSet('foo', [1])]
+                         vmu.PackageSet('GridFTP', [1]),
+                         vmu.PackageSet('VOMS', [1]),
+                         vmu.PackageSet('All + GRAM (3.2)', [1]),
+                         vmu.PackageSet('All', [1]),
+                         vmu.PackageSet('HTCondor', [1]),
+                         vmu.PackageSet('GUMS', [1]),
+                         vmu.PackageSet('BeStMan', [1]),
+                         vmu.PackageSet('foo', [1])]
         unsorted_pkgs.sort()
         self.assertEqualWithResults(vmu.PackageSet.LABEL_ORDER + ['foo'],
                                     [x.label for x in unsorted_pkgs],
@@ -89,11 +89,14 @@ class TestPackageSet(TestVmu):
 
     def test_hashable(self):
         selinux_enabled = vmu.PackageSet('foo', [1, 2, 3], True, True)
+        selinux_disabled = vmu.PackageSet('foo', [1, 2, 3], False, True)
+        different_packages = vmu.PackageSet('bar', [4, 5, 6], True, True)
         self.assert_(set([selinux_enabled]),
                      'PackageSet.__hash__() broken')
-        self.assertEqualWithResults(set([selinux_enabled]),
-                                    set([selinux_enabled, selinux_enabled]),
-                                    'PackageSet hash equality')
+        self.assertEqual(selinux_enabled.__hash__(),
+                         selinux_disabled.__hash__(),
+                         'PackageSet hash equality, SELinux agnostic')
+        self.assertNotEqual(selinux_enabled.__hash__(), different_packages.__hash__(), 'PackageSet hash inequality')
 
     def test_from_dict(self):
         pkg_set_dict = {'label': 'gums', 'packages': ['osg-gums', 'rsv'], 'selinux': False, 'osg_java': True}
