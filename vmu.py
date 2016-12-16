@@ -134,8 +134,11 @@ class PackageSet(object):
         if isinstance(other, PackageSet):
             if self.packages == other.packages:
                 if self.label != other.label:
-                    raise ParamError('Different package set tags refer to the same set of packages')
+                    raise ParamError("Different package set tags ('%s', '%s') refer to the same set of packages. " %
+                                     (self.label, other.label) + "Check if java attributes are different.")
                 return True
+            elif self.label == other.label:
+                raise ParamError("Package set label '%s' refers to different sets of packages" % self.label)
             return False
         return NotImplemented
 

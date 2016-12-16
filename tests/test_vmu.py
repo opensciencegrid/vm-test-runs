@@ -50,21 +50,22 @@ class TestPackageSet(TestVmu):
         self.assertRaises(vmu.ParamError, vmu.PackageSet.__eq__,
                           vmu.PackageSet('foo', [1, 2, 3], True, False),
                           vmu.PackageSet('bar', [1, 2, 3], False, False))
+        self.assertRaises(vmu.ParamError, vmu.PackageSet.__eq__,
+                          vmu.PackageSet('foo', [1, 2, 3], True, False),
+                          vmu.PackageSet('foo', [4, 5, 6], False, False))
 
     def test_inequality(self):
         self.assertNotEqualWithResults(vmu.PackageSet('foo', [1, 2, 3]),
                                        vmu.PackageSet('bar', [4, 5, 6]),
                                        'PackageSet packages inequality broken')
-        self.assertNotEqualWithResults(vmu.PackageSet('foo', [1, 2, 3]),
-                                       vmu.PackageSet('foo', [4, 5, 6]),
-                                       'PackageSet packages inequality broken')
-        self.assertNotEqualWithResults(vmu.PackageSet('foo', [1, 2, 3], java=True),
-                                       vmu.PackageSet('foo', [1, 2, 3], java=False),
-                                       'PackageSet java inequality broken')
+
         # Test mismatched tags
-        self.assertRaises(vmu.ParamError, vmu.PackageSet.__eq__,
+        self.assertRaises(vmu.ParamError, vmu.PackageSet.__ne__,
                           vmu.PackageSet('foo', [1, 2, 3], True, False),
                           vmu.PackageSet('bar', [1, 2, 3], False, False))
+        self.assertRaises(vmu.ParamError, vmu.PackageSet.__ne__,
+                          vmu.PackageSet('foo', [1, 2, 3], True, False),
+                          vmu.PackageSet('foo', [4, 5, 6], False, False))
 
     def test_sorting(self):
         unsorted_pkgs = [vmu.PackageSet('All + GRAM', [1]),
