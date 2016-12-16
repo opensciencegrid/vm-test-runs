@@ -59,9 +59,6 @@ package_sets:
     selinux: True
     osg_java: True
     packages:
-      - java-1.7.0-openjdk-devel
-      - osg-java7-compat
-      - osg-java7-devel-compat
       - osg-gridftp
       - edg-mkgridmap
       - rsv
