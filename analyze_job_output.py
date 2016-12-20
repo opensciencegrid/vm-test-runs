@@ -301,5 +301,8 @@ if __name__ == '__main__':
             else: raise ValueError()
     data['tests_ok'] = data['tests_total'] - \
       (data['tests_failed'] + data['tests_error'] + data['tests_bad_skip'] + data['tests_ok_skip'])
-    
+
+    if data['tests_ok'] == 0 and data['osg_test_status'] != 'timeout':
+        data['osg_test_status'] = 'fail'
+
     write_yaml(data)

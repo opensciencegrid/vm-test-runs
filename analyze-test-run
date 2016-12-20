@@ -25,7 +25,16 @@ def indent_block(block, indent=4):
     return output
 
 def process_run(run):
-    status = 0
+    # mapping osg-test status to column in the report
+    test_status = {'pass': 0,
+                   'died': 1,
+                   'fail': 2,
+                   'update': 2,
+                   'install': 2,
+                   'cleanup': 3,
+                   'ignore': 4,
+                   'timeout': 5}
+
     if run['run_status'] != 0:
         if ('osg_test_logfile' not in run) or (run['osg_test_logfile'] is None):
             logfile_text = 'osg-test did not run'
@@ -42,17 +51,11 @@ def process_run(run):
             deaths_by_host[host].append(report)
         else:
             deaths_by_host[host] = [report]
-        status = 1
-    elif (run['tests_bad_skip'] + run['tests_failed'] + run['tests_error']) > 0:
-        if run['osg_test_status'] == 'ignore':
-            status = 4
-        elif re.match('special_cleanup', run['tests_messages'][0]):
-            status = 3
-        else:
-            status = 2
-    elif run['osg_test_status'] == 'timeout':
-        status = 5
-    return status
+        return test_status['died']
+    else:
+        # ' yum_timeout' can be appended to install, update, or timeout failures; ignore it
+        simple_test_status = run['osg_test_status'].split()[0]
+        return test_status[simple_test_status]
 
 def tally_run_results(container, key, status):
     if key not in container:
