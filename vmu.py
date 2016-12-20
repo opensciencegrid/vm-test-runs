@@ -125,6 +125,7 @@ class PackageSet(object):
         self.selinux = selinux
         self.java = java
 
+        # FIXME: PackageSet is currently a misnomer since 'packages' are a list rather than a set
         if self.java:
             self.packages = ['java-1.7.0-openjdk-devel', 'osg-java7-compat', 'osg-java7-devel-compat'] + packages
         else:
@@ -162,7 +163,7 @@ class PackageSet(object):
         return hash(repr(self).replace('%s, ' % self.selinux, ''))
 
     def __repr__(self):
-        return str([self.label, self.selinux, self.packages])
+        return "PackageSet(label=%s, packages=%s, selinux=%s)" % (self.label, self.selinux, self.packages)
 
     @classmethod
     def from_dict(cls, pkg_set_dict):
