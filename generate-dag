@@ -85,7 +85,7 @@ if __name__ == '__main__':
 
     # Check if nightly
     with open('run_label', 'r') as f:
-        NIGHTLY = f.read().strip() == 'nightly'
+        nightly = f.read().strip() == 'nightly'
 
     # Start DAG file
     dag_contents = '# osg-test run generated %s\n' % (time.strftime('%Y-%m-%d %H:%M'))
@@ -100,7 +100,7 @@ if __name__ == '__main__':
                 run_combos.append(combo)
                 serial = '%03d' % (process)
                 dag_contents += generate_dag_fragment(serial, combo)
-                write_osg_test_configuration(serial, combo, test_run_directory, NIGHTLY)
+                write_osg_test_configuration(serial, combo, test_run_directory, nightly)
                 process += 1
 
     dag_contents += '\n'
