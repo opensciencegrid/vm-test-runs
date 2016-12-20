@@ -52,7 +52,7 @@ def flatten_run_params(params_list):
                     continue
                 result[section] += [item]
             if section == 'package_sets':
-                result[section].sort()
+                result[section].sort(key=PackageSet.get_sort_val)
     return result
 
 def package_mapping(flat_params):
