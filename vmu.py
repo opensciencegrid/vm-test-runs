@@ -52,7 +52,7 @@ def flatten_run_params(params_list):
                     continue
                 result[section] += [item]
             if section == 'package_sets':
-                result[section].sort()
+                result[section].sort(key=PackageSet.get_sort_val)
     return result
 
 def package_mapping(flat_params):
@@ -115,6 +115,7 @@ class PackageSet(object):
     OSG_JAVA_DEFAULT = True
     SELINUX_DEFAULT = False
     LABEL_ORDER = ['All', 'All + GRAM', 'All + GRAM (3.2)', 'HTCondor', 'GridFTP', 'BeStMan', 'VOMS', 'GUMS']
+    LABEL_IDX = dict( (v,i) for i,v in enumerate(LABEL_ORDER) )
 
     def __init__(self, label, packages, selinux=SELINUX_DEFAULT, java=OSG_JAVA_DEFAULT):
         if not label:
@@ -149,13 +150,11 @@ class PackageSet(object):
             return result
         return not result
 
+    def get_sort_val(self):
+        return self.LABEL_IDX.get(self.label, self.label)
+
     def __lt__(self, other):
-        def get_sort_val(pkg_set):
-            try:
-                return pkg_set.LABEL_ORDER.index(pkg_set.label)
-            except ValueError:
-                return pkg_set.label
-        return get_sort_val(self) < get_sort_val(other)
+        return self.get_sort_val() < other.get_sort_val()
 
     def __hash__(self):
         # Treat similarly labeled sets of packages as equal for hashing;
