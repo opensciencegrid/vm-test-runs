@@ -205,7 +205,8 @@ if __name__ == '__main__':
     conf_file = read_file(conf_file_name)
     data['param_sources'] = re_extract(r'^sources\s*=\s*(.*)$', conf_file, re.MULTILINE, group=1)
     data['param_packages'] = re_extract(r'^packages\s*=\s*(.*)$', conf_file, re.MULTILINE, group=1)
-    
+    data['selinux'] = re_extract(r'^selinux\s*=\s*(.*)$', conf_file, re.MULTILINE, group=1)
+
     # Read free size left in the IO image
     io_free_size_file = os.path.join(test_run_dir, 'io_free_size')
     data['io_free_size'] = read_file(io_free_size_file)
