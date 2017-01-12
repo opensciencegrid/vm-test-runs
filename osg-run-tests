@@ -34,7 +34,7 @@ while getopts :nh opt; do
             exit 0
             ;;
         \?)
-            echo "Invalid option: -$OPTARG"
+            echo "Invalid option: -$opt"
             print_help
             exit 1
             ;;
