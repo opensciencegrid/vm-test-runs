@@ -12,19 +12,42 @@ safe_run()
 
 print_help()
 {
-    echo "help: $0 [-n] <label>"
+    echo "help: $0 [-n] [-p YYYYMMDD-HHMM] <label>"
     echo "Options:"
     echo "    -n"
     echo "       Run as nightly test i.e. immediately submit the DAG after setting up the test run"
+    echo "    -p YYYYMMDD-HHMM"
+    echo "       Use yaml parameters from a previous run with given timestamp"
     echo '    -h, -help, --help'
     echo "       Print this dialogue"
 
 }
 
+TEST_HOME=/osgtest/runs
 NIGHTLY=0
+PARAMETERS_BASE=""
+
+set_parameters_base()
+{
+    case $1 in
+        20[0-9][0-9][0-1][0-9][0-3][0-9]-[0-2][0-9][0-5][0-9])
+            PARAMETERS_BASE=$TEST_HOME/run-$1/parameters.d
+            if ! [ -d "$PARAMETERS_BASE" ]; then
+                echo "No such directory: '$PARAMETERS_BASE'"
+                print_help
+                exit 1
+            fi
+            ;;
+        *)
+            echo "Option '-p' takes a YYYYMMDD-HHMM argument."
+            print_help
+            exit 1
+            ;;
+    esac
+}
 
 # Parse options and required label arg
-while getopts :nh opt; do
+while getopts :nhp: opt; do
     case $opt in
         n)
             NIGHTLY=1
@@ -33,8 +56,11 @@ while getopts :nh opt; do
             print_help
             exit 0
             ;;
+        p)
+            set_parameters_base "$OPTARG"
+            ;;
         \?)
-            echo "Invalid option: -$OPTARG"
+            echo "Invalid option: -$opt"
             print_help
             exit 1
             ;;
@@ -50,7 +76,6 @@ if [[ $# -ne 1 ]]; then
 fi
 
 LABEL="$1"
-TEST_HOME=/osgtest/runs
 if [[ ! -d $TEST_HOME ]]; then
     safe_run mkdir -p $TEST_HOME
 fi
@@ -80,6 +105,13 @@ safe_run cp -r \
     vmu-reporter html-report.sub taglib.py \
     upload-job-output upload-job-output.sub \
     $RUN_DIRECTORY/
+
+if [ -n "$PARAMETERS_BASE" ]; then
+    echo "Copying run parameters from $PARAMETERS_BASE"
+    rm -f $RUN_DIRECTORY/parameters.d/*.yaml
+    safe_run cp "$PARAMETERS_BASE"/*.yaml $RUN_DIRECTORY/parameters.d/
+fi
+
 cp /osgtest/rpms/osg-test-*.rpm $RUN_DIRECTORY/ 2> /dev/null
 cd $RUN_DIRECTORY
 if [ "x$TEMP_DIR" != 'x' ]; then
