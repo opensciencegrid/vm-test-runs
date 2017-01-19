@@ -196,7 +196,7 @@ def generate_cell(run):
         test_log_filename = os.path.basename(test_log_path)
         link_location = '%s/%s' % (run_url_output_dir, test_log_filename)
         link_text = "%s %s %s%s" % (run['tests_ok'], run['tests_ok_skip'], fail_count,
-                                    ' &#128274;' if run['selinux'] else '')
+                                    ' &#128275;' if not run['selinux'] else '')
 
         try:
             status_regex = r'(install|update|timeout)\s*(yum_timeout)?'
