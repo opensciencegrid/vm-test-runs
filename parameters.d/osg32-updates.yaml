@@ -29,12 +29,12 @@ package_sets:
   # osg_java - Pre-install OSG java packages (default: True)
   ##################
   - label: All
-    selinux: False
+    selinux: True
     osg_java: True
     packages:
       - osg-tested-internal
   - label: HTCondor
-    selinux: False
+    selinux: True
     osg_java: True
     packages:
       - condor.x86_64
@@ -48,19 +48,19 @@ package_sets:
       - edg-mkgridmap
       - rsv
   - label: BeStMan
-    selinux: False
+    selinux: True
     osg_java: True
     packages:
       - osg-se-bestman
       - rsv
   - label: VOMS
-    selinux: False
+    selinux: True
     osg_java: True
     packages:
       - osg-voms
       - rsv
   - label: GUMS
-    selinux: False
+    selinux: True
     osg_java: True
     packages:
       - osg-gums

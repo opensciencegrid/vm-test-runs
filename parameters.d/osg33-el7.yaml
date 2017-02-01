@@ -18,11 +18,7 @@ sources:
   # 3.2; osg, osg-testing > 3.3/osg-testing, osg-upcoming-testing
   ###################
   - opensciencegrid:master; 3.3; osg
-  - opensciencegrid:master; 3.3; osg-testing
-  - opensciencegrid:master; 3.3; osg > osg-testing
   - opensciencegrid:master; 3.3; osg, osg-upcoming
-  - opensciencegrid:master; 3.3; osg-testing, osg-upcoming-testing
-  - opensciencegrid:master; 3.3; osg > osg-testing, osg-upcoming-testing
 
 package_sets:
   #### Required ####
@@ -58,19 +54,19 @@ package_sets:
       - edg-mkgridmap
       - rsv
   - label: BeStMan
-    selinux: False
+    selinux: True
     osg_java: True
     packages:
       - osg-se-bestman
       - rsv
   - label: VOMS
-    selinux: False
+    selinux: True
     osg_java: True
     packages:
       - osg-voms
       - rsv
   - label: GUMS
-    selinux: False
+    selinux: True
     osg_java: True
     packages:
       - osg-gums
