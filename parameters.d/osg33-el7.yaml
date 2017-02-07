@@ -33,12 +33,6 @@ package_sets:
     osg_java: True
     packages:
       - osg-tested-internal
-  # Explicitly add GRAM packages since they were dropped from osg-ce (SOFTWARE-2278, SOFTWARE-2291)
-  - label: All + GRAM
-    selinux: False
-    osg_java: True
-    packages:
-      - osg-tested-internal-gram
   - label: HTCondor
     selinux: False
     osg_java: True
