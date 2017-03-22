@@ -1,5 +1,5 @@
 ###################
-# OSG 3.3 EL6 tests
+# OSG 3.3 tests
 # File format documention:
 # https://twiki.opensciencegrid.org/bin/view/SoftwareTeam/TestRunsAsVMs
 ###################
@@ -8,6 +8,9 @@ platforms:
   - centos_6_x86_64
   - rhel_6_x86_64
   - sl_6_x86_64
+  - centos_7_x86_64
+  - rhel_7_x86_64
+  - sl_7_x86_64
 
 sources:
   ###################
