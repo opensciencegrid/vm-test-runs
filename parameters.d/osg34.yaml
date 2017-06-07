@@ -1,5 +1,5 @@
 ###################
-# OSG 3.3 tests
+# OSG 3.4 tests
 # File format documention:
 # https://twiki.opensciencegrid.org/bin/view/SoftwareTeam/TestRunsAsVMs
 ###################
@@ -20,12 +20,8 @@ sources:
   # Run osg-test with packages from 3.2-release and 3.2-testing that are then upgraded to 3.3-testing and 3-3-upcoming-testing:
   # 3.2; osg, osg-testing > 3.3/osg-testing, osg-upcoming-testing
   ###################
-  - opensciencegrid:master; 3.3; osg
-  - opensciencegrid:master; 3.3; osg-testing
-  - opensciencegrid:master; 3.3; osg > osg-testing
-  - opensciencegrid:master; 3.3; osg, osg-upcoming
-  - opensciencegrid:master; 3.3; osg-testing, osg-upcoming-testing
-  - opensciencegrid:master; 3.3; osg > osg-testing, osg-upcoming-testing
+  - opensciencegrid:master; 3.4; osg-testing
+  - opensciencegrid:master; 3.3; osg > 3.4/osg-testing
 
 package_sets:
   #### Required ####
@@ -35,40 +31,22 @@ package_sets:
   # selinux - enable SELinux for the package set, otherwise Permissive mode (default: False)
   # osg_java - Pre-install OSG java packages (default: True)
   ##################
-  - label: All (java)
+  - label: All
     selinux: True
-    osg_java: True
+    osg_java: False
     packages:
       - osg-tested-internal
-  - label: HTCondor (java)
+  - label: HTCondor
     selinux: True
-    osg_java: True
+    osg_java: False
     packages:
       - condor.x86_64
       - osg-ce-condor
       - rsv
-  - label: GridFTP (java)
+  - label: GridFTP
     selinux: True
-    osg_java: True
+    osg_java: False
     packages:
       - osg-gridftp
       - edg-mkgridmap
-      - rsv
-  - label: BeStMan (java)
-    selinux: True
-    osg_java: True
-    packages:
-      - osg-se-bestman
-      - rsv
-  - label: VOMS (java)
-    selinux: True
-    osg_java: True
-    packages:
-      - osg-voms
-      - rsv
-  - label: GUMS (java)
-    selinux: True
-    osg_java: True
-    packages:
-      - osg-gums
       - rsv
