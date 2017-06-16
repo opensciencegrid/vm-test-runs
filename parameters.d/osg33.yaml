@@ -23,9 +23,6 @@ sources:
   - opensciencegrid:master; 3.3; osg
   - opensciencegrid:master; 3.3; osg-testing
   - opensciencegrid:master; 3.3; osg > osg-testing
-  - opensciencegrid:master; 3.3; osg, osg-upcoming
-  - opensciencegrid:master; 3.3; osg-testing, osg-upcoming-testing
-  - opensciencegrid:master; 3.3; osg > osg-testing, osg-upcoming-testing
 
 package_sets:
   #### Required ####
@@ -52,7 +49,6 @@ package_sets:
     osg_java: True
     packages:
       - osg-gridftp
-      - edg-mkgridmap
       - rsv
   - label: BeStMan (java)
     selinux: True
