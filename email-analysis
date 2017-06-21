@@ -12,7 +12,6 @@ RECIPIENTS = (
     'Carl Edquist <edquist@cs.wisc.edu>',
     'Edgar Fajardo <emfajard@ucsd.edu>',
     'Jose Caballero <jcaballero@bnl.gov>',
-    'Martin Kandes <mkandes@sdsc.edu>',
     'Mat Selmeci <matyas@cs.wisc.edu>',
     'Suchandra Thapa <sthapa@ci.uchicago.edu>',
     'Tim Cartwright <cat@cs.wisc.edu>',
