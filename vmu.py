@@ -131,6 +131,8 @@ class PackageSet(object):
             self.packages = ['java-1.7.0-openjdk-devel', 'osg-java7-compat', 'osg-java7-devel-compat'] + packages
         else:
             self.packages = packages
+        if self.selinux:
+            self.packages.append('policycoreutils-python')
 
     def __eq__(self, other):
         if isinstance(other, PackageSet):
