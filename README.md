@@ -1,6 +1,12 @@
 Running Tests as VM Jobs
 ========================
 
+- [Setting up credentials](#setting-up-credentials)
+- [Running osg-test in VM Universe](#running-osg-test-in-vm-universe)
+- [Troubleshooting](#troubleshooting)
+  - [Missing unicode fonts](#missing-unicode-fonts)
+  - [Interactively connecting to a VM](#interactively-connecting-to-a-vm)
+
 This repository drives the OSG Software nightly tests. Whenever updating [osg-run-tests](osg-run-tests), make sure to update the copy in `/usr/bin/` on `osghost`.
 
 Setting up credentials
