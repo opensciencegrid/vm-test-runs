@@ -2,6 +2,7 @@
 
 # Tool to create interactive KVM images from our VMU images
 # Usage: make-interactive-image <VMU image filename> <interactive image filename>
+set -o errexit
 
 INPUT_IMG=$1
 OUTPUT_IMG=$2
@@ -12,18 +13,14 @@ if [ $# -ne 2 ]; then
 fi
 
 echo "Copying image..."
-cp $1 $2
+cp "$INPUT_IMG" "$OUTPUT_IMG"
 
 echo "Making image interactive..."
 TMPFILE=$(mktemp -d)/osg-test.init
 cat <<'EOF' > $TMPFILE
 #!/bin/sh
-
-# Try to set the clock correctly
-systemctl stop ntpd
-ntpdate -u ntp1.cs.wisc.edu ntp2.cs.wisc.edu ntp3.cs.wisc.edu
-systemctl start ntpd
+exit 0
 EOF
 
-virt-copy-in -a $OUTPUT_IMG $TMPFILE /etc
+virt-copy-in -a "$OUTPUT_IMG" $TMPFILE /etc
 rm -r $(dirname $TMPFILE)
