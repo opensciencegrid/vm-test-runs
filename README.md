@@ -369,7 +369,7 @@ Unfortunately, VM Universe jobs don't have the ssh\_to\_job capacity that's avai
 
 1.  Grab the make-interactive-image from git:
 
-        git clone git@github.com:opensciencegrid/vm-test-runs.git
+        git clone https://github.com/opensciencegrid/vm-test-runs.git
 2.  Run `make-interactive-image` using the flavor and version of Linux you need, VMU images are in `/kvm` (NOTE: the output image needs to be in a directory that's readable by the `qemu` user):
 
         vm-test-runs/make-interactive-image /kvm/<INPUT IMAGE> <OUTPUT IMAGE>
