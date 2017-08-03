@@ -173,42 +173,7 @@ Unfortunately, VM Universe jobs don't have the ssh\_to\_job capacity that's avai
 2.  Run `make-interactive-image` using the flavor and version of Linux you need, VMU images are in `/mnt/gluster/chtc/VMs/` (NOTE: the output image needs to be in a directory that's readable by the `qemu` user):
 
         vm-test-runs/make-interactive-image /mnt/gluster/chtc/VMs/<INPUT IMAGE> <OUTPUT IMAGE>
-3.  Make a copy of `/kvm/libvirt-template.xml` and edit the `@DOMAIN@` and `@IMAGEFILE@` to a name that will be used by virsh and the path to the output file you created in the previous step:
-
-        <domain type="kvm">
-
-        <name>@DOMAIN@</name>
-
-        <memory unit="KiB">4145152</memory>
-        <vcpu>1</vcpu>
-        <os>
-          <type>hvm</type>
-          <boot dev="hd"/>
-        </os>
-        <features><acpi/></features>
-
-        <devices>
-
-          <emulator>/usr/libexec/qemu-kvm</emulator>
-
-          <disk type="file" device="disk">
-            <source <file="@IMAGEFILE@"/>
-            <target dev="hda" bus="virtio"/>
-          </disk>
-
-          <interface type="bridge">
-            <mac address="00:16:3e:45:66:99"/>
-            <source bridge="br0"/>
-            <target dev="vnet1"/>
-            <model type="virtio"/>
-          </interface>
-
-          <graphics type="vnc" autoport="yes" listen="128.105.244.224"/>
-
-          </devices>
-
-        </domain>
-
+3.  Make a copy of `libvirt-template.xml` and edit the `@DOMAIN@` and `@IMAGEFILE@` to a name that will be used by virsh and the path to the image file you created in the previous step
 4.  Define and start the VM with your copy of the xml file:
 
         virsh create <XML FILE>
