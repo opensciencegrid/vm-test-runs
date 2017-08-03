@@ -1,47 +1,26 @@
-#!/usr/bin/python
+#!/bin/bash
 
 # Tool to create interactive KVM images from our VMU images
 # Usage: make-interactive-image <VMU image filename> <interactive image filename>
+set -o errexit
 
-import guestfs
-import shutil
-import os
-import sys
-import tempfile
+INPUT_IMG=$1
+OUTPUT_IMG=$2
 
-if len(sys.argv) != 3:
-    print 'usage: %s <input image> <output image>' % sys.argv[0]
-    sys.exit(1)
+if [ $# -ne 2 ]; then
+    echo "Usage: make-interactive-image <VMU image filename> <interactive image filename>"
+    exit 1
+fi
 
-input_image = sys.argv[1]
-output_image = sys.argv[2]
+echo "Copying image..."
+cp "$INPUT_IMG" "$OUTPUT_IMG"
 
-if not os.path.exists(output_image):
-    print "Copying %s to %s..." % (input_image, output_image)
-    try:
-        shutil.copy2(input_image, output_image)
-    except IOError, e:
-        print e
-        sys.exit(1)
-    except RuntimeError, e:
-        print e
-        sys.exit(1)
-else:
-    print "%s already exists" % output_image
-    sys.exit(1)
+echo "Making image interactive..."
+TMPFILE=$(mktemp -d)/osg-test.init
+cat <<'EOF' > $TMPFILE
+#!/bin/sh
+exit 0
+EOF
 
-
-g = guestfs.GuestFS()
-g.add_drive_opts(output_image, format="raw")
-g.launch()
-g.mount('/dev/VolGroup00/LogVol00', '/')
-
-print "Updating rc.local in %s..." % output_image
-f = tempfile.NamedTemporaryFile()
-f.write("#!/bin/bash\nntpdate -u ntp1.cs.wisc.edu ntp2.cs.wisc.edu ntp3.cs.wisc.edu")
-f.flush()
-g.upload(f.name, '/etc/rc.d/rc.local')
-
-f.close()
-g.close()
-
+virt-copy-in -a "$OUTPUT_IMG" $TMPFILE /etc
+rm -r $(dirname $TMPFILE)

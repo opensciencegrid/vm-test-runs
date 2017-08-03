@@ -1,0 +1,37 @@
+<domain type="kvm">
+
+  <name>@DOMAIN@</name>
+
+  <memory unit="KiB">4145152</memory>
+  <vcpu>1</vcpu>
+  <os>
+    <type>hvm</type>
+    <boot dev="hd"/>
+  </os>
+  <features><acpi/></features>
+
+  <devices>
+
+    <emulator>/usr/libexec/qemu-kvm</emulator>
+
+    <disk type="file" device="disk">
+      <source file="@IMAGEFILE@"/>
+      <target dev="hda" bus="virtio"/>
+    </disk>
+
+    <interface type="bridge">
+      <mac address="00:16:3e:45:66:99"/>
+      <source bridge="br0"/>
+      <target dev="vnet1"/>
+      <model type="virtio"/>
+    </interface>
+
+    <console type='pty'>
+      <target type='serial' port='0'/>
+    </console>
+
+    <graphics type="vnc" autoport="yes" listen="128.105.244.224"/>
+
+  </devices>
+
+</domain>
