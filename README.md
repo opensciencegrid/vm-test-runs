@@ -164,9 +164,9 @@ Unfortunately, VM Universe jobs don't have the ssh\_to\_job capacity that's avai
 1.  Grab the make-interactive-image from git:
 
         git clone https://github.com/opensciencegrid/vm-test-runs.git
-2.  Run `make-interactive-image` using the flavor and version of Linux you need, VMU images are in `/kvm` (NOTE: the output image needs to be in a directory that's readable by the `qemu` user):
+2.  Run `make-interactive-image` using the flavor and version of Linux you need, VMU images are in `/mnt/gluster/chtc/VMs/` (NOTE: the output image needs to be in a directory that's readable by the `qemu` user):
 
-        vm-test-runs/make-interactive-image /kvm/<INPUT IMAGE> <OUTPUT IMAGE>
+        vm-test-runs/make-interactive-image /mnt/gluster/chtc/VMs/<INPUT IMAGE> <OUTPUT IMAGE>
 3.  Make a copy of `/kvm/libvirt-template.xml` and edit the `@DOMAIN@` and `@IMAGEFILE@` to a name that will be used by virsh and the path to the output file you created in the previous step:
 
         <domain type="kvm">
@@ -203,17 +203,13 @@ Unfortunately, VM Universe jobs don't have the ssh\_to\_job capacity that's avai
 
         </domain>
 
-4.  Edit the init script that kicks off tests to not shutdown the machine:
-    1.  Run `virt-copy-out -a <IMAGEFILE> /etc/osg-test.init /tmp` where `IMAGEFILE` is your disk image from step 2
-    2.  Edit `/tmp/osg-test.init` and put `exit 0` right after the mount command
-    3.  Run `virt-copy-in -a <IMAGEFILE> /tmp/osg-test.init /etc`
-5.  Define and start the VM with your copy of the xml file:
+4.  Define and start the VM with your copy of the xml file:
 
         virsh create <XML FILE>
-6.  Connect to the VM (consult BrianL, Mat or Carl for the password). You can use either the domain name or the ID returned by `virsh list`:
+5.  Connect to the VM (consult BrianL, Mat or Carl for the password). You can use either the domain name or the ID returned by `virsh list`:
 
         virsh console <DOMAIN>
-7.  Cleanup the VM. You can use either the domain name or the ID returned by `virsh list`:
+6.  Cleanup the VM. You can use either the domain name or the ID returned by `virsh list`:
 
         virsh destroy <DOMAIN>
 
