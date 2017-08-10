@@ -4,11 +4,16 @@
 # Usage: make-interactive-image <VMU image filename> <interactive image filename>
 set -o errexit
 
+case $1 in
+ -P ) read -sp "root pw? " SETPASS; shift;;
+ -p ) SETPASS=$2; shift 2;;
+esac
+
 INPUT_IMG=$1
 OUTPUT_IMG=$2
 
 if [ $# -ne 2 ]; then
-    echo "Usage: make-interactive-image <VMU image filename> <interactive image filename>"
+    echo "Usage: $(basename "$0") [-P|-p <rootpasswd>] <VMU image filename> <interactive image filename>"
     exit 1
 fi
 
@@ -24,3 +29,11 @@ EOF
 
 virt-copy-in -a "$OUTPUT_IMG" $TMPFILE /etc
 rm -r $(dirname $TMPFILE)
+
+if [[ $SETPASS ]]; then
+  echo "Setting root password..."
+  PWHASH=$(openssl passwd -1 "$SETPASS") \
+  virt-edit -a "$OUTPUT_IMG" /etc/shadow -e \
+    's/^root:([^:]*):/root:$ENV{PWHASH}:/'
+fi
+
