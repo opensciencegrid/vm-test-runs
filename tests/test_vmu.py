@@ -86,6 +86,7 @@ class TestPackageSet(TestVmu):
         pkg_set = vmu.PackageSet('foo', [1, 2, 3])
         self.assertEqual(pkg_set.selinux, vmu.PackageSet.SELINUX_DEFAULT, 'Failed to set SELinux default')
         self.assertEqual(pkg_set.java, vmu.PackageSet.OSG_JAVA_DEFAULT, 'Failed to set OSG Java default')
+        self.assertEqual(pkg_set.rng, vmu.PackageSet.RNG_DEFAULT, 'Failed to set RNG default')
 
 
     def test_hashable(self):
@@ -100,9 +101,9 @@ class TestPackageSet(TestVmu):
         self.assertNotEqual(selinux_enabled.__hash__(), different_packages.__hash__(), 'PackageSet hash inequality')
 
     def test_from_dict(self):
-        pkg_set_dict = {'label': 'gums', 'packages': ['osg-gums', 'rsv'], 'selinux': False, 'osg_java': True}
+        pkg_set_dict = {'label': 'gums', 'packages': ['osg-gums', 'rsv'], 'selinux': False, 'osg_java': True, 'rng': True}
         self.assertEqualWithResults(vmu.PackageSet.from_dict(pkg_set_dict),
-                                    vmu.PackageSet('gums', ['osg-gums', 'rsv'], False, True),
+                                    vmu.PackageSet('gums', ['osg-gums', 'rsv'], False, True, True),
                                     'Manually generated PackageSet differs from one generated from a dict')
 
 class TestLoadRunParams(TestVmu):
