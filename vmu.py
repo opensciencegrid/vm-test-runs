@@ -104,6 +104,7 @@ class PackageSet(object):
     packages: list of packages as strings
     selinux: boolean to turn on/off SELinux enforcing mode (default: False)
     java: boolean to pre-install OSG java packages (default: True)
+    rng: boolean to pre-install entropy-generation package (for random numbers) (default: False)
 
     PackageSets are equal if their 'packages' lists are the same. If 'packages'
     lists are equal but 'label' is not, ParamError is raised.
@@ -114,10 +115,11 @@ class PackageSet(object):
 
     OSG_JAVA_DEFAULT = True
     SELINUX_DEFAULT = False
+    RNG_DEFAULT = False
     LABEL_ORDER = ['All', 'All + GRAM', 'All + GRAM (3.2)', 'HTCondor', 'GridFTP', 'BeStMan', 'VOMS', 'GUMS']
     LABEL_IDX = dict( (v,i) for i,v in enumerate(LABEL_ORDER) )
 
-    def __init__(self, label, packages, selinux=SELINUX_DEFAULT, java=OSG_JAVA_DEFAULT):
+    def __init__(self, label, packages, selinux=SELINUX_DEFAULT, java=OSG_JAVA_DEFAULT, rng=RNG_DEFAULT):
         if not label:
             raise ParamError("PackageSet 'label' field cannot be blank")
         if not packages:
@@ -125,6 +127,7 @@ class PackageSet(object):
         self.label = label
         self.selinux = selinux
         self.java = java
+        self.rng = rng
 
         # FIXME: PackageSet is currently a misnomer since 'packages' are a list rather than a set
         if self.java:
@@ -133,6 +136,8 @@ class PackageSet(object):
             self.packages = packages
         if self.selinux:
             self.packages.append('policycoreutils-python')
+        if self.rng:
+            self.packages.append('haveged')
 
     def __eq__(self, other):
         if isinstance(other, PackageSet):
@@ -164,14 +169,16 @@ class PackageSet(object):
         return hash(repr(self).replace('%s, ' % self.selinux, ''))
 
     def __repr__(self):
-        return "PackageSet(label=%s, packages=%s, selinux=%s)" % (self.label, self.selinux, self.packages)
+        return "PackageSet(label=%s, packages=%s, selinux=%s, rng=%s)" % (self.label, self.selinux, self.packages, self.rng)
 
     @classmethod
     def from_dict(cls, pkg_set_dict):
-        '''Create a PackageSet object from a dictionary, setting selinux and
-        java attributes to SELINUX_DEFAULT and OSG_JAVA_DEFAULT, respectively,
-        if they're not defined'''
+        '''Create a PackageSet object from a dictionary, setting selinux, java,
+        and rng attributes to SELINUX_DEFAULT, OSG_JAVA_DEFAULT, or
+        RNG_DEFAULT, respectively, if they're not defined
+        '''
         return cls(pkg_set_dict['label'],
                    pkg_set_dict['packages'],
                    pkg_set_dict.get('selinux', cls.SELINUX_DEFAULT),
-                   pkg_set_dict.get('osg_java', cls.OSG_JAVA_DEFAULT))
+                   pkg_set_dict.get('osg_java', cls.OSG_JAVA_DEFAULT),
+                   pkg_set_dict.get('rng', cls.RNG_DEFAULT))
