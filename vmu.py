@@ -114,7 +114,7 @@ class PackageSet(object):
     """
 
     OSG_JAVA_DEFAULT = True
-    SELINUX_DEFAULT = False
+    SELINUX_DEFAULT = True
     RNG_DEFAULT = False
     LABEL_ORDER = ['All', 'All + GRAM', 'All + GRAM (3.2)', 'HTCondor', 'GridFTP', 'BeStMan', 'VOMS', 'GUMS']
     LABEL_IDX = dict( (v,i) for i,v in enumerate(LABEL_ORDER) )
