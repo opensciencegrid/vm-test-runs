@@ -54,6 +54,17 @@ package_sets:
     packages:
       - osg-gridftp
       - rsv
+  - label: HDFS Plugins
+    selinux: True
+    packages:
+      - osg-gridftp-hdfs
+      - globus-gass-copy-progs
+      - gfal2-plugin-gridftp
+      - gfal2-util
+      - gfal2-plugin-file
+      - xrootd-hdfs
+      - xrootd-client
+      - globus-proxy-utils # proxy required for all transfer tests
   - label: BeStMan (java)
     selinux: True
     osg_java: True
