@@ -35,22 +35,17 @@ package_sets:
   ##################
   - label: All (java)
     selinux: True
-    osg_java: True
     rng: True
     packages:
       - osg-tested-internal
   - label: HTCondor (java)
     selinux: True
-    osg_java: True
-    rng: False
     packages:
       - condor.x86_64
       - osg-ce-condor
       - rsv
   - label: GridFTP (java)
     selinux: True
-    osg_java: True
-    rng: False
     packages:
       - osg-gridftp
       - rsv
@@ -67,21 +62,17 @@ package_sets:
       - globus-proxy-utils # proxy required for all transfer tests
   - label: BeStMan (java)
     selinux: True
-    osg_java: True
-    rng: False
     packages:
       - osg-se-bestman
       - rsv
   - label: VOMS (java)
     selinux: True
-    osg_java: True
     rng: True
     packages:
       - osg-voms
       - rsv
   - label: GUMS (java)
     selinux: True
-    osg_java: True
     rng: True
     packages:
       - osg-gums
