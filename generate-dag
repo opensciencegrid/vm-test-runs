@@ -8,6 +8,8 @@ import time
 
 import vmu
 
+BASE_IMAGE_PATH="/mnt/gluster/chtc/VMs"
+
 def generate_dag_fragment(serial, combo):
     platform, sources, package_set = combo
     node_name = 'TestRun' + serial
@@ -90,6 +92,13 @@ if __name__ == '__main__':
     # Start DAG file
     dag_contents = '# osg-test run generated %s\n' % (time.strftime('%Y-%m-%d %H:%M'))
     dag_contents += 'CONFIG inner-dag.config\n'
+
+    # bail if there aren't corresponding VM images before writing any config
+    for param_file in run_params:
+        for platform in param_file['platforms']:
+            image_path = os.path.join(BASE_IMAGE_PATH, platform + '_htcondor.dsk')
+            if not os.path.exists(image_path):
+                sys.exit("ERROR: Invalid platform (%s). Could not find %s" % (platform, image_path))
 
     # Run parameter sweep
     process = 0
