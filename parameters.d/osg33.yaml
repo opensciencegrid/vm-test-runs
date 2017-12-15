@@ -70,3 +70,8 @@ package_sets:
     packages:
       - osg-gums
       - rsv
+  # - label: CVMFS
+  #   osg_java: False
+  #   package:
+  #     - osg-oasis
+  #     - singularity-runtime
