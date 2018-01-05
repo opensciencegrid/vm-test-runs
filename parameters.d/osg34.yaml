@@ -1,7 +1,7 @@
 ###################
 # OSG 3.4 tests
 # File format documention:
-# https://twiki.opensciencegrid.org/bin/view/SoftwareTeam/TestRunsAsVMs
+# https://github.com/opensciencegrid/vm-test-runs#running-osg-test-in-vm-universe
 ###################
 
 platforms:
