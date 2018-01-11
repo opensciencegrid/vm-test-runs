@@ -6,7 +6,7 @@ import smtplib
 import sys
 
 # E-mail recipient list constructed from select Software and Release Team members:
-# https://twiki.opensciencegrid.org/bin/view/SoftwareTeam/
+# https://opensciencegrid.github.io/technology/
 RECIPIENTS = (
     'Brian Lin <blin@cs.wisc.edu>',
     'Carl Edquist <edquist@cs.wisc.edu>',

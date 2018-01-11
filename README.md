@@ -32,7 +32,7 @@ Setting up credentials
 Running osg-test in VM Universe
 -------------------------------
 
-The procedure explained in this section replaces [this](https://twiki.opensciencegrid.org/bin/view/SoftwareTeam/SoftwareDevelopmentProcess) if and only if there are functional tests for each package being tested.
+The procedure explained in this section replaces [this](https://opensciencegrid.github.io/technology/software/development-process/) if and only if there are functional tests for each package being tested.
 
 1.  From `osghost.chtc.wisc.edu`, make and populate a test run directory:
 

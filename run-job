@@ -99,7 +99,7 @@ log_command hostname
 # log_command strace -s 8192 -v $INPUT_DIR/check-hostname osg-test.localdomain
 
 # Install repositories
-# See, e.g., https://twiki.opensciencegrid.org/bin/view/Documentation/Release3/YumRepositories
+# See, e.g., http://opensciencegrid.github.io/docs/common/yum/
 rpm -q epel-release || run_command_with_retries 8 rpm --upgrade $epel_url
 if [ $? -ne 0 ]; then
     log_command echo 'Could not install EPEL repository'
