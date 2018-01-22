@@ -84,7 +84,7 @@ def canonical_src_string(sources):
     result = re.sub(r'osg-upcoming', 'Upcoming', result)
     result = re.sub(r'osg-upcoming-testing', 'Upcoming Testing', result)
     result = re.sub(r'osg', 'Release', result) # Must come after other repos
-    result = re.sub(r'(^\w*:[\w-]*)(.*)', '\\2 (\\1)', result)
+    result = re.sub(r'(^\w*:[./\w-]*)(.*)', '\\2 (\\1)', result)
     result = re.sub(r';', '', result)
     result = re.sub(r'/', ' ', result)
     result = re.sub(r',', ' + ', result)
