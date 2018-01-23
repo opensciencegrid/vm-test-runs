@@ -77,18 +77,23 @@ def canonical_os_string(os_release):
 def canonical_src_string(sources):
     '''Make the repo source string human readable'''
     result = re.sub(r'\s*>\s*', ' -> ', sources)
+    branch = None
+    m = re.search(r'(^\w+:[./\w-]+)\s*;\s*(.*)', result)
+    if m:
+        branch, result = m.groups()
     result = re.sub(r'osg-minefield', 'Minefield', result)
     result = re.sub(r'osg-development', 'Development', result)
     result = re.sub(r'osg-testing', 'Testing', result)
     result = re.sub(r'osg-prerelease', 'Prerelease', result)
-    result = re.sub(r'osg-upcoming', 'Upcoming', result)
     result = re.sub(r'osg-upcoming-testing', 'Upcoming Testing', result)
+    result = re.sub(r'osg-upcoming', 'Upcoming', result)
     result = re.sub(r'osg', 'Release', result) # Must come after other repos
-    result = re.sub(r'(^\w*:[\w-]*)(.*)', '\\2 (\\1)', result)
     result = re.sub(r';', '', result)
     result = re.sub(r'/', ' ', result)
     result = re.sub(r',', ' + ', result)
     result = re.sub(r'^(\d+\.\d+)(.*-> )(?!\d)', '\\1\\2\\1 ', result) # Duplicate release series, when needed
+    if branch:
+        result += " (%s)" % branch
     return result.strip()
 
 class ParamError(Exception):
