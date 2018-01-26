@@ -44,7 +44,7 @@ package_sets:
     packages:
       - osg-gridftp
       - rsv
-  - label: HDFS Plugins
+  - label: HDFS Plugins (java)
     packages:
       - osg-gridftp-hdfs
       - globus-gass-copy-progs
