@@ -39,4 +39,6 @@ package_sets:
       - xrootd-hdfs
       - xrootd-client
       - xrootd-lcmaps
+      - lcmaps-db-templates
+      - vo-client-lcmaps-voms
       - globus-proxy-utils # proxy required for all transfer tests
