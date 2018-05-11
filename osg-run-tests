@@ -12,10 +12,12 @@ safe_run()
 
 print_help()
 {
-    echo "help: $0 [-n] [-p YYYYMMDD-HHMM] <label>"
+    echo "help: $0 [-n] [-P|-p YYYYMMDD-HHMM] <label>"
     echo "Options:"
     echo "    -n"
     echo "       Run as nightly test i.e. immediately submit the DAG after setting up the test run"
+    echo "    -P"
+    echo "       Use yaml parameters for testing the prerelease repos"
     echo "    -p YYYYMMDD-HHMM"
     echo "       Use yaml parameters from a previous run with given timestamp"
     echo '    -h, -help, --help'
@@ -25,6 +27,7 @@ print_help()
 
 TEST_HOME=/osgtest/runs
 NIGHTLY=0
+PRERELEASE=0
 PARAMETERS_BASE=""
 
 set_parameters_base()
@@ -47,7 +50,7 @@ set_parameters_base()
 }
 
 # Parse options and required label arg
-while getopts :nhp: opt; do
+while getopts :nhPp: opt; do
     case $opt in
         n)
             NIGHTLY=1
@@ -55,6 +58,8 @@ while getopts :nhp: opt; do
         h)
             print_help
             exit 0
+            ;;
+        P)  PRERELEASE=1
             ;;
         p)
             set_parameters_base "$OPTARG"
@@ -96,7 +101,7 @@ safe_run git clone --quiet --depth 1 https://github.com/opensciencegrid/vm-test-
 cd $GIT_CHECKOUT_DIR
 safe_run cp -r \
     master-run.dag \
-    generate-dag.sub generate-dag osg-test.conf parameters.d test-exceptions.yaml component-tags.yaml \
+    generate-dag.sub generate-dag osg-test.conf test-exceptions.yaml component-tags.yaml \
     create-io-images.sub create-io-images \
     run-job osg-test.patch test-changes.patch osg-release.patch single-test-run.sub true.sub inner-dag.config \
     process-job-output extract-job-output analyze_job_output.py \
@@ -105,6 +110,13 @@ safe_run cp -r \
     vmu-reporter html-report.sub taglib.py \
     upload-job-output upload-job-output.sub \
     $RUN_DIRECTORY/
+
+if [ $PRERELEASE -eq 1 ]; then
+    echo "Using parameters for prerelease tests"
+    safe_run cp -r parameters.d-prerelease $RUN_DIRECTORY/parameters.d
+else
+    safe_run cp -r parameters.d $RUN_DIRECTORY/
+fi
 
 if [ -n "$PARAMETERS_BASE" ]; then
     echo "Copying run parameters from $PARAMETERS_BASE"
