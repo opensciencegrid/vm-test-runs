@@ -1,0 +1,23 @@
+platforms:
+  - centos_7_x86_64
+  - sl_7_x86_64
+
+sources:
+  - opensciencegrid:master; 3.4; osg-prerelease, osg-upcoming, osg-upcoming-prerelease
+
+package_sets:
+  - label: HDFS Plugins
+    osg_java: False
+    packages:
+      - osg-gridftp-hdfs
+      - globus-gass-copy-progs
+      - gfal2-plugin-gridftp
+      - gfal2-util
+      - gfal2-plugin-file
+      - xrootd
+      - xrootd-hdfs
+      - xrootd-client
+      - xrootd-lcmaps
+      - lcmaps-db-templates
+      - vo-client-lcmaps-voms
+      - globus-proxy-utils # proxy required for all transfer tests
