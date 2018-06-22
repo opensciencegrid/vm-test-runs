@@ -62,10 +62,10 @@ upload_run () {
     staged_run_dir_base=$(basename "$STAGED_RUN_DIR")
     (
         set -o errexit
-        ssh -i $KEY_FILE -l $UPLOAD_USER $UPLOAD_MACHINE mkdir -p "$UPLOAD_DIR"
+        ssh -o "PubkeyAuthentication yes" -i $KEY_FILE -l $UPLOAD_USER $UPLOAD_MACHINE mkdir -p "$UPLOAD_DIR"
         cd "$STAGED_RUN_DIR"/..
         tar cz "$staged_run_dir_base" | \
-            ssh -i $KEY_FILE -l $UPLOAD_USER $UPLOAD_MACHINE tar xz -C "$UPLOAD_DIR"
+            ssh -o "PubkeyAuthentication yes" -i $KEY_FILE -l $UPLOAD_USER $UPLOAD_MACHINE tar xz -C "$UPLOAD_DIR"
     )
 }
 
