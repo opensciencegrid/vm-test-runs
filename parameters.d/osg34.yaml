@@ -50,7 +50,7 @@ package_sets:
     packages:
       - osg-gridftp
       - rsv
-  # - label: CVMFS
+  # - label: CVMFS + Singularity
   #   osg_java: False
   #   package:
   #     - osg-oasis
