@@ -52,6 +52,6 @@ package_sets:
       - rsv
   # - label: CVMFS + Singularity
   #   osg_java: False
-  #   package:
+  #   packages:
   #     - osg-oasis
   #     - singularity-runtime
