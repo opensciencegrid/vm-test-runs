@@ -7,10 +7,12 @@ vm_memory               = 2048
 vm_networking           = true
 vm_no_output_vm         = false
 vm_vnc                  = true
-# osg-test timeout is 4h, give it a 4h buffer
-periodic_hold           = (time() - JobCurrentStartDate > 28800)
-periodic_release        = ( (HoldReasonCode == 3) && (NumJobStarts < 2) ) || ( (HoldReasonCode == 6) && regexp("VMGAHP_ERR_INTERNAL", HoldReason) )
-periodic_remove         = ( (JobStatus == 5) && (HoldReasonCode =?= 3) && (NumJobStarts >= 2) )
+# Most VM jobs complete in less than 2 hours, give them a 2 hour buffer
+periodic_hold           = (time() - JobCurrentStartDate > 14400)
+periodic_release        = ( (HoldReasonCode == 3) && (NumJobStarts < 3) ) || ( (HoldReasonCode == 6) && regexp("VMGAHP_ERR_INTERNAL", HoldReason) )
+# Most VM jobs spend less than 12 hours in the queue
+# We can remove jobs since the DAG can handle removed nodes
+periodic_remove         = ( (JobStatus == 5) && (HoldReasonCode =?= 3) && (NumJobStarts >= 3) ) || (time() - QDate >  43200)
 
 request_disk            = 8GB
 requirements            = ((HasGluster == True) && (HasVirshDefaultNetwork =?= True))
