@@ -100,6 +100,11 @@ log_command hostname
 
 # Install repositories
 # See, e.g., http://opensciencegrid.github.io/docs/common/yum/
+
+# TODO: Drop the following 3.3-ism when we get rid of 3.3 upgrade tests in the params
+# EPEL6 contains python-condor, which obsoletes condor-python and breaks OSG 3.3 installations
+[ "$osg_series" == "3.3" ] && log_command sed -i 's/\[\epel\]/\[epel\]\nexclude=python-condor/' \
+                                          /etc/yum.repos.d/epel.repo
 rpm -q epel-release || run_command_with_retries 8 rpm --upgrade $epel_url
 if [ $? -ne 0 ]; then
     log_command echo 'Could not install EPEL repository'
