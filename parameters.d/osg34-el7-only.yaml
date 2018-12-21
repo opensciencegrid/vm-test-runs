@@ -1,5 +1,5 @@
 ###################
-# OSG 3.4 Hadoop tests
+# OSG 3.4 EL7-only tests
 # File format documention:
 # https://github.com/opensciencegrid/vm-test-runs#running-osg-test-in-vm-universe
 ###################
@@ -18,6 +18,7 @@ sources:
   ###################
   - opensciencegrid:master; 3.4; osg
   - opensciencegrid:master; 3.4; osg-testing
+  - opensciencegrid:master; 3.4; osg > osg-testing
 
 package_sets:
   #### Required ####
@@ -43,3 +44,10 @@ package_sets:
       - lcmaps-db-templates
       - vo-client-lcmaps-voms
       - globus-proxy-utils # proxy required for all transfer tests
+  - label: StashCache
+    osg_java: False
+    packages:
+      - stashcache-client
+      - stashcache-origin-server
+      - stashcache-cache-server
+      - stashcache-cache-server-auth
