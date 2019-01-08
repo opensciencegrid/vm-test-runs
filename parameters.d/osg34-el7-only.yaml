@@ -51,3 +51,14 @@ package_sets:
       - stashcache-origin-server
       - stashcache-cache-server
       - stashcache-cache-server-auth
+  - label: XRootD Plugins
+    osg_java: False
+    packages:
+      - xrootd
+      - xrootd-multiuser
+      - xrootd-lcmaps
+      - xrootd-client
+      - xrootd-fuse
+      - lcmaps-db-templates
+      - vo-client-lcmaps-voms
+      - globus-proxy-utils
