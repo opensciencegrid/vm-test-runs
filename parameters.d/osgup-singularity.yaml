@@ -18,10 +18,6 @@ sources:
   # Run osg-test with packages from 3.2-release and 3.2-testing that are then upgraded to 3.3-testing and 3-3-upcoming-testing:
   # 3.2; osg, osg-testing > 3.3/osg-testing, osg-upcoming-testing
   ###################
-  - opensciencegrid:master; 3.4; osg
-  - opensciencegrid:master; 3.4; osg-testing
-  - opensciencegrid:master; 3.4; osg > osg-testing
-  - opensciencegrid:master; 3.3; osg > 3.4/osg
   - opensciencegrid:master; 3.4; osg, osg-upcoming
   - opensciencegrid:master; 3.4; osg-testing, osg-upcoming-testing
   - opensciencegrid:master; 3.4; osg > osg-testing, osg-upcoming-testing
@@ -35,18 +31,8 @@ package_sets:
   # osg_java - Pre-install OSG java packages (default: True)
   # rng - Install entropy generation package (default: False)
   ##################
-  - label: All
+  - label: CVMFS + Singularity
     osg_java: False
     packages:
-      - osg-tested-internal
-  - label: HTCondor
-    osg_java: False
-    packages:
-      - condor.x86_64
-      - osg-ce-condor
-      - rsv
-  - label: GridFTP
-    osg_java: False
-    packages:
-      - osg-gridftp
-      - rsv
+      - osg-oasis
+      - singularity
