@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 safe_run()
 {
@@ -12,8 +12,10 @@ safe_run()
 
 print_help()
 {
-    echo "help: $0 [-n] [-P|-p YYYYMMDD-HHMM] <label>"
+    echo "help: $0 [-g ACCOUNT:BRANCH] [-n] [-P|-p YYYYMMDD-HHMM] <label>"
     echo "Options:"
+    echo "    -g"
+    echo "       Specify a GitHub ACCOUNT:BRANCH for the 'vm-test-runs' repository (default: opensciencegrid:master)"
     echo "    -n"
     echo "       Run as nightly test i.e. immediately submit the DAG after setting up the test run"
     echo "    -P"
@@ -49,9 +51,27 @@ set_parameters_base()
     esac
 }
 
+GH_ACCOUNT=opensciencegrid
+GH_BRANCH=master
+
+set_github_info()
+{
+    if [[ "$1" =~ [A-Za-z0-9_-]*:[A-Za-z0-9_-]* ]]; then
+        GH_ACCOUNT="${1%:*}"
+        GH_BRANCH="${1#*:}"
+    else
+        echo "Option '-g' takes an ACCOUNT:BRANCH argument."
+        print_help
+        exit 1
+    fi
+}
+
 # Parse options and required label arg
-while getopts :nhPp: opt; do
+while getopts :g:nhPp: opt; do
     case $opt in
+        g)
+            set_github_info "$OPTARG"
+            ;;
         n)
             NIGHTLY=1
             ;;
@@ -89,27 +109,8 @@ RUN_DIR_NAME=`date '+run-%Y%m%d-%H%M'`
 RUN_DIRECTORY=$TEST_HOME/$RUN_DIR_NAME
 echo "Run directory: $RUN_DIRECTORY"
 
-# Make the new run directory
-safe_run mkdir $RUN_DIRECTORY
-
-# Check out files to a temporary directory
-TEMP_DIR=`mktemp --directory`
-GIT_CHECKOUT_DIR=$TEMP_DIR/git-files
-safe_run git clone --quiet --depth 1 https://github.com/opensciencegrid/vm-test-runs $GIT_CHECKOUT_DIR
-
-# Copy needed files to the run directory
-cd $GIT_CHECKOUT_DIR
-safe_run cp -r \
-    master-run.dag \
-    generate-dag.sub generate-dag osg-test.conf test-exceptions.yaml component-tags.yaml \
-    create-io-images.sub create-io-images \
-    run-job osg-test.patch test-changes.patch osg-release.patch single-test-run.sub true.sub inner-dag.config \
-    process-job-output extract-job-output analyze_job_output.py \
-    combine-job-analyses analyze-test-run.sub analyze-test-run email-analysis vmu.py \
-    report-job-failures report-job-failures.sub \
-    vmu-reporter html-report.sub taglib.py \
-    upload-job-output upload-job-output.sub \
-    $RUN_DIRECTORY/
+# Prepare the run directory
+safe_run git clone --quiet --depth 1 --branch "$GH_BRANCH" git://github.com/"$GH_ACCOUNT"/vm-test-runs.git $RUN_DIRECTORY
 
 if [ $PRERELEASE -eq 1 ]; then
     echo "Using parameters for prerelease tests"
