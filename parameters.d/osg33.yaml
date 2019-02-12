@@ -15,7 +15,8 @@ sources:
   # Format:
   # [<Github account>:<osg-test branch>;] <OSG ver>; <REPO 1, REPO 2...REPO N> [> <Update OSG ver>/<Update REPO 1, REPO 2...REPO N>]
   # Example:
-  # Run osg-test with packages from 3.2-release and 3.2-testing that are then upgraded to 3.3-testing and 3-3-upcoming-testing:
+  # Run osg-test (from 3.2-minefield) with packages from 3.2-release and 3.2-testing that are then upgraded to
+  # 3.3-testing and 3-3-upcoming-testing:
   # 3.2; osg, osg-testing > 3.3/osg-testing, osg-upcoming-testing
   ###################
   - opensciencegrid:master; 3.3; osg
