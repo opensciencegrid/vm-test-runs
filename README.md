@@ -57,17 +57,19 @@ The procedure explained in this section replaces [this](https://opensciencegrid.
                 - centos_7_x86_64
                 - rhel_7_x86_64
                 - sl_7_x86_64
+
     2.  To change the repos that packages are installed from, edit the sources section, which has the following format:
 
             [<GITHUB ACCOUNT>:<BRANCH OF OSG-TEST>;] <INITIAL OSG VERSION>; <INTIAL YUM REPO> [>] [<UPDATE OSG VERSION>/][<UPDATE YUM REPO>]
-            # Run osg-test with packages from 3.1-release
-            3.1; osg
-            # Run osg-test with packages from 3.1-testing that are then upgraded to 3.2-testing
-            3.1; osg-testing > 3.2/osg-testing
-            # Run osg-test with packages from 3.2-release and 3.2-testing that are then upgraded to 3.3-testing and 3-3-upcoming-testing
-            3.2; osg, osg-testing > 3.3/osg-testing, osg-upcoming-testing
             # Run osg-test from the 'opensciencegrid' github account using the 'master' branch (<https://github.com/opensciencegrid/osg-test.git>) with packages from 3.2-testing
             opensciencegrid:master; 3.2; osg-testing
+            # Run osg-test (from 3.1-minefield) with packages from 3.1-release
+            3.1; osg
+            # Run osg-test (from 3.1-minefield) with packages from 3.1-testing that are then upgraded to 3.2-testing
+            3.1; osg-testing > 3.2/osg-testing
+            # Run osg-test (from 3.2-minefield) with packages from 3.2-release and 3.2-testing that are then upgraded to 3.3-testing and 3-3-upcoming-testing
+            3.2; osg, osg-testing > 3.3/osg-testing, osg-upcoming-testing
+
     3. The `package_sets` section controls the packages that are installed, the label used for reporting, whether or not SELinux is enabled (default: disabled), and whether or not to pre-install the OSG Java packages (default: enabled): 
 
             package_sets:
@@ -90,6 +92,7 @@ The procedure explained in this section replaces [this](https://opensciencegrid.
                 - condor.x86_64
                 - osg-ce-condor
                 - rsv
+
     4. The test infrastructure can read multiple yaml files in `parameters.d`, which allows you to run different, mutually exclusive tests. For example, if you wanted to test 3.3 development on EL7 in addition to the standard tests, you could add the following to a file in `paramaters.d`:
 
             platform:
@@ -97,7 +100,7 @@ The procedure explained in this section replaces [this](https://opensciencegrid.
               - sl_7_x86_64
 
             sources:
-              - 3.3; osg-development
+              - opensciencegrid:master; 3.3; osg-development
 
             package_sets:
               - label: All
@@ -143,12 +146,15 @@ The procedure explained in this section replaces [this](https://opensciencegrid.
                 packages:
                   - osg-gums
                   - rsv
+
 6.  Submit the test run (you must submit the DAG from the run directory):
 
         [user@client ~]$ ./master-run.dag
+
 7.  Monitor the test run (as desired):
 
         [user@client ~]$ condor_q -dag
+
 8.  When the test run finishes, an email will go out to members of the software team (hardcoded in `email-analysis`). In the e-mail will be links to the web interface which will often not work immediately because the test results only get transferred over every 15 minutes.
 
 Troubleshooting
