@@ -114,9 +114,8 @@ safe_run git clone --quiet --depth 1 --branch "$GH_BRANCH" git://github.com/"$GH
 
 if [ $PRERELEASE -eq 1 ]; then
     echo "Using parameters for prerelease tests"
-    safe_run cp -r parameters.d-prerelease $RUN_DIRECTORY/parameters.d
-else
-    safe_run cp -r parameters.d $RUN_DIRECTORY/
+    rm -f $RUN_DIRECTORY/parameters.d/*.yaml
+    safe_run cp -r $RUN_DIRECTORY/parameters.d-prerelease $RUN_DIRECTORY/parameters.d
 fi
 
 if [ -n "$PARAMETERS_BASE" ]; then
