@@ -18,7 +18,6 @@ sources:
   # 3.2; osg, osg-testing > 3.3/osg-testing, osg-upcoming-testing
   ###################
   - opensciencegrid:xcache-1.0.2; 3.4; osg-testing
-  - opensciencegrid:xcache-1.0.2; 3.4; osg -> osg-testing
 
 package_sets:
   #### Required ####
@@ -33,5 +32,5 @@ package_sets:
     osg_java: False
     packages:
       - stashcache-client
-      - stashcache-cache-server
-      - stashcache-origin-server
+      - stash-cache
+      - stash-origin
