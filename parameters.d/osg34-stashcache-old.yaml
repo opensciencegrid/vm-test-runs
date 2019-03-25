@@ -29,7 +29,7 @@ package_sets:
   # osg_java - Pre-install OSG java packages (default: True)
   # rng - Install entropy generation package (default: False)
   ##################
-  - label: StashCache
+  - label: Old StashCache
     osg_java: False
     packages:
       - stashcache-client
