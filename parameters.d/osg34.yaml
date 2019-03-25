@@ -52,4 +52,5 @@ package_sets:
     osg_java: False
     packages:
       - osg-gridftp
+      - osg-gridftp-xrootd
       - rsv
