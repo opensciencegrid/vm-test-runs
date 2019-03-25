@@ -64,3 +64,4 @@ package_sets:
       - lcmaps-db-templates
       - vo-client-lcmaps-voms
       - globus-proxy-utils
+      - osg-gridftp-xrootd
