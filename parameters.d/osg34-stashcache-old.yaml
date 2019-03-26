@@ -1,5 +1,5 @@
 ###################
-# OSG 3.4 EL7-only tests
+# OSG 3.4 StashCache < 1.0.2 tests
 # File format documention:
 # https://github.com/opensciencegrid/vm-test-runs#running-osg-test-in-vm-universe
 ###################
@@ -19,8 +19,6 @@ sources:
   ###################
   - opensciencegrid:master; 3.4; osg
   - opensciencegrid:master; 3.4; osg-rolling
-  - opensciencegrid:master; 3.4; osg-testing
-  - opensciencegrid:master; 3.4; osg > osg-testing
 
 package_sets:
   #### Required ####
@@ -31,30 +29,10 @@ package_sets:
   # osg_java - Pre-install OSG java packages (default: True)
   # rng - Install entropy generation package (default: False)
   ##################
-  - label: HDFS Plugins
+  - label: Old StashCache
     osg_java: False
     packages:
-      - osg-gridftp-hdfs
-      - globus-gass-copy-progs
-      - gfal2-plugin-gridftp
-      - gfal2-util
-      - gfal2-plugin-file
-      - xrootd
-      - xrootd-hdfs
-      - xrootd-client
-      - xrootd-lcmaps
-      - lcmaps-db-templates
-      - vo-client-lcmaps-voms
-      - globus-proxy-utils # proxy required for all transfer tests
-  - label: XRootD Plugins
-    osg_java: False
-    packages:
-      - xrootd
-      - xrootd-multiuser
-      - xrootd-lcmaps
-      - xrootd-client
-      - xrootd-fuse
-      - lcmaps-db-templates
-      - vo-client-lcmaps-voms
-      - globus-proxy-utils
-      - osg-gridftp-xrootd
+      - stashcache-client
+      - stashcache-origin-server
+      - stashcache-cache-server
+      - stashcache-cache-server-auth
