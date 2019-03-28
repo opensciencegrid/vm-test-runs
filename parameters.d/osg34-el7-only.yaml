@@ -54,6 +54,7 @@ package_sets:
       - xrootd-lcmaps
       - xrootd-client
       - xrootd-fuse
+      - xrootd-scitokens
       - lcmaps-db-templates
       - vo-client-lcmaps-voms
       - globus-proxy-utils
