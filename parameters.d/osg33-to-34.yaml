@@ -1,5 +1,5 @@
 ###################
-# OSG 3.3 tests
+# OSG 3.3 to 3.4 tests
 # File format documention:
 # https://github.com/opensciencegrid/vm-test-runs#running-osg-test-in-vm-universe
 ###################
@@ -17,9 +17,7 @@ sources:
   # 3.3-testing and 3-3-upcoming-testing:
   # 3.2; osg, osg-testing > 3.3/osg-testing, osg-upcoming-testing
   ###################
-  - opensciencegrid:master; 3.3; osg
-  - opensciencegrid:master; 3.3; osg-testing
-  - opensciencegrid:master; 3.3; osg > osg-testing
+  - opensciencegrid:master; 3.3; osg > 3.4/osg
 
 package_sets:
   #### Required ####
@@ -30,44 +28,19 @@ package_sets:
   # osg_java - Pre-install OSG java packages (default: True)
   # rng - Install entropy generation package (default: False)
   ##################
-  - label: All (java)
-    rng: True
+  - label: All
+    osg_java: False
     packages:
       - osg-tested-internal
-  - label: HTCondor (java)
+  - label: HTCondor
+    osg_java: False
     packages:
       - condor.x86_64
       - osg-ce-condor
       - rsv
-  - label: GridFTP (java)
+  - label: GridFTP
+    osg_java: False
     packages:
       - osg-gridftp
+      - osg-gridftp-xrootd
       - rsv
-  - label: HDFS Plugins (java)
-    packages:
-      - osg-gridftp-hdfs
-      - globus-gass-copy-progs
-      - gfal2-plugin-gridftp
-      - gfal2-util
-      - gfal2-plugin-file
-      - xrootd
-      - xrootd-hdfs
-      - xrootd-client
-      - xrootd-lcmaps
-      - lcmaps-db-templates
-      - vo-client-lcmaps-voms
-      - globus-proxy-utils # proxy required for all transfer tests
-  - label: BeStMan (java)
-    packages:
-      - osg-se-bestman
-      - rsv
-  - label: VOMS (java)
-    rng: True
-    packages:
-      - osg-voms
-      - rsv
-  # - label: CVMFS
-  #   osg_java: False
-  #   package:
-  #     - osg-oasis
-  #     - singularity-runtime
