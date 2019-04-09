@@ -7,7 +7,6 @@ platforms:
 sources:
   - opensciencegrid:master; 3.4; osg-prerelease
   - opensciencegrid:master; 3.4; osg > osg-prerelease
-  - opensciencegrid:master; 3.3; osg > 3.4/osg-prerelease
   - opensciencegrid:master; 3.4; osg-prerelease, osg-upcoming-prerelease, osg-upcoming
   - opensciencegrid:master; 3.4; osg > osg-prerelease, osg-upcoming-prerelease, osg-upcoming
 
