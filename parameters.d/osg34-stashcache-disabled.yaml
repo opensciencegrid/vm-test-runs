@@ -1,0 +1,44 @@
+##  These tests are disabled by default because due to SOFTWARE-3654, you cannot
+##  have a VMU test run with osg-test from multiple branches
+##  (i.e. opensciencegrid:xcache-1.0.2 for one test run, opensciencegrid:master
+##  for another).
+## 
+##  To run these tests, uncomment the rest of this YAML file and delete or
+##  change the branch of all other tests in the VMU run.
+#
+# ###################
+# # OSG 3.4 tests for XCache 1.0.2 (in osg-testing)
+# # File format documention:
+# # https://github.com/opensciencegrid/vm-test-runs#running-osg-test-in-vm-universe
+# ###################
+#
+# platforms:
+#   - centos_7_x86_64
+#   - sl_7_x86_64
+#
+# sources:
+#   ###################
+#   # Format:
+#   # [<Github account>:<osg-test branch>;] <OSG ver>; <REPO 1, REPO 2...REPO N> [> <Update OSG ver>/<Update REPO 1, REPO 2...REPO N>]
+#   # Example:
+#   # Run osg-test (from 3.2-minefield) with packages from 3.2-release and 3.2-testing that are then upgraded to
+#   # 3.3-testing and 3-3-upcoming-testing:
+#   # 3.2; osg, osg-testing > 3.3/osg-testing, osg-upcoming-testing
+#   ###################
+#   - opensciencegrid:xcache-1.0.2; 3.4; osg-testing
+#
+# package_sets:
+#   #### Required ####
+#   # label - used for reporting, should be consistent across param files
+#   # packages - list of packages to install in the test run
+#   #### Optional ####
+#   # selinux - enable SELinux for the package set, otherwise Permissive mode (default: True)
+#   # osg_java - Pre-install OSG java packages (default: True)
+#   # rng - Install entropy generation package (default: False)
+#   ##################
+#   - label: StashCache
+#     osg_java: False
+#     packages:
+#       - stashcache-client
+#       - stash-cache
+#       - stash-origin
