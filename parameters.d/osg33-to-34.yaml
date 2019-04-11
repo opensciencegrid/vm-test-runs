@@ -1,5 +1,5 @@
 ###################
-# OSG 3.4 singularity tests
+# OSG 3.3 to 3.4 tests
 # File format documention:
 # https://github.com/opensciencegrid/vm-test-runs#running-osg-test-in-vm-universe
 ###################
@@ -7,8 +7,6 @@
 platforms:
   - centos_6_x86_64
   - sl_6_x86_64
-  - centos_7_x86_64
-  - sl_7_x86_64
 
 sources:
   ###################
@@ -19,8 +17,6 @@ sources:
   # 3.3-testing and 3-3-upcoming-testing:
   # 3.2; osg, osg-testing > 3.3/osg-testing, osg-upcoming-testing
   ###################
-  - opensciencegrid:master; 3.4; osg
-  - opensciencegrid:master; 3.4; osg-rolling
   - opensciencegrid:master; 3.3; osg > 3.4/osg
 
 package_sets:
@@ -32,13 +28,19 @@ package_sets:
   # osg_java - Pre-install OSG java packages (default: True)
   # rng - Install entropy generation package (default: False)
   ##################
-  - label: CVMFS + Singularity-runtime
+  - label: All
     osg_java: False
     packages:
-      - osg-oasis
-      - singularity-runtime
-  - label: CVMFS + Singularity
+      - osg-tested-internal
+  - label: HTCondor
     osg_java: False
     packages:
-      - osg-oasis
-      - singularity
+      - condor.x86_64
+      - osg-ce-condor
+      - rsv
+  - label: GridFTP
+    osg_java: False
+    packages:
+      - osg-gridftp
+      - osg-gridftp-xrootd
+      - rsv
