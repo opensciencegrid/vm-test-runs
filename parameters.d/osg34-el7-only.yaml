@@ -59,3 +59,9 @@ package_sets:
       - vo-client-lcmaps-voms
       - globus-proxy-utils
       - osg-gridftp-xrootd
+  - label: StashCache
+    osg_java: False
+    packages:
+      - stashcache-client
+      - stash-cache
+      - stash-origin
