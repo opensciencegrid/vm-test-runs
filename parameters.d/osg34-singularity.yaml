@@ -21,7 +21,6 @@ sources:
   ###################
   - opensciencegrid:master; 3.4; osg
   - opensciencegrid:master; 3.4; osg-rolling
-  - opensciencegrid:master; 3.3; osg > 3.4/osg
 
 package_sets:
   #### Required ####
