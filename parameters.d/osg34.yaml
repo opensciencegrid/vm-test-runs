@@ -53,3 +53,8 @@ package_sets:
       - osg-gridftp
       - osg-gridftp-xrootd
       - rsv
+  - label: CVMFS + Singularity
+    osg_java: False
+    packages:
+      - osg-oasis
+      - singularity
