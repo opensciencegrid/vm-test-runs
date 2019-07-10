@@ -18,8 +18,6 @@ sources:
   # 3.2; osg, osg-testing > 3.3/osg-testing, osg-upcoming-testing
   ###################
   - opensciencegrid:master; 3.3; osg
-  - opensciencegrid:master; 3.3; osg-testing
-  - opensciencegrid:master; 3.3; osg > osg-testing
 
 package_sets:
   #### Required ####
