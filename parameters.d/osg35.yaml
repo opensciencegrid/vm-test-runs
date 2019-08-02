@@ -26,32 +26,27 @@ package_sets:
   # packages - list of packages to install in the test run
   #### Optional ####
   # selinux - enable SELinux for the package set, otherwise Permissive mode (default: True)
-  # osg_java - Pre-install OSG java packages (default: True)
+  # osg_java - Pre-install OSG java packages (default: False)
   # rng - Install entropy generation package (default: False)
   ##################
   - label: All
-    osg_java: False
     packages:
       - osg-tested-internal
   - label: HTCondor
-    osg_java: False
     packages:
       - condor.x86_64
       - osg-ce-condor
       - rsv
   - label: GridFTP
-    osg_java: False
     packages:
       - osg-gridftp
       - osg-gridftp-xrootd
       - rsv
   - label: CVMFS + Singularity
-    osg_java: False
     packages:
       - osg-oasis
       - singularity
   - label: HDFS Plugins
-    osg_java: False
     packages:
       - osg-gridftp-hdfs
       - globus-gass-copy-progs
@@ -66,7 +61,6 @@ package_sets:
       - vo-client-lcmaps-voms
       - globus-proxy-utils # proxy required for all transfer tests
   - label: XRootD Plugins
-    osg_java: False
     packages:
       - xrootd
       - xrootd-multiuser
@@ -79,7 +73,6 @@ package_sets:
       - globus-proxy-utils
       - osg-gridftp-xrootd
   - label: StashCache
-    osg_java: False
     packages:
       - stashcache-client
       - stash-cache

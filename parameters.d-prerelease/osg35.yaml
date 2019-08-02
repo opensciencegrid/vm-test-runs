@@ -14,6 +14,5 @@ sources:
 package_sets:
   - label: All
     selinux: True
-    osg_java: False
     packages:
       - osg-tested-internal

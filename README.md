@@ -77,17 +77,13 @@ The procedure explained in this section replaces [this](https://opensciencegrid.
             # label - used for reporting, should be consistent across param files
             # packages - list of packages to install in the test run
             #### Optional ####
-            # selinux - enable SELinux for the package set, otherwise Permissive mode (default: False)
-            # osg_java - Pre-install OSG java packages (default: True)
+            # selinux - enable SELinux for the package set, otherwise Permissive mode (default: True)
+            # osg_java - Pre-install OSG java packages (default: False)
             ##################
             - label: All
-              selinux: False
-              osg_java: True
               packages:
                 - osg-tested-internal
             - label: HTCondor
-              selinux: False
-              osg_java: True
               packages:
                 - condor.x86_64
                 - osg-ce-condor
@@ -104,45 +100,31 @@ The procedure explained in this section replaces [this](https://opensciencegrid.
 
             package_sets:
               - label: All
-                selinux: False
-                osg_java: True
                 packages:
                   - osg-tested-internal
               # Explicitly add GRAM packages since they were dropped from osg-ce (SOFTWARE-2278, SOFTWARE-2291)
               - label: All + GRAM (3.2)
-                selinux: False
-                osg_java: True
                 packages:
                   - osg-tested-internal-gram
               - label: HTCondor
-                selinux: False
-                osg_java: True
                 packages:
                   - condor.x86_64
                   - osg-ce-condor
                   - rsv
               - label: GridFTP
-                selinux: True
-                osg_java: True
                 packages:
                   - osg-gridftp
                   - edg-mkgridmap
                   - rsv
               - label: BeStMan
-                selinux: False
-                osg_java: True
                 packages:
                   - osg-se-bestman
                   - rsv
               - label: VOMS
-                selinux: False
-                osg_java: True
                 packages:
                   - osg-voms
                   - rsv
               - label: GUMS
-                selinux: False
-                osg_java: True
                 packages:
                   - osg-gums
                   - rsv

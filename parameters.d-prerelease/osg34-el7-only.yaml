@@ -7,7 +7,6 @@ sources:
 
 package_sets:
   - label: HDFS Plugins
-    osg_java: False
     packages:
       - osg-gridftp-hdfs
       - globus-gass-copy-progs
@@ -22,7 +21,6 @@ package_sets:
       - vo-client-lcmaps-voms
       - globus-proxy-utils # proxy required for all transfer tests
   - label: XRootD Plugins
-    osg_java: False
     packages:
       - xrootd
       - xrootd-multiuser
@@ -35,7 +33,6 @@ package_sets:
       - globus-proxy-utils
       - osg-gridftp-xrootd
   - label: StashCache
-    osg_java: False
     packages:
       - stashcache-client
       - stash-cache
