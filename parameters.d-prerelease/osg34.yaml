@@ -12,6 +12,5 @@ sources:
 
 package_sets:
   - label: All
-    selinux: True
     packages:
       - osg-tested-internal
