@@ -1,0 +1,15 @@
+platforms:
+  - centos_7_x86_64
+  - sl_7_x86_64
+
+sources:
+  - opensciencegrid:master; 3.5; osg-prerelease
+  - opensciencegrid:master; 3.5; osg > osg-prerelease
+  - opensciencegrid:master; 3.4; osg > 3.5/osg-prerelease
+  - opensciencegrid:master; 3.5; osg-prerelease, osg-upcoming-prerelease, osg-upcoming
+  - opensciencegrid:master; 3.5; osg > osg-prerelease, osg-upcoming-prerelease, osg-upcoming
+
+package_sets:
+  - label: All
+    packages:
+      - osg-tested-internal

@@ -25,21 +25,18 @@ package_sets:
   # packages - list of packages to install in the test run
   #### Optional ####
   # selinux - enable SELinux for the package set, otherwise Permissive mode (default: True)
-  # osg_java - Pre-install OSG java packages (default: True)
+  # osg_java - Pre-install OSG java packages (default: False)
   # rng - Install entropy generation package (default: False)
   ##################
   - label: All
-    osg_java: False
     packages:
       - osg-tested-internal
   - label: HTCondor
-    osg_java: False
     packages:
       - condor.x86_64
       - osg-ce-condor
       - rsv
   - label: GridFTP
-    osg_java: False
     packages:
       - osg-gridftp
       - osg-gridftp-xrootd

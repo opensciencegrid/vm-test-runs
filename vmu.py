@@ -120,7 +120,7 @@ class PackageSet(object):
     are sorted alphanumerically after the known labels.
     """
 
-    OSG_JAVA_DEFAULT = True
+    OSG_JAVA_DEFAULT = False
     SELINUX_DEFAULT = True
     RNG_DEFAULT = False
     LABEL_ORDER = ['All', 'All + GRAM', 'All + GRAM (3.2)', 'HTCondor', 'GridFTP', 'BeStMan', 'VOMS', 'GUMS']

@@ -1,12 +1,10 @@
 ###################
-# OSG 3.4 tests
+# OSG 3.5 tests
 # File format documention:
 # https://github.com/opensciencegrid/vm-test-runs#running-osg-test-in-vm-universe
 ###################
 
 platforms:
-  - centos_6_x86_64
-  - sl_6_x86_64
   - centos_7_x86_64
   - sl_7_x86_64
 
@@ -19,14 +17,8 @@ sources:
   # 3.3-testing and 3-3-upcoming-testing:
   # 3.2; osg, osg-testing > 3.3/osg-testing, osg-upcoming-testing
   ###################
-  - opensciencegrid:master; 3.4; osg
-  - opensciencegrid:master; 3.4; osg-rolling
-  - opensciencegrid:master; 3.4; osg-testing
-  - opensciencegrid:master; 3.4; osg > osg-testing
-  - opensciencegrid:master; 3.4; osg, osg-upcoming
-  - opensciencegrid:master; 3.4; osg-rolling, osg-upcoming-rolling
-  - opensciencegrid:master; 3.4; osg-testing, osg-upcoming-testing
-  - opensciencegrid:master; 3.4; osg > osg-testing, osg-upcoming-testing
+  - opensciencegrid:master; 3.5; osg-development
+  - opensciencegrid:master; 3.4; osg > 3.5/osg-development
 
 package_sets:
   #### Required ####
@@ -54,3 +46,34 @@ package_sets:
     packages:
       - osg-oasis
       - singularity
+  - label: HDFS Plugins
+    packages:
+      - osg-gridftp-hdfs
+      - globus-gass-copy-progs
+      - gfal2-plugin-gridftp
+      - gfal2-util
+      - gfal2-plugin-file
+      - xrootd
+      - xrootd-hdfs
+      - xrootd-client
+      - xrootd-lcmaps
+      - lcmaps-db-templates
+      - vo-client-lcmaps-voms
+      - globus-proxy-utils # proxy required for all transfer tests
+  - label: XRootD Plugins
+    packages:
+      - xrootd
+      - xrootd-multiuser
+      - xrootd-lcmaps
+      - xrootd-client
+      - xrootd-fuse
+      - xrootd-scitokens
+      - lcmaps-db-templates
+      - vo-client-lcmaps-voms
+      - globus-proxy-utils
+      - osg-gridftp-xrootd
+  - label: StashCache
+    packages:
+      - stashcache-client
+      - stash-cache
+      - stash-origin
