@@ -36,12 +36,10 @@ package_sets:
     packages:
       - condor.x86_64
       - osg-ce-condor
-      - rsv
   - label: GridFTP
     packages:
       - osg-gridftp
       - osg-gridftp-xrootd
-      - rsv
   - label: CVMFS + Singularity
     packages:
       - osg-oasis
