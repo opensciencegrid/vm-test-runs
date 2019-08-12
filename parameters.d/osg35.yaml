@@ -32,11 +32,11 @@ package_sets:
   - label: All
     packages:
       - osg-tested-internal
-  - label: HTCondor
+  - label: HTCondor (3.5)
     packages:
       - condor.x86_64
       - osg-ce-condor
-  - label: GridFTP
+  - label: GridFTP (3.5)
     packages:
       - osg-gridftp
       - osg-gridftp-xrootd
