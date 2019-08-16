@@ -36,6 +36,7 @@ package_sets:
     packages:
       - condor.x86_64
       - osg-ce-condor
+      - globus-proxy-utils
   - label: GridFTP (3.5)
     packages:
       - osg-gridftp
