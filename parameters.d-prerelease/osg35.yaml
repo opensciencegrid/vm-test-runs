@@ -13,3 +13,42 @@ package_sets:
   - label: All
     packages:
       - osg-tested-internal
+  - label: GridFTP
+    packages:
+      - osg-gridftp
+      - osg-gridftp-xrootd
+  - label: CVMFS + Singularity
+    packages:
+      - osg-oasis
+      - singularity
+  - label: HDFS Plugins
+    packages:
+      - osg-gridftp-hdfs
+      - globus-gass-copy-progs
+      - gfal2-plugin-gridftp
+      - gfal2-util
+      - gfal2-plugin-file
+      - xrootd
+      - xrootd-hdfs
+      - xrootd-client
+      - xrootd-lcmaps
+      - lcmaps-db-templates
+      - vo-client-lcmaps-voms
+      - globus-proxy-utils # proxy required for all transfer tests
+  - label: XRootD Plugins
+    packages:
+      - xrootd
+      - xrootd-multiuser
+      - xrootd-lcmaps
+      - xrootd-client
+      - xrootd-fuse
+      - xrootd-scitokens
+      - lcmaps-db-templates
+      - vo-client-lcmaps-voms
+      - globus-proxy-utils
+      - osg-gridftp-xrootd
+  - label: StashCache
+    packages:
+      - stashcache-client
+      - stash-cache
+      - stash-origin
