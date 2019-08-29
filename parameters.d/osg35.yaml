@@ -17,8 +17,8 @@ sources:
   # 3.3-testing and 3-3-upcoming-testing:
   # 3.2; osg, osg-testing > 3.3/osg-testing, osg-upcoming-testing
   ###################
-  - opensciencegrid:master; 3.5; osg-development
-  - opensciencegrid:master; 3.4; osg > 3.5/osg-development
+  - opensciencegrid:master; 3.5; osg-testing
+  - opensciencegrid:master; 3.4; osg > 3.5/osg-testing
 
 package_sets:
   #### Required ####
@@ -29,14 +29,6 @@ package_sets:
   # osg_java - Pre-install OSG java packages (default: False)
   # rng - Install entropy generation package (default: False)
   ##################
-  - label: All
-    packages:
-      - osg-tested-internal
-  - label: HTCondor (3.5)
-    packages:
-      - condor.x86_64
-      - osg-ce-condor
-      - globus-proxy-utils
   - label: GridFTP (3.5)
     packages:
       - osg-gridftp
