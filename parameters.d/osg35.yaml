@@ -24,7 +24,7 @@ sources:
   - opensciencegrid:master; 3.5; osg, osg-upcoming
   - opensciencegrid:master; 3.5; osg-rolling, osg-upcoming-rolling
   - opensciencegrid:master; 3.5; osg-testing, osg-upcoming-testing
-  - opensciencegrid:master; 3.4; osg > osg-testing, osg-upcoming-testing
+  - opensciencegrid:master; 3.5; osg > osg-testing, osg-upcoming-testing
 
 package_sets:
   #### Required ####
