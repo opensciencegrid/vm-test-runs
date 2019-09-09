@@ -35,6 +35,14 @@ package_sets:
   # osg_java - Pre-install OSG java packages (default: False)
   # rng - Install entropy generation package (default: False)
   ##################
+  - label: All
+    packages:
+      - osg-tested-internal
+  - label: HTCondor (3.5)
+    packages:
+      - condor.x86_64
+      - osg-ce-condor
+      - globus-proxy-utils
   - label: GridFTP (3.5)
     packages:
       - osg-gridftp

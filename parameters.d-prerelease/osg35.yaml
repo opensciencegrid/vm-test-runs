@@ -10,6 +10,9 @@ sources:
   - opensciencegrid:master; 3.5; osg > osg-prerelease, osg-upcoming-prerelease, osg-upcoming
 
 package_sets:
+  - label: All
+    packages:
+      - osg-tested-internal
   - label: GridFTP
     packages:
       - osg-gridftp
