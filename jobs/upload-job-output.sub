@@ -1,5 +1,5 @@
 universe   = local
-executable = upload-job-output
+executable = ../bin/upload-job-output
 
 output = upload-job-output.out
 error  = upload-job-output.err

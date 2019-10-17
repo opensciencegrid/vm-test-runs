@@ -1,5 +1,5 @@
 universe   = local
-executable = analyze-test-run
+executable = ../bin/analyze-test-run
 arguments  = "."
 
 output = analyze-test-run.out

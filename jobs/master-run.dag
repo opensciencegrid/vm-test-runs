@@ -12,8 +12,8 @@ SUBDAG EXTERNAL RunTests test-run.dag
 
 # 4. Analyze the output
 JOB AnalyzeOutput analyze-test-run.sub
-SCRIPT PRE AnalyzeOutput combine-job-analyses
-SCRIPT POST AnalyzeOutput email-analysis
+SCRIPT PRE AnalyzeOutput ../bin/combine-job-analyses
+SCRIPT POST AnalyzeOutput ../bin/email-analysis
 
 # 5. Report job failures
 JOB ReportJobFailures report-job-failures.sub

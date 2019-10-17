@@ -1,5 +1,5 @@
 universe   = local
-executable = create-io-images
+executable = ../bin/create-io-images
 
 output = create-io-images.out
 error  = create-io-images.err

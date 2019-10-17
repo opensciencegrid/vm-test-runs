@@ -1,6 +1,6 @@
 universe   = local
-executable = generate-dag
-arguments  = "parameters.d"
+executable = ../bin/generate-dag
+arguments  = "../parameters.d"
 
 output = generate-dag.out
 error  = generate-dag.err
