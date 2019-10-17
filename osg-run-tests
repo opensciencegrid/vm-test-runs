@@ -131,11 +131,11 @@ fi
 
 if [ $NIGHTLY -eq 1 ]; then
     echo "$LABEL" > $RUN_DIRECTORY/run_label
-    condor_submit_dag master-run.dag
+    ./master-run.dag
 else
     echo "$LABEL ($USER)" > $RUN_DIRECTORY/run_label
     echo 'Run tests with:'
     echo "    cd $RUN_DIRECTORY"
-    echo '    condor_submit_dag master-run.dag'
+    echo '    ./master-run.dag'
     exit 0
 fi
