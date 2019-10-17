@@ -4,9 +4,19 @@
 scripts'''
 
 from glob import glob
+import os
 import re
 import sys
 import yaml
+
+RUN_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def run_label():
+    """The label for the test run
+    """
+    return open(os.path.join(RUN_DIR, 'run_label')).read()
+
 
 def die(message, code=1):
     '''Write message to STDERR and exit with code'''
