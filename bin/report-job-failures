@@ -95,8 +95,8 @@ if __name__ == "__main__":
     run_label = f.read()
     f.close()
 
-    failures = parse_job_log('osg-test-cat.log')
+    failures = parse_job_log('osg-test.log')
     if failures:
         message = construct_email(failures)
-        run_time = time.localtime(os.path.getctime('osg-test-cat.log'))
+        run_time = time.localtime(os.path.getctime('osg-test.log'))
         mail_message('VM universe machine failures - ' + time.strftime('%F %H:%M', run_time), message, RECIPIENTS)
