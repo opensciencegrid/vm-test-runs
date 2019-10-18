@@ -5,6 +5,8 @@ import re
 import smtplib
 import sys
 
+import vmu
+
 # E-mail recipient list constructed from select Software and Release Team members:
 # https://opensciencegrid.github.io/technology/
 RECIPIENTS = (
@@ -19,7 +21,7 @@ RECIPIENTS = (
 
 ANALYSIS_FILENAME = 'analyze-test-run.out'
 ERROR_FILENAME = 'analyze-test-run.err'
-LABEL_FILENAME = 'run_label'
+RUN_LABEL = vmu.run_label()
 
 # Adapted from Mat's aggregator/emailer.py script
 def mail_message(subject, message, recipients):
@@ -50,8 +52,7 @@ my_timestamp = re.sub(r'^run-', '', my_directory)
 message = '''OSG VMU tests: %s
 http://vdt.cs.wisc.edu/tests/%s/results.html
 http://vdt.cs.wisc.edu/tests/%s/packages.html
-https://jira.opensciencegrid.org/browse/SOFTWARE-1996\n\n''' % (file_contents(LABEL_FILENAME, as_single_string=True)
-                                                                , my_timestamp, my_timestamp)
+https://jira.opensciencegrid.org/browse/SOFTWARE-1996\n\n''' % (RUN_LABEL, my_timestamp, my_timestamp)
 
 if not os.path.exists(ANALYSIS_FILENAME):
     subject = 'OSG VMU test results: FAIL: no %s' % (ANALYSIS_FILENAME)
@@ -67,7 +68,7 @@ if os.path.getsize(ANALYSIS_FILENAME) == 0:
     mail_message(subject, message, RECIPIENTS)
     sys.exit(0)
 
-subject = 'OSG VMU test results: ' + file_contents(LABEL_FILENAME, as_single_string=True).strip()
+subject = 'OSG VMU test results: ' + RUN_LABEL
 truncated_subject = subject[:77] + '...' if len(subject) > 80 else subject
 
 for line in file_contents(ANALYSIS_FILENAME):

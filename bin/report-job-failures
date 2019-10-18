@@ -91,10 +91,6 @@ Have a nice day! (^_^)
     return body
 
 if __name__ == "__main__":
-    f = open('run_label', 'r')
-    run_label = f.read()
-    f.close()
-
     failures = parse_job_log('osg-test.log')
     if failures:
         message = construct_email(failures)
