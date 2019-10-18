@@ -47,7 +47,10 @@ The procedure explained in this section replaces [this](https://opensciencegrid.
         # - [test_function, test_module, start date, end date].
         [test_04_trace, test_55_condorce, 2014-12-01, 2015-01-14]
 
-5.  If you want to change test run parameters, edit `parameters.d/osg32.yaml`, `parameters.d/osg33-el6.yaml`, or `parameters.d/osg33-el7.yaml` or you can add/remove yaml files with the same format. Each file in `paramaters.d` generates an osg-test run for every possible combination of the `platforms`, `sources`, and `package_sets` parameters in that file.
+5.  If you want to change test run parameters, edit `parameters.d/osg32.yaml`, `parameters.d/osg33-el6.yaml`, or
+    `parameters.d/osg33-el7.yaml` or you can add/remove yaml files with the same format.
+    Each file in `parameters.d` generates an osg-test run for every possible combination of the `platforms`, `sources`,
+    and `package_sets` parameters in that file.
     1.  To change the distribution, modify the `platforms` section. Accepted values are listed below:
 
               platforms:
@@ -89,7 +92,10 @@ The procedure explained in this section replaces [this](https://opensciencegrid.
                 - osg-ce-condor
                 - rsv
 
-    4. The test infrastructure can read multiple yaml files in `parameters.d`, which allows you to run different, mutually exclusive tests. For example, if you wanted to test 3.3 development on EL7 in addition to the standard tests, you could add the following to a file in `paramaters.d`:
+    4. The test infrastructure can read multiple yaml files in `parameters.d`, which allows you to run different,
+       mutually exclusive tests.
+       For example, if you wanted to test 3.3 development on EL7 in addition to the standard tests, you could add the
+       following to a file in `parameters.d`:
 
             platform:
               - centos_7_x86_64
