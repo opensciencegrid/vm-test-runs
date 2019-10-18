@@ -1,3 +1,0 @@
-#!/bin/sh
-
-condor_q -format '%s\n' RemoteHost | sed -e 's/^.*@//' | sort | uniq -c
