@@ -284,8 +284,7 @@ if __name__ == "__main__":
         vmu.die('%s: could not get timestamp of run directory "%s"\n' % (SCRIPT_NAME, RUN_DIR))
 
     # Read, sort, and translate test parameters
-    param_dir = os.path.join(RUN_DIR, 'parameters.d')
-    params = vmu.load_run_params(param_dir)
+    params = vmu.load_run_params(vmu.PARAM_DIR)
     FLAT_PARAMS = vmu.flatten_run_params(params)
     PACKAGE_MAPPING = vmu.package_mapping(FLAT_PARAMS)
     TABLE_LABELS = {}

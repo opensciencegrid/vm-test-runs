@@ -10,6 +10,7 @@ import sys
 import yaml
 
 RUN_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PARAM_DIR = os.path.join(RUN_DIR, 'parameters.d')
 
 
 def run_label():
