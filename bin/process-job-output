@@ -9,7 +9,7 @@ job_id=$2
 unlink input-image-$serial.qcow2
 
 # Extract all files from the output image and remove the output image
-./extract-job-output result-image-$serial.qcow2 output-$serial
+../bin/extract-job-output result-image-$serial.qcow2 output-$serial
 
 # Analyze output files
-./analyze_job_output.py $serial $job_id > output-$serial/analysis.yaml
+../bin/analyze_job_output.py $serial $job_id > output-$serial/analysis.yaml

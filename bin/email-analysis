@@ -46,7 +46,7 @@ def file_contents(path, as_single_string=False):
     return contents
 
 # Get timestamp from containing directory
-my_directory = os.path.basename(os.getcwd())
+my_directory = os.path.basename(vmu.RUN_DIR)
 my_timestamp = re.sub(r'^run-', '', my_directory)
 
 message = '''OSG VMU tests: %s
