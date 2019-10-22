@@ -60,10 +60,11 @@ package_sets:
       - gfal2-plugin-gridftp
       - gfal2-util
       - gfal2-plugin-file
-      - xrootd
-      - xrootd-hdfs
-      - xrootd-client
-      - xrootd-lcmaps
+  #disabled (SOFTWARE-3431)
+  #    - xrootd
+  #    - xrootd-hdfs
+  #    - xrootd-client
+  #    - xrootd-lcmaps
       - lcmaps-db-templates
       - vo-client-lcmaps-voms
       - globus-proxy-utils # proxy required for all transfer tests
