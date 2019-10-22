@@ -1,5 +1,5 @@
 universe   = local
-executable = ../bin/report-job-failures
+executable = $(run_dir)/bin/report-job-failures
 arguments  = "."
 
 output = report-job-failures.out

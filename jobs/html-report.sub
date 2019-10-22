@@ -1,5 +1,5 @@
 universe   = local
-executable = ../bin/vmu-reporter
+executable = $(run_dir)/bin/vmu-reporter
 arguments  = "$(args)"
 
 output = $(output)
