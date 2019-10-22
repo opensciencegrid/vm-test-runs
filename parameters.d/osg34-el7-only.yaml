@@ -31,20 +31,22 @@ package_sets:
   # osg_java - Pre-install OSG java packages (default: False)
   # rng - Install entropy generation package (default: False)
   ##################
-  - label: HDFS Plugins
-    packages:
-      - osg-gridftp-hdfs
-      - globus-gass-copy-progs
-      - gfal2-plugin-gridftp
-      - gfal2-util
-      - gfal2-plugin-file
-      - xrootd
-      - xrootd-hdfs
-      - xrootd-client
-      - xrootd-lcmaps
-      - lcmaps-db-templates
-      - vo-client-lcmaps-voms
-      - globus-proxy-utils # proxy required for all transfer tests
+
+  #disabled (SOFTWARE-3431)
+  #  - label: HDFS Plugins
+  #    packages:
+  #      - osg-gridftp-hdfs
+  #      - globus-gass-copy-progs
+  #      - gfal2-plugin-gridftp
+  #      - gfal2-util
+  #      - gfal2-plugin-file
+  #      - xrootd
+  #      - xrootd-hdfs
+  #      - xrootd-client
+  #      - xrootd-lcmaps
+  #      - lcmaps-db-templates
+  #      - vo-client-lcmaps-voms
+  #      - globus-proxy-utils # proxy required for all transfer tests
   - label: XRootD Plugins
     packages:
       - xrootd

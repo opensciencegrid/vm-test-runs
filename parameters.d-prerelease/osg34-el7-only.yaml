@@ -6,20 +6,21 @@ sources:
   - opensciencegrid:master; 3.4; osg-prerelease
 
 package_sets:
-  - label: HDFS Plugins
-    packages:
-      - osg-gridftp-hdfs
-      - globus-gass-copy-progs
-      - gfal2-plugin-gridftp
-      - gfal2-util
-      - gfal2-plugin-file
-      - xrootd
-      - xrootd-hdfs
-      - xrootd-client
-      - xrootd-lcmaps
-      - lcmaps-db-templates
-      - vo-client-lcmaps-voms
-      - globus-proxy-utils # proxy required for all transfer tests
+  #disabled (SOFTWARE-3431)
+  #- label: HDFS Plugins
+  #  packages:
+  #    - osg-gridftp-hdfs
+  #    - globus-gass-copy-progs
+  #    - gfal2-plugin-gridftp
+  #    - gfal2-util
+  #    - gfal2-plugin-file
+  #    - xrootd
+  #    - xrootd-hdfs
+  #    - xrootd-client
+  #    - xrootd-lcmaps
+  #    - lcmaps-db-templates
+  #    - vo-client-lcmaps-voms
+  #    - globus-proxy-utils # proxy required for all transfer tests
   - label: XRootD Plugins
     packages:
       - xrootd
