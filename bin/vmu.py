@@ -11,6 +11,8 @@ import yaml
 
 RUN_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PARAM_DIR = os.path.join(RUN_DIR, 'parameters.d')
+TEST_EXCEPTIONS = os.path.join(RUN_DIR, 'test-exceptions.yaml')
+COMPONENT_TAGS = os.path.join(RUN_DIR, 'component-tags.yaml')
 
 
 def run_label():
