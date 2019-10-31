@@ -81,21 +81,20 @@ def print_tallied_results(container, key_label):
 # Process command-line arguments
 script_name = os.path.basename(sys.argv[0])
 if len(sys.argv) != 2:
-    print 'usage: %s RUN-DIRECTORY' % (script_name)
+    print 'usage: %s <VMU OUTPUT DIR>' % (script_name)
     sys.exit(1)
-run_directory = sys.argv[1]
-if not os.path.exists(run_directory):
-    print '%s: run directory "%s" does not exist' % (script_name, run_directory)
+output_directory = sys.argv[1]
+if not os.path.exists(output_directory):
+    print '%s: VMU output directory "%s" does not exist' % (script_name, output_directory)
     sys.exit(1)
 
 # Load test run data from combined YAML file
-combined_yaml_path = os.path.join(run_directory, 'combined-analysis.yaml')
+combined_yaml_path = os.path.join(output_directory, 'combined-analysis.yaml')
 yaml_file = open(combined_yaml_path)
 yaml_contents = yaml_file.read()
 yaml_file.close()
 runs = yaml.load(yaml_contents)
-combined_param_path = os.path.join(run_directory, 'parameters.d')
-run_params = vmu.load_run_params(combined_param_path)
+run_params = vmu.load_run_params(vmu.PARAM_DIR)
 PACKAGE_MAPPING = vmu.package_mapping(vmu.flatten_run_params(run_params))
 
 # Report on one run at a time

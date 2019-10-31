@@ -82,15 +82,15 @@ def create_image(config_filename):
     else:
         image_directory = tempfile.mkdtemp()
 
-        shutil.copy(os.path.join(svn_dir, 'run-job'), image_directory)
+        shutil.copy(os.path.join(vmu.RUN_DIR, 'bin/run-job'), image_directory)
 
         input_directory = os.path.join(image_directory, 'input')
         os.mkdir(input_directory)
-        shutil.copy(os.path.join(svn_dir, 'osg-test.patch'), input_directory)
-        shutil.copy(os.path.join(svn_dir, 'test-changes.patch'), input_directory)
-        shutil.copy(os.path.join(svn_dir, 'osg-release.patch'), input_directory)
+        shutil.copy(os.path.join(vmu.RUN_DIR, 'osg-test.patch'), input_directory)
+        shutil.copy(os.path.join(vmu.RUN_DIR, 'test-changes.patch'), input_directory)
+        shutil.copy(os.path.join(vmu.RUN_DIR, 'osg-release.patch'), input_directory)
         shutil.copy(config_filename, os.path.join(input_directory, 'osg-test.conf'))
-        for rpm in glob.glob(os.path.join(svn_dir, 'osg-test-*.rpm')):
+        for rpm in glob.glob(os.path.join(vmu.RUN_DIR, 'osg-test-*.rpm')):
             shutil.copy(rpm, input_directory)
 
         tarballs = []
@@ -119,7 +119,6 @@ def create_image(config_filename):
 if __name__ == '__main__':
 
     # Define paths
-    svn_dir = os.getcwd()
     script_name = os.path.basename(sys.argv[0])
 
     # Process command-line arguments

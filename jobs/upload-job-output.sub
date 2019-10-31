@@ -1,5 +1,6 @@
 universe   = local
-executable = upload-job-output
+executable = $(run_dir)/bin/upload-job-output
+arguments = $(run_dir)
 
 output = upload-job-output.out
 error  = upload-job-output.err

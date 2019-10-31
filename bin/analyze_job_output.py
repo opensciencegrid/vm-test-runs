@@ -9,6 +9,8 @@ import sys
 from datetime import datetime, date
 import yaml
 
+import vmu
+
 def run_command(command, shell=False):
     # Preprocess command
     if shell:
@@ -258,8 +260,8 @@ if __name__ == '__main__':
     data['osg_test_logfile'] = osg_test_logfile
     
     data['osg_test_status'], data['tests_messages'], data['ok_skips'] = parse_log(osg_test_log,
-                                                                                  load_yaml('test-exceptions.yaml'),
-                                                                                  load_yaml('component-tags.yaml'))
+                                                                                  load_yaml(vmu.TEST_EXCEPTIONS),
+                                                                                  load_yaml(vmu.COMPONENT_TAGS))
   
     # Extract start time
     data['start_time'] = re_extract(r'^Start time: (.*)$', osg_test_log, re.MULTILINE, group=1)

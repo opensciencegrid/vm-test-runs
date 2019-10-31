@@ -1,4 +1,0 @@
-# OSG Test CA Signing Policy
-access_id_CA		X509	'/DC=org/DC=Open Science Grid/O=OSG Test/CN=OSG Test CA'
-pos_rights		globus	CA:sign
-cond_subjects		globus	'"/DC=org/DC=Open Science Grid/*"'

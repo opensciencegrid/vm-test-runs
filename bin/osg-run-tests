@@ -129,13 +129,16 @@ if [ "x$TEMP_DIR" != 'x' ]; then
     rm -fr "$TEMP_DIR"
 fi
 
+# Populate master-run.dag with DAG variables
+safe_run sed "s|@RUN_DIRECTORY@|$RUN_DIRECTORY|g" jobs/master-run.dag.in > $RUN_DIRECTORY/jobs/master-run.dag
+
 if [ $NIGHTLY -eq 1 ]; then
     echo "$LABEL" > $RUN_DIRECTORY/run_label
-    condor_submit_dag master-run.dag
+    ./master-run.dag
 else
     echo "$LABEL ($USER)" > $RUN_DIRECTORY/run_label
     echo 'Run tests with:'
     echo "    cd $RUN_DIRECTORY"
-    echo '    condor_submit_dag master-run.dag'
+    echo '    ./master-run.dag'
     exit 0
 fi

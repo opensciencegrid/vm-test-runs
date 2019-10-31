@@ -22,15 +22,14 @@ def generate_dag_fragment(serial, combo):
     contents += '# Node %s: %s - %s - %s\n' % (serial, platform, sources, ', '.join(package_set.packages))
     contents += 'JOB %s single-test-run.sub\n' % (node_name)
     contents += 'VARS %s serial="%s" platform="%s" jobpriority="%d"\n' % (node_name, serial, platform, priority)
-    contents += 'SCRIPT POST %s process-job-output %s $JOBID\n' % (node_name, serial)
+    contents += 'SCRIPT POST %s ../bin/process-job-output %s $JOBID\n' % (node_name, serial)
     contents += 'PRIORITY %s %d\n' % (node_name, priority)
     return contents
 
 def write_osg_test_configuration(serial, combo, directory, nightly=False):
     _, sources, package_set = combo
-    base_config = open('osg-test.conf', 'r')
-    contents = base_config.read() + '\n' # ensure newline in case user forgets it
-    base_config.close()
+    with open(os.path.join(vmu.RUN_DIR, 'osg-test.conf'), 'r') as f:
+        contents = f.read() + '\n'  # ensure newline in case user forgets it
 
     sources_parts = re.split(r'\s*;\s*', sources)
     if len(sources_parts) == 3:
@@ -86,8 +85,7 @@ if __name__ == '__main__':
     test_run_directory = os.getcwd()
 
     # Check if nightly
-    with open('run_label', 'r') as f:
-        nightly = f.read().strip() == 'nightly'
+    nightly = vmu.run_label() == 'nightly'
 
     # Start DAG file
     dag_contents = '# osg-test run generated %s\n' % (time.strftime('%Y-%m-%d %H:%M'))

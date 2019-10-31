@@ -28,7 +28,13 @@ UPLOAD_DIR=/scratch/osg/vmu-test-results
 eval KEY_FILE=~`whoami`/.ssh/test_result_upload.key
 # ^ $HOME isn't set in the env this runs in; in that case, plain ~ won't work either
 
-RUN_DIR=$(pwd)
+if [ "$#" -eq 1 ]; then
+    RUN_DIR="$1"
+else
+    echo "Usage: $0 <RUN_DIR>"
+    exit 1
+fi
+
 WORK_DIR=$(mktemp -d)
 trap "rm -rf $WORK_DIR" EXIT
 
@@ -42,7 +48,7 @@ stage_run_dir () {
     # to stdout.
 
     mkdir -p "$STAGED_RUN_DIR"
-    cp packages.html results.html run_label osg-test.patch test-changes.patch "$STAGED_RUN_DIR"
+    cp packages.html results.html ../run_label ../osg-test.patch ../test-changes.patch "$STAGED_RUN_DIR"
     
     (
         local output_dir staged_output_dir

@@ -19,10 +19,8 @@ def generate_header():
     html.body.append_new_tag('h1').append('OSG VMU Automated Test Results')
 
     # Read description file
-    label_file = open(RUN_DIR + '/run_label', 'r')
-    label = label_file.read().strip()
-    label_file.close()
-    html.body.append_new_tag('h2').append('%s: %s ' % (TIMESTAMP, label.strip()))
+    label = vmu.run_label()
+    html.body.append_new_tag('h2').append('%s: %s ' % (TIMESTAMP, label))
 
     # Link back to latest nightly or manual run
     header_links = html.body.append_new_tag('p')
@@ -41,7 +39,7 @@ def generate_header():
         append('OKSKIP tag to test module mapping').append_new_tag('br')
 
     # Create patch link if we applied any patches
-    if os.stat(RUN_DIR + 'test-changes.patch').st_size != 0:
+    if os.stat(RUN_DIR + '/test-changes.patch').st_size != 0:
         header_links.append_new_tag('a', href=RUN_URL + 'test-changes.patch').\
             append('Click to view osg-test patches')
 
@@ -102,7 +100,7 @@ def generate_table():
 
 def generate_table_body():
     '''Create the contents of the table'''
-    results_file = open(RUN_DIR + '/combined-analysis.yaml', 'r')
+    results_file = open(RUN_DIR + '/jobs/combined-analysis.yaml', 'r')
     yaml_data = results_file.read()
     results_file.close()
     sorted_tests = sort_tests(yaml.load(yaml_data))
@@ -192,7 +190,7 @@ def generate_cell(run):
 
         # Construct link tag
         fail_count = run['tests_failed'] + run['tests_error'] + run['tests_bad_skip']
-        test_log_path = glob('%soutput-%s/output/osg-test*.log' % (RUN_DIR, run['job_serial']))[0]
+        test_log_path = glob('%s/jobs/output-%s/output/osg-test*.log' % (RUN_DIR, run['job_serial']))[0]
         test_log_filename = os.path.basename(test_log_path)
         link_location = '%s/%s' % (run_url_output_dir, test_log_filename)
         link_text = "%s %s %s%s" % (run['tests_ok'], run['tests_ok_skip'], fail_count,
@@ -274,7 +272,7 @@ if __name__ == "__main__":
                 bad_sort_text = "Unrecognized sort option: %s\n\n" % SORT_BY
                 vmu.die(bad_sort_text + help_text)
         else:
-            RUN_DIR = os.path.abspath(arg) + '/'
+            RUN_DIR = vmu.RUN_DIR
             if not os.path.exists(RUN_DIR):
                 vmu.die('%s: run directory "%s" does not exist\n' % (SCRIPT_NAME, RUN_DIR))
 
@@ -286,8 +284,7 @@ if __name__ == "__main__":
         vmu.die('%s: could not get timestamp of run directory "%s"\n' % (SCRIPT_NAME, RUN_DIR))
 
     # Read, sort, and translate test parameters
-    param_dir = RUN_DIR + 'parameters.d'
-    params = vmu.load_run_params(param_dir)
+    params = vmu.load_run_params(vmu.PARAM_DIR)
     FLAT_PARAMS = vmu.flatten_run_params(params)
     PACKAGE_MAPPING = vmu.package_mapping(FLAT_PARAMS)
     TABLE_LABELS = {}

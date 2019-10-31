@@ -1,0 +1,39 @@
+#!/usr/bin/env condor_submit_dag
+# Master DAG for osg-test runs
+
+# 0. Run dir variable populated by osg-run-tests
+VARS ALL_NODES run_dir="@RUN_DIRECTORY@"
+
+# 1. Generate the test-run DAG and configuration files
+JOB GenerateDAG generate-dag.sub
+
+# 2. Create the test-run images
+JOB CreateImages create-io-images.sub
+
+# 3. Run the generated DAG
+SUBDAG EXTERNAL RunTests test-run.dag
+
+# 4. Analyze the output
+JOB AnalyzeOutput analyze-test-run.sub
+SCRIPT PRE AnalyzeOutput ../bin/combine-job-analyses
+SCRIPT POST AnalyzeOutput ../bin/email-analysis
+
+# 5. Report job failures
+JOB ReportJobFailures report-job-failures.sub
+
+# 6. Produce html output
+JOB HtmlSrcOutput html-report.sub
+VARS HtmlSrcOutput type="src" args="." output="results.html"
+JOB HtmlPkgOutput html-report.sub
+VARS HtmlPkgOutput type="pkg" args="-s package ." output="packages.html"
+
+# 7. Upload output to CSL
+JOB UploadJobOutput upload-job-output.sub
+
+# Connections - simple linear DAG (at this level)
+PARENT GenerateDAG CHILD CreateImages
+PARENT CreateImages CHILD RunTests
+PARENT RunTests CHILD AnalyzeOutput
+PARENT AnalyzeOutput CHILD ReportJobFailures
+PARENT ReportJobFailures CHILD HtmlSrcOutput HtmlPkgOutput
+PARENT HtmlSrcOutput HtmlPkgOutput CHILD UploadJobOutput

@@ -4,9 +4,22 @@
 scripts'''
 
 from glob import glob
+import os
 import re
 import sys
 import yaml
+
+RUN_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PARAM_DIR = os.path.join(RUN_DIR, 'parameters.d')
+TEST_EXCEPTIONS = os.path.join(RUN_DIR, 'test-exceptions.yaml')
+COMPONENT_TAGS = os.path.join(RUN_DIR, 'component-tags.yaml')
+
+
+def run_label():
+    """The label for the test run
+    """
+    return open(os.path.join(RUN_DIR, 'run_label')).read().strip()
+
 
 def die(message, code=1):
     '''Write message to STDERR and exit with code'''

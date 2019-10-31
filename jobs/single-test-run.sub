@@ -1,5 +1,5 @@
 universe                = vm
-executable              = osg-test-cat
+executable              = osg-test
 priority                = $(jobpriority)
 
 vm_type                 = kvm
@@ -17,7 +17,7 @@ periodic_remove         = ( (JobStatus == 5) && (HoldReasonCode =?= 3) && (NumJo
 request_disk            = 8GB
 requirements            = ((HasGluster == True) && (HasVirshDefaultNetwork =?= True))
 
-log                     = osg-test-cat.log
+log                     = osg-test.log
 
 should_transfer_files   = YES
 transfer_input_files    = file:///mnt/gluster/chtc/VMs/$(platform)_htcondor.dsk,input-image-$(serial).qcow2
