@@ -5,7 +5,7 @@ Usage:
   %s [options] output-001 output-002
 
 Compare and print any version differences between RPMs installed in both of
-two osg-test run directories, as found in output-NNN/output/osg-test-*.log
+two osg-test run directories, as found in jobs/output-NNN/output/osg-test-*.log
 
 The outputs can also be a root.log from a koji/mock build, or the raw output
 of an 'rpm -qa' command, or an osg-profile.txt from osg-system-profiler.
@@ -101,7 +101,12 @@ def nvrmap(output):
     if not os.path.exists(output):
         m = re.search(vmurun_pat, output)
         if m:
-            output = GLOBAL_RUNS_DIR + "/run-%s/output-%s" % m.groups()
+            output = GLOBAL_RUNS_DIR + "/run-%s/jobs/output-%s" % m.groups()
+            # TODO: Remove this when there are no more test runs with the old
+            # directory structure, e.g. the following is empty:
+            # $ find /osgtest/runs/ -maxdepth 2 -type d -name 'output-*'
+            if not os.path.exists(output):
+                output = GLOBAL_RUNS_DIR + "/run-%s/output-%s" % m.groups()
     if not isdir(output):
         log = output
     else:
