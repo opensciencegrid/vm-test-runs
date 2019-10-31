@@ -1,0 +1,348 @@
+#!/usr/bin/python
+
+"""
+Usage:
+  %(script)s [options] output-001 [packages...]
+  %(script)s [options] [--summarize] [run-]20161220-1618 packages...
+  %(script)s [options] VMU-RESULTS-URL packages...
+
+List version-release numbers for RPMs installed in an osg-test run output
+directory, as found in output-NNN/output/osg-test-*.log
+
+The output argument can also be a root.log from a koji/mock build,
+or the raw output of an 'rpm -qa' command, or an osg-profile.txt from
+osg-system-profiler.
+
+If any packages are specified, limit the results to just those packages.
+
+Patterns can be specified for package names with the '%%' character, which
+matches like '*' in a shell glob pattern.
+
+If a run directory (or, just the timstamp string) is specified, summary
+information will be printed for the listed packages across all output-NNN
+subdirectories for that set of osg test runs.
+
+If a VMU-RESULTS-URL is provided, the corresponding run dir will be used.
+Eg: "http://vdt.cs.wisc.edu/tests/20180604-1516/005/osg-test-20180604.log"
+for an individual output job (005),
+or: "http://vdt.cs.wisc.edu/tests/20180604-1516/packages.html"
+for a summary of all jobs for the run.
+
+Options:
+  -A, --no-strip-arch  don't attempt to strip .arch from package names
+  -D, --no-strip-dist  don't attempt to strip .dist tag from package releases
+
+  -s, --summarize      summarize results for all output subdirs
+                       (this option is implied if the argument specified is of
+                       the format [run-]YYYYMMDD-HHMM)
+  -l, --list-outputs   list output numbers (summarize mode only)
+  -L, --max-outputs N  list at most N output numbers per NVR (-1 for unlimited)
+"""
+
+import collections
+import itertools
+import fnmatch
+import getopt
+import pickle
+import glob
+import stat
+import sys
+import os
+import re
+
+
+GLOBAL_RUNS_DIR = "/osgtest/runs"
+
+outdir     = None
+pkgs       = []
+strip_arch = True
+strip_dist = True
+summarize  = False
+list_nums  = False
+max_nums   = 7
+
+arch_pat = r'\.(x86_64|i[3-6]86|noarch|src)$'
+dist_pat = r'((\.osg(\d+)?)?\.[es]l[5-9](_[\d.]+)?(\.centos)?|\.osg|\.fc\d+)$'
+
+def usage(msg=None):
+    if msg:
+        print "***", msg, "***"
+    print __doc__ % {"script": os.path.basename(__file__)}
+    sys.exit()
+
+def parseargs():
+    global outdir, pkgs, strip_arch, strip_dist, summarize, list_nums, max_nums
+    longopts = ['no-strip-arch', 'no-strip-dist', 'summarize',
+                'list-outputs', 'max-outputs=', 'help']
+    ops,args = getopt.getopt(sys.argv[1:], 'ADslL:', longopts)
+    for op,val in ops:
+        if   op in ('-A', '--no-strip-arch') : strip_arch = False
+        elif op in ('-D', '--no-strip-dist') : strip_dist = False
+        elif op in ('-s', '--summarize')     : summarize  = True
+        elif op in ('-l', '--list-outputs')  : list_nums  = True
+        elif op in ('-L', '--max-outputs')   : list_nums  = True; \
+                                               max_nums   = int(val)
+        elif op == '--help'                  : usage()
+
+    if not args:
+        usage("Must provide a test run output location")
+
+    outdir = args[0]
+    pkgs   = args[1:]
+
+    if max_nums < 0:
+        max_nums = 99999
+
+    if re.search(r'^(?:run-)?20\d{6}-\d{4}$', outdir):
+        summarize = True
+    elif not os.path.exists(outdir):
+        m = re.search(r'(?:/|^)(20\d{6}-\d{4})(?:/(\d\d\d+))?(?:/|$)', outdir)
+        if m:
+            outdir = "%s/run-%s" % (GLOBAL_RUNS_DIR, m.group(1))
+            if m.group(2) is not None:
+                outdir += "/output-%s" % m.group(2)
+            else:
+                summarize = True
+
+    if summarize and not pkgs:
+        usage("Must specify package list for --summarize")
+
+def arch_strip(na):
+    return re.sub(arch_pat, '', na)
+
+def dist_strip(evr):
+    ev,r = evr.split('-')
+    r = re.sub(dist_pat, '', r)
+    return '-'.join([ev,r])
+
+def group_adjacent(a,k):
+    ''' group_adjacent([1,2,3,4,5,6], 3) -> [(1,2,3), (4,5,6)] '''
+    return zip(*([iter(a)] * k))
+
+def nvrgen(items):
+    # generate sequence of ["name.arch", "epoch:version-release"] pairs
+    for na,evr in group_adjacent(items, 2):
+        if strip_arch:
+            na = arch_strip(na)
+        if strip_dist:
+            evr = dist_strip(evr)
+        if evr.startswith("0:"):
+            evr = evr[2:]
+        yield [na,evr]
+
+def rpm_qa2na_vr(line):
+    line = re.sub(r'(\.rpm)?\r?\n?$', '', line)
+    if re.search(arch_pat, line):
+        nvr,a = line.rsplit('.', 1)
+    else:
+        nvr,a = line, None
+    n,v,r = nvr.rsplit('-',2)
+    if a and not strip_arch:
+        na = '.'.join((n,a))
+    else:
+        na = n
+    if strip_dist:
+        r = re.sub(dist_pat, '', r)
+    vr = '-'.join((v,r))
+    return [na,vr]
+
+def scrape_installed_packages(txt):
+    installed_pkgs = {}
+    items_pat = (r'^(?:Dependency )?(Installed|Updated|Replaced):\n'
+                 r'(.*?)\n(?:\n|(?=[^ ]))')
+    for section, pkgtxt in re.findall(items_pat, txt, re.S | re.M):
+        pkg_items = pkgtxt.split()
+        if section == 'Replaced':
+            # package was removed / obsoleted by another package
+            for na,evr in nvrgen(pkg_items):
+                if installed_pkgs.get(na) == evr:
+                    del installed_pkgs[na]
+        else:
+            # package was installed/updated
+            installed_pkgs.update(nvrgen(pkg_items))
+    return installed_pkgs
+
+def nvrmap(output):
+    if not os.path.isdir(output):
+        log = output
+    else:
+        globpat = "%s/output/osg-test-*.log" % output
+        log = glob.glob(globpat)
+        if len(log) != 1:
+            raise RuntimeError("could not find '%s'" % globpat)
+        log = log[0]
+
+    txt = open(log).read().replace('\r\n', '\n')  # convert dos line endings
+    if '***** All RPMs' in txt:
+        # assume this is osg-system-profiler output (osg-profile.txt)
+        m = re.search(r'\*\*\*\*\* All RPMs\n(.*?)\n\n', txt, re.S)
+        if m:
+            txt = m.group(1)
+            return dict(map(rpm_qa2na_vr, txt.split()))
+        else:
+            raise RuntimeError("No RPMs found in profiler output '%s'" % log)
+    elif ' ' in txt:
+        # strip "DEBUG util.py:388:  " in case this is coming from a root.log
+        txt = re.sub(r'\n[A-Z]+ .*?:\d+:  ', r'\n', txt)
+        # don't include Install list from cleanup/downgrade
+        txt = re.sub(r'\nosgtest: .* special_cleanup[\d\D]*', r'\n', txt)
+        return scrape_installed_packages(txt)
+    else:
+        # at most 1-word per line; assume this is 'rpm -qa' output
+        return dict(map(rpm_qa2na_vr, txt.split()))
+
+def print_table(header, table):
+    table = [header] + table
+    widths = [ max(map(len,col)) for col in zip(*table) ]
+    table[1:1] = [[ '-' * n for n in map(len,header) ]]
+    for i,row in enumerate(table):
+        spacing = [ w-len(x) for x,w in zip(row,widths) ]
+        print '  '.join( r + ' ' * s for r,s in zip(row,spacing) ).rstrip()
+
+def single_output_pkg_vrs(output, want_pkgs):
+    try:
+        have_rpms = nvrmap(output)
+    except RuntimeError as e:
+        print >>sys.stderr, "WARNING:", e
+        print >>sys.stderr
+        return []
+
+    # arch-stripped rpm names
+    if strip_arch:
+        have_pkgs = set(have_rpms)
+    else:
+        have_pkgs = set(map(arch_strip, have_rpms))
+
+    want_pkg_pats = [ p.replace('%','*') for p in want_pkgs if '%' in p ]
+    want_pkgs = set( p for p in want_pkgs if '%' not in p )
+    missing_pkgs = want_pkgs - have_pkgs
+    for pat in want_pkg_pats:
+        for pkg in have_pkgs:
+            if fnmatch.fnmatch(pkg, pat):
+                want_pkgs.add(pkg)
+
+    if not want_pkgs:
+        display_rpms = have_rpms
+    elif strip_arch:
+        display_rpms = want_pkgs
+    else:
+        matching_rpms = set(x for x in have_rpms if arch_strip(x) in want_pkgs)
+        display_rpms = matching_rpms | missing_pkgs
+
+    display_rpms = sorted(display_rpms)
+
+    return [ [rpm, have_rpms.get(rpm, '-')] for rpm in display_rpms ]
+
+def display_single_output(output, pkgs):
+    pkg_vrs = single_output_pkg_vrs(output, pkgs)
+    name_field = "Package" if strip_arch else "Package.Arch"
+    print_table([name_field, output], pkg_vrs)
+
+class autodict(collections.defaultdict):
+    def __init__(self,*other):
+        collections.defaultdict.__init__(self, self.__class__, *other)
+    def __add__ (self, other):
+        return other
+    def __repr__(self):
+        return '%s(%s)' % (self.__class__.__name__, dict.__repr__(self))
+
+try:
+    import rpm
+    from rpmUtils.miscutils import stringToVersion
+    def rpmvercmp(a,b):
+        return rpm.labelCompare(*[stringToVersion(x) for x in (a,b)])
+except ImportError:
+    rpmvercmp = None
+
+def outputnum(output):
+    m = re.search(r'(?:/|^)output-(\d+)/?', output)
+    return m.group(1) if m else output
+
+def get_summary_header():
+    name_field = "Package" if strip_arch else "Package.Arch"
+    header = [name_field, "Version-Release", "Count"]
+    if list_nums:
+        header.append("Output-Nums")
+    return header
+
+def get_run_output_dirs(rundir):
+    if os.path.isdir(rundir):
+        pass  # OK, specified path exists
+    elif re.match(r'run-20[0-9]{6}-[0-9]{4}$', rundir):
+        rundir = "%s/%s" % (GLOBAL_RUNS_DIR, rundir)
+    elif re.match(r'20[0-9]{6}-[0-9]{4}$', rundir):
+        rundir = "%s/run-%s" % (GLOBAL_RUNS_DIR, rundir)
+
+    globpat = "%s/output-[0-9][0-9][0-9]*/" % rundir
+    outputs = sorted(glob.glob(globpat))
+
+    if not outputs:
+        raise RuntimeError("no output dirs found under '%s'" % rundir)
+
+    return outputs
+
+# run a function call in a background coprocess, return callable result
+def bgcall(func, *a, **kw):
+    r,w = itertools.starmap(os.fdopen, zip(os.pipe(), "rw"))
+
+    if os.fork():  # parent
+        w.close()
+        return lambda : pickle.load(r)
+    else:  # child
+        r.close()
+        ret = func(*a,**kw)
+        pickle.dump(ret, w)
+        w.close()
+        os._exit(0)
+
+def summarize_outputs(rundir, pkgs):
+    outputs = get_run_output_dirs(rundir)
+
+    pkgstats = autodict()
+    pkgonums = autodict()
+    onums    = set()
+    bgcalls = [ bgcall(single_output_pkg_vrs, o, pkgs) for o in outputs ]
+    for get_pkg_vrs,output in zip(bgcalls, outputs):
+        onum = outputnum(output)
+        onums.add(onum)
+        for pkg,vr in get_pkg_vrs():
+            pkgstats[pkg][vr] += [onum]
+            pkgonums[pkg]     += [onum]
+
+    for pkg in pkgonums:
+        for onum in onums - set(pkgonums[pkg]):
+            pkgstats[pkg]['-'] += [onum]
+
+    header = get_summary_header()
+    separator = [''] * len(header)
+    pkgstatslist = []
+    for pkg in sorted(pkgstats):
+        for vr in sorted(pkgstats[pkg], cmp=rpmvercmp):
+            count = len(pkgstats[pkg][vr])
+            row = [pkg, vr, str(count)]
+            if list_nums:
+                nums_str =','.join(pkgstats[pkg][vr][:max_nums])
+                if count > max_nums:
+                    nums_str += ",..."
+                row.append(nums_str)
+            pkgstatslist.append(row)
+        pkgstatslist.append(separator)
+
+    print_table(header, pkgstatslist)
+
+def main():
+    parseargs()
+    if summarize:
+        summarize_outputs(outdir, pkgs)
+    else:
+        display_single_output(outdir, pkgs)
+
+if __name__ == '__main__':
+    try:
+        main()
+    except RuntimeError as e:
+        print >>sys.stderr, "Error: %s" % e
+        sys.exit(1)
+    except getopt.GetoptError as e:
+        usage(e)
+
