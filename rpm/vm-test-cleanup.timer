@@ -1,0 +1,10 @@
+[Unit]
+Description=Cleanup old OSG VM Universe integration test runs periodically
+
+[Timer]
+OnBootSec=10min
+OnUnitActiveSec=1day
+RandomizedDelaySec=5min
+
+[Install]
+WantedBy=timers.target

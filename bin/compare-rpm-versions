@@ -1,0 +1,198 @@
+#!/usr/bin/python
+
+"""
+Usage:
+  %s [options] output-001 output-002
+
+Compare and print any version differences between RPMs installed in both of
+two osg-test run directories, as found in jobs/output-NNN/output/osg-test-*.log
+
+The outputs can also be a root.log from a koji/mock build, or the raw output
+of an 'rpm -qa' command, or an osg-profile.txt from osg-system-profiler.
+
+Options:
+  -A, --no-strip-arch  don't attempt to strip .arch from package names
+  -D, --no-strip-dist  don't attempt to strip .dist tag from package releases
+      --show-all       show versions for all packages
+  -m, --show-missing   show versions for packages not in both sets
+  --[no-]color         colorize version differences (default = True if tty)
+"""
+
+import glob
+import stat
+import sys
+import os
+import re
+
+use_color  = sys.stdout.isatty()
+show_all   = False
+show_miss  = False
+dirs       = []
+strip_arch = True
+strip_dist = True
+
+GLOBAL_RUNS_DIR = "/osgtest/runs"
+
+arch_pat = r'\.(x86_64|i[3-6]86|noarch|src)$'
+dist_pat = r'((\.osg(\d+)?)?\.[es]l[5-9](_[\d.]+)?(\.centos)?|\.osg|\.fc\d+)$'
+vmurun_pat = r'(?:/|^)(20\d{6}-\d{4})/(\d\d\d+)(?:/|$)'
+
+def usage():
+    print __doc__ % os.path.basename(__file__)
+    sys.exit()
+
+for arg in sys.argv[1:]:
+    if   arg == '--color'                 : use_color  = True
+    elif arg == '--no-color'              : use_color  = False
+    elif arg in ('--show-all','--all')    : show_all   = True
+    elif arg in ('-m', '--show-missing')  : show_miss  = True
+    elif arg in ('-A', '--no-strip-arch') : strip_arch = False
+    elif arg in ('-D', '--no-strip-dist') : strip_dist = False
+    elif arg.startswith('-')              : usage()
+    else                                  : dirs.append(arg)
+
+if len(dirs) != 2:
+    usage()
+
+def arch_strip(na):
+    return re.sub(arch_pat, '', na)
+
+def dist_strip(evr):
+    ev,r = evr.split('-')
+    r = re.sub(dist_pat, '', r)
+    return '-'.join([ev,r])
+
+def nvrgen(items):
+    # generate sequence of ["name.arch", "epoch:version-release"] pairs
+    while items:
+        na, evr = items[:2]
+        if strip_arch:
+            na = arch_strip(na)
+        if strip_dist:
+            evr = dist_strip(evr)
+        if evr.startswith("0:"):
+            evr = evr[2:]
+        yield [na,evr]
+        items[:2] = []
+
+def isdir(fn):
+    try:
+        return stat.S_ISDIR(os.stat(fn).st_mode)
+    except OSError:
+        return False
+
+def rpm_qa2na_vr(line):
+    line = re.sub(r'(\.rpm)?\r?\n?$', '', line)
+    if re.search(arch_pat, line):
+        nvr,a = line.rsplit('.', 1)
+    else:
+        nvr,a = line, None
+    n,v,r = nvr.rsplit('-',2)
+    if a and not strip_arch:
+        na = '.'.join((n,a))
+    else:
+        na = n
+    if strip_dist:
+        r = re.sub(dist_pat, '', r)
+    vr = '-'.join((v,r))
+    return [na,vr]
+
+def nvrmap(output):
+    if not os.path.exists(output):
+        m = re.search(vmurun_pat, output)
+        if m:
+            output = GLOBAL_RUNS_DIR + "/run-%s/jobs/output-%s" % m.groups()
+            # TODO: Remove this when there are no more test runs with the old
+            # directory structure, e.g. the following is empty:
+            # $ find /osgtest/runs/ -maxdepth 2 -type d -name 'output-*'
+            if not os.path.exists(output):
+                output = GLOBAL_RUNS_DIR + "/run-%s/output-%s" % m.groups()
+    if not isdir(output):
+        log = output
+    else:
+        globpat = "%s/output/osg-test-*.log" % output
+        log = glob.glob(globpat)
+        if len(log) != 1:
+            print >>sys.stderr, "Error: could not find '%s'" % globpat
+            sys.exit(1)
+        log = log[0]
+
+    txt = open(log).read().replace('\r\n', '\n')  # convert dos line endings
+    if '***** All RPMs' in txt:
+        # assume this is osg-system-profiler output (osg-profile.txt)
+        m = re.search(r'\*\*\*\*\* All RPMs\n(.*?)\n\n', txt, re.S)
+        if m:
+            txt = m.group(1)
+            return dict(map(rpm_qa2na_vr, txt.split()))
+        else:
+            print >>sys.stderr, "No RPMs found in profiler output '%s'" % log
+            sys.exit(1)
+    elif ' ' in txt:
+        # strip "DEBUG util.py:388:  " in case this is coming from a root.log
+        txt = re.sub(r'\n[A-Z]+ .*?:\d+:  ', r'\n', txt)
+        # don't include Install list from cleanup/downgrade
+        txt = re.sub(r'\nosgtest: .* special_cleanup[\d\D]*', r'\n', txt)
+        items_pat = (r'^(?:Dependency )?(?:Installed|Updated|Replaced):\n'
+                     r'(.*?)\n(?:\n|(?=[^ ]))')
+        # split this way since there can be more than one item per line
+        items = ' '.join(re.findall(items_pat, txt, re.S | re.M)).split()
+        return dict(nvrgen(items))
+    else:
+        # at most 1-word per line; assume this is 'rpm -qa' output
+        return dict(map(rpm_qa2na_vr, txt.split()))
+
+rpms1,rpms2 = map(nvrmap,dirs)
+
+if strip_arch:
+    bare_rpms1 = set(rpms1)
+    bare_rpms2 = set(rpms2)
+else:
+    bare_rpms1 = set(map(arch_strip, rpms1))
+    bare_rpms2 = set(map(arch_strip, rpms2))
+
+all_rpms   = set(rpms1) | set(rpms2)
+match_rpms = bare_rpms1 & bare_rpms2
+
+if strip_arch:
+    all_match_rpms = match_rpms
+else:
+    all_match_rpms = set(x for x in all_rpms if arch_strip(x) in match_rpms)
+
+def colorize(color, *seq):
+    return [ "\x1b[%sm%s\x1b[0m" % (color, x) for x in seq ]
+
+def colorize_vr(vr1, vr2):
+    v1,r1 = vr1.split('-')
+    v2,r2 = vr2.split('-')
+
+    if v1 != v2:
+        v1,v2 = colorize('1;32', v1, v2)
+    elif r1 != r2:
+        r1,r2 = colorize('1;34', r1, r2)
+
+    return map('-'.join, [[v1,r1],[v2,r2]])
+
+def pkgpath_tidy(path):
+    m = re.search(vmurun_pat, path)
+    return '%s/%s' % m.groups() if m else path
+
+pkg_diffs = []
+for pkg in sorted(all_rpms if show_all or show_miss else all_match_rpms):
+    vr1 = rpms1.get(pkg) or '-'
+    vr2 = rpms2.get(pkg) or '-'
+    if show_all or vr1 != vr2:
+        pkg_diffs.append([pkg, vr1, vr2])
+
+titles = map(pkgpath_tidy, dirs)
+if pkg_diffs:
+    pkg_diffs[:0] = [["Package"] + titles]
+    widths = [ max(map(len,col)) for col in zip(*pkg_diffs) ]
+    pkg_diffs[1:1] = [[ '-' * n for n in widths ]]
+    for i,row in enumerate(pkg_diffs):
+        spacing = [ w-len(x) for x,w in zip(row,widths) ]
+        if use_color and i > 1:
+            row[1:] = colorize_vr(*row[1:])
+        print '  '.join( r + ' ' * s for r,s in zip(row,spacing) ).rstrip()
+else:
+    print "No package version differences"
+

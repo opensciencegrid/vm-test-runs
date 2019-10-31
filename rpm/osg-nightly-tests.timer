@@ -1,0 +1,9 @@
+[Unit]
+Description=OSG VM Universe integration test suite
+Wants=condor.service
+
+[Timer]
+OnCalendar=*-*-* 04:23:00
+
+[Install]
+WantedBy=timers.target
