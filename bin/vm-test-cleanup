@@ -1,0 +1,14 @@
+#!/bin/bash
+
+RUNS_TO_KEEP=400
+
+year='20[1-9][0-9]'
+month='[01][0-9]'
+day='[0-3][0-9]'
+hour='[012][0-9]'
+minute='[0-5][0-9]'
+
+cd /osgtest/runs
+/bin/ls -d run-${year}${month}${day}-${hour}${minute} | head -n -${RUNS_TO_KEEP} | while read rundir; do
+    rm -rf "$rundir"
+done
