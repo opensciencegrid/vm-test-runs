@@ -82,7 +82,7 @@ def create_image(config_filename):
     else:
         image_directory = tempfile.mkdtemp()
 
-        shutil.copy(os.path.join(vmu.RUN_DIR, 'bin', 'run-job'), image_directory)
+        shutil.copy(os.path.join(vmu.RUN_DIR, 'bin/run-job'), image_directory)
 
         input_directory = os.path.join(image_directory, 'input')
         os.mkdir(input_directory)
