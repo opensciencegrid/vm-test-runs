@@ -19,7 +19,7 @@ def run_command(command, shell=False):
         if not isinstance(command, str):
             command = ' '.join(command)
     elif not (isinstance(command, list) or isinstance(command, tuple)):
-        raise TypeError('Need list or tuple, got %s' % (repr(command)))
+        raise TypeError('Need list or tuple, got %r' % command)
 
     # Run and return command
     p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=shell)
