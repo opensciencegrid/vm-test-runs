@@ -139,6 +139,6 @@ else
     echo "$LABEL ($USER)" > $RUN_DIRECTORY/run_label
     echo 'Run tests with:'
     echo "    cd $RUN_DIRECTORY"
-    echo '    ./master-run.dag'
+    echo '    ./master-run.sh'
     exit 0
 fi
