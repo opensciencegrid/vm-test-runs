@@ -55,7 +55,7 @@ class EmailNotifier(object):
         msg['From'] = self.from_address
 
         if self.dry_run:
-            print msg.as_string()
+            print(msg.as_string())
         else:
             smtp = smtplib.SMTP('localhost')
             smtp.sendmail(self.from_address, self.recipients, msg.as_string())
@@ -100,7 +100,7 @@ class SafeCronJob(object):
         # process already has the lock
         try:
             fcntl.flock(filedescriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except IOError, err:
+        except IOError as err:
             if err.errno == errno.EWOULDBLOCK:
                 raise LockException()
             else:
@@ -160,7 +160,7 @@ class SafeCronJobWrapper(object):
                 self.email_notifier.send_notification(
                     '%s already running; not starting a second time' % self.script_name,
                     "")
-            except Exception, err:
+            except Exception as err:
                 self.email_notifier.send_notification(
                     '%s died with exception %s' % (self.script_name, type_of_exception(err)),
                     "Traceback follows:\n%s\n" % traceback.format_exc())
