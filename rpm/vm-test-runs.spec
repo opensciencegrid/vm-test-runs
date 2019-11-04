@@ -7,6 +7,9 @@ License: Apache 2.0
 BuildArch: noarch
 Url: https://github.com/opensciencegrid/vm-test-runs/
 
+Requires: libguestfs-tools
+Requires: git
+
 %description
 Tools for running OSG VMU tests in the CHTC
 
