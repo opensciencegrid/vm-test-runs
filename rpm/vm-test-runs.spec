@@ -32,6 +32,7 @@ install -D -m 0755 bin/osg-run-tests %{buildroot}/%{_bindir}/osg-run-tests
 install -D -m 0755 bin/vm-test-cleanup %{buildroot}/%{_bindir}/vm-test-cleanup
 
 %post
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 %systemd_post osg-nightly-tests.service osg-nightly-tests.timer vm-test-cleanup.service vm-test-cleanup.timer
 %preun
 %systemd_preun osg-nightly-tests.service osg-nightly-tests.timer vm-test-cleanup.service vm-test-cleanup.timer
