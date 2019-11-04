@@ -134,7 +134,7 @@ safe_run sed "s|@RUN_DIRECTORY@|$RUN_DIRECTORY|g" jobs/master-run.dag.in > $RUN_
 
 if [ $NIGHTLY -eq 1 ]; then
     echo "$LABEL" > $RUN_DIRECTORY/run_label
-    ./master-run.dag
+    ./master-run.sh
 else
     echo "$LABEL ($USER)" > $RUN_DIRECTORY/run_label
     echo 'Run tests with:'
