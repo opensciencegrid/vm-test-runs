@@ -7,6 +7,8 @@ License: Apache 2.0
 BuildArch: noarch
 Url: https://github.com/opensciencegrid/vm-test-runs/
 
+%{?systemd_requires}
+
 Requires: libguestfs-tools
 Requires: git
 
@@ -28,6 +30,13 @@ install -D -m 0755 bin/compare-rpm-versions %{buildroot}/%{_bindir}/compare-rpm-
 install -D -m 0755 bin/list-rpm-versions %{buildroot}/%{_bindir}/list-rpm-versions
 install -D -m 0755 bin/osg-run-tests %{buildroot}/%{_bindir}/osg-run-tests
 install -D -m 0755 bin/vm-test-cleanup %{buildroot}/%{_bindir}/vm-test-cleanup
+
+%post
+%systemd_post osg-nightly-tests.service osg-nightly-tests.timer vm-test-cleanup.service vm-test-cleanup.timer
+%preun
+%systemd_preun osg-nightly-tests.service osg-nightly-tests.timer vm-test-cleanup.service vm-test-cleanup.timer
+%postun
+%systemd_postun_with_restart osg-nightly-tests.service osg-nightly-tests.timer vm-test-cleanup.service vm-test-cleanup.timer
 
 %files
 %attr(1777,root,root) %dir /osgtest/runs
