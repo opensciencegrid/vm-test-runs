@@ -6,10 +6,10 @@ job_id=$2
 # Remove this job's input image, which is no longer needed.  Because input
 # images are hardlinked, there are no race conditions among jobs and their
 # linked input images.
-unlink input-image-$serial.qcow2
+unlink input-image-$serial.dsk
 
 # Extract all files from the output image and remove the output image
-../bin/extract-job-output result-image-$serial.qcow2 output-$serial
+../bin/extract-job-output result-image-$serial.dsk output-$serial
 
 # Analyze output files
 ../bin/analyze_job_output.py $serial $job_id > output-$serial/analysis.yaml

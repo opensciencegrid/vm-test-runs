@@ -20,10 +20,10 @@ requirements            = ((HasGluster == True) && (HasVirshDefaultNetwork =?= T
 log                     = osg-test.log
 
 should_transfer_files   = YES
-transfer_input_files    = file:///mnt/gluster/chtc/VMs/$(platform)_htcondor.dsk,input-image-$(serial).qcow2
-vm_disk                 = $(platform)_htcondor.dsk:vda:w:raw,input-image-$(serial).qcow2:vdb:w:qcow2
+transfer_input_files    = file:///mnt/gluster/chtc/VMs/$(platform)_htcondor.dsk,input-image-$(serial).dsk
+vm_disk                 = $(platform)_htcondor.dsk:vda:w:raw,input-image-$(serial).dsk:vdb:w:raw
 when_to_transfer_output = ON_EXIT
-transfer_output_files   = input-image-$(serial).qcow2
-transfer_output_remaps  = "input-image-$(serial).qcow2 = result-image-$(serial).qcow2"
+transfer_output_files   = input-image-$(serial).dsk
+transfer_output_remaps  = "input-image-$(serial).dsk = result-image-$(serial).dsk"
 
 queue
