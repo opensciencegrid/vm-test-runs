@@ -14,7 +14,7 @@ NOTIFY_ON_ERROR=(osg-software@opensciencegrid.org)
 
 UPLOAD_USER=cndrutil
 UPLOAD_MACHINE=ingwe.cs.wisc.edu
-UPLOAD_DIR=/scratch/osg/vmu-test-results
+UPLOAD_DIR=/nobackup/osg/vmu-test-results
 
 
 # This is a separate private key that should be generated specifically for
