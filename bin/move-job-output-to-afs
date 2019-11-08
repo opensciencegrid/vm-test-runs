@@ -22,7 +22,7 @@ from optparse import OptionParser
 ########################################################################
 # Defaults
 DEFAULT_DEST_DIR = '/p/vdt/public/html/tests'
-DEFAULT_SOURCE_DIR = '/scratch/osg/vmu-test-results'
+DEFAULT_SOURCE_DIR = '/nobackup/osg/vmu-test-results'
 DEFAULT_NOTIFY_ADDRS = ['matyas@cs.wisc.edu', 'blin@cs.wisc.edu']
 DEFAULT_TIMEOUT_MINS = 60
 DEFAULT_LOCKFILE_PATH = os.path.join(os.getenv('HOME'), '.move-job-output-to-afs.lock')
