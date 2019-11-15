@@ -58,7 +58,7 @@ def flatten_run_params(params_list):
     'sources', and 'package_sets' sections. Sorts the 'package_sets' section, leaving the others unsorted. '''
     result = {'platforms': [], 'sources': [], 'package_sets': []}
     for param_file_contents in params_list:
-        for section in param_file_contents.iterkeys():
+        for section in param_file_contents.keys():
             section_contents = param_file_contents[section]
             for item in section_contents:
                 if item in result[section]:

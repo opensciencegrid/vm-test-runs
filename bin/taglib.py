@@ -32,7 +32,7 @@ class Tag(object):
         # same thing for 'type_'
         for kwattrib_name in ['class', 'type']:
             kwattrib_name_ = kwattrib_name + "_"
-            if kwattribs.has_key(kwattrib_name_):
+            if kwattrib_name_ in kwattribs:
                 kwattrib_value = kwattribs.pop(kwattrib_name_)
                 if kwattrib_value is not None:
                     self.attribs[kwattrib_name] = kwattrib_value
@@ -74,7 +74,7 @@ class Tag(object):
         """
         astr = ""
         attribs_list = []
-        for k,v in self.attribs.iteritems():
+        for k,v in self.attribs.items():
             attribs_list.append('%s="%s"' % (k, v))
         if attribs_list:
             astr += " " + (" ".join(attribs_list))
