@@ -123,6 +123,7 @@ class Html(object):
 
         self.html = Tag("html", lang="en")
         self.head = SubTag(self.html, "head")
+        self.head.append_new_tag("meta", charset="utf-8")
         if self.page_title:
             self.head.append_new_tag("title").append(self.page_title)
         if self.css_link:
