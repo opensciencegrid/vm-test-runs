@@ -51,6 +51,7 @@ package_sets:
       - osg-gridftp-xrootd
       - globus-gass-copy-progs
       - uberftp
+      - globus-proxy-utils  # proxy required for all transfer tests
   - label: CVMFS + Singularity
     packages:
       - osg-oasis
