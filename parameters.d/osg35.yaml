@@ -49,6 +49,8 @@ package_sets:
     packages:
       - osg-gridftp
       - osg-gridftp-xrootd
+      - globus-gass-copy-progs
+      - uberftp
   - label: CVMFS + Singularity
     packages:
       - osg-oasis
