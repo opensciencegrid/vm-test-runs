@@ -8,7 +8,7 @@ import time
 
 import vmu
 
-BASE_IMAGE_PATH="/mnt/gluster/chtc/VMs"
+BASE_IMAGE_PATH="/staging/osg-images"
 
 def generate_dag_fragment(serial, combo):
     platform, sources, package_set = combo

@@ -163,9 +163,10 @@ Unfortunately, VM Universe jobs don't have the ssh\_to\_job capacity that's avai
 1.  Grab the make-interactive-image from git:
 
         git clone https://github.com/opensciencegrid/vm-test-runs.git
-2.  Run `make-interactive-image` using the flavor and version of Linux you need, VMU images are in `/mnt/gluster/chtc/VMs/` (NOTE: the output image needs to be in a directory that's readable by the `qemu` user):
+2.  Run `make-interactive-image` using the flavor and version of Linux you need, VMU images are in `/staging/osg-images/` (NOTE: the output image needs to be in a directory that's readable by the `qemu` user):
 
-        vm-test-runs/make-interactive-image /mnt/gluster/chtc/VMs/<INPUT IMAGE> <OUTPUT IMAGE>
+        vm-test-runs/make-interactive-image /staging/osg-images/<INPUT IMAGE> <OUTPUT IMAGE>
+
 3.  Make a copy of `libvirt-template.xml` and edit the `@DOMAIN@` and `@IMAGEFILE@` to a name that will be used by virsh and the path to the image file you created in the previous step
 4.  Define and start the VM with your copy of the xml file:
 
