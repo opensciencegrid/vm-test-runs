@@ -10,8 +10,6 @@
 
 # Assume that we are in the run directory.
 
-NOTIFY_ON_ERROR=(osg-software@opensciencegrid.org)
-
 if [ "$#" -eq 1 ]; then
     RUN_DIR="$1"
 else
@@ -47,28 +45,10 @@ stage_run_dir () {
     )
 }
 
-send_fail_email () {
-    local email_file recipient
-
-    from_addr="`whoami`@`hostname`"
-    email_file=$WORK_DIR/fail.eml
-    (
-        echo "Uploading results failed."
-        cat upload.log
-    ) > "$email_file"
-
-    /bin/mailx -S 'smtp=wid-service-1.chtc.wisc.edu' -S "from=OSG VMU Automated tests <$from_addr>" -s "OSG VMU Automated Tests upload failed" "${NOTIFY_ON_ERROR[@]}" < "$email_file"
-}
-
-
 (
     set -o errexit
     stage_run_dir
-) > upload.log 2>&1
-
-if [[ $? -ne 0 ]]; then
-    send_fail_email
-fi
+)
 
 # No matter what, we never want to exit nonzero, because that would
 # fail the entire dag.
