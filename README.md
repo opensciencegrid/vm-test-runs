@@ -217,9 +217,9 @@ information will be printed for the listed packages across all output-NNN
 subdirectories for that set of osg test runs.
 
 If a VMU-RESULTS-URL is provided, the corresponding run dir will be used.
-Eg: "http://vdt.cs.wisc.edu/tests/20180604-1516/005/osg-test-20180604.log"
+Eg: "http://osg-sw-submit.chtc.wisc.edu/20180604-1516/005/osg-test-20180604.log"
 for an individual output job (005),
-or: "http://vdt.cs.wisc.edu/tests/20180604-1516/packages.html"
+or: "http://osg-sw-submit.chtc.wisc.edu/20180604-1516/packages.html"
 for a summary of all jobs for the run.
 
 Options:
