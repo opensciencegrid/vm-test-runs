@@ -12,22 +12,6 @@
 
 NOTIFY_ON_ERROR=(osg-software@opensciencegrid.org)
 
-UPLOAD_USER=cndrutil
-UPLOAD_MACHINE=ingwe.cs.wisc.edu
-UPLOAD_DIR=/nobackup/osg/vmu-test-results
-
-
-# This is a separate private key that should be generated specifically for
-# uploading test results. It should be generated using the following command:
-#    ssh-keygen -f test_result_upload.key -C "VMU test result upload key for `whoami`@osghost"
-# and must be generated __with no passphrase__
-# Both the .key and the corresponding .pub file should be placed into ~/.ssh.
-# In addition, the .pub file should be scp'ed to the $UPLOAD_MACHINE and appended
-# to the .ssh/authorized_keys file of the user $UPLOAD_USER.
-# The key must have 0600 / 0400 perms and be owned by you.
-eval KEY_FILE=~`whoami`/.ssh/test_result_upload.key
-# ^ $HOME isn't set in the env this runs in; in that case, plain ~ won't work either
-
 if [ "$#" -eq 1 ]; then
     RUN_DIR="$1"
 else
@@ -63,18 +47,6 @@ stage_run_dir () {
     )
 }
 
-upload_run () {
-    local staged_run_dir_base
-    staged_run_dir_base=$(basename "$STAGED_RUN_DIR")
-    (
-        set -o errexit
-        ssh -o "PubkeyAuthentication yes" -i $KEY_FILE -l $UPLOAD_USER $UPLOAD_MACHINE mkdir -p "$UPLOAD_DIR"
-        cd "$STAGED_RUN_DIR"/..
-        tar cz "$staged_run_dir_base" | \
-            ssh -o "PubkeyAuthentication yes" -i $KEY_FILE -l $UPLOAD_USER $UPLOAD_MACHINE tar xz -C "$UPLOAD_DIR"
-    )
-}
-
 send_fail_email () {
     local email_file recipient
 
@@ -92,7 +64,6 @@ send_fail_email () {
 (
     set -o errexit
     stage_run_dir
-    upload_run
 ) > upload.log 2>&1
 
 if [[ $? -ne 0 ]]; then
