@@ -31,6 +31,8 @@ install -D -m 0755 bin/list-rpm-versions %{buildroot}/%{_bindir}/list-rpm-versio
 install -D -m 0755 bin/osg-run-tests %{buildroot}/%{_bindir}/osg-run-tests
 install -D -m 0755 bin/vm-test-cleanup %{buildroot}/%{_bindir}/vm-test-cleanup
 
+install -D vmu.css %{buildroot}/%{_localstatedir}/www/html/vmu.css
+
 %post
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 %systemd_post osg-nightly-tests.service osg-nightly-tests.timer vm-test-cleanup.service vm-test-cleanup.timer
@@ -53,6 +55,8 @@ install -D -m 0755 bin/vm-test-cleanup %{buildroot}/%{_bindir}/vm-test-cleanup
 %{_unitdir}/osg-nightly-tests.timer
 %{_unitdir}/vm-test-cleanup.service
 %{_unitdir}/vm-test-cleanup.timer
+
+%{_localstatedir}/www/html/vmu.css
 
 %changelog
 * Tue Oct 15 2019 Brian Lin <blin@ucsd.edu> 1.0.0-1
