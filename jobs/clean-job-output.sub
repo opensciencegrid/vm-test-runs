@@ -1,0 +1,9 @@
+universe = local
+executable = $(run_dir)/bin/clean-job-output
+arguments = "$(serial)"
+
+log = clean-job-output.log
+
+should_transfer_files = NO
+
+queue

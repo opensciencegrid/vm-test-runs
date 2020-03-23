@@ -28,8 +28,12 @@ SCRIPT POST TestRun{serial} ../bin/write-job-id {serial} $JOBID
 JOB ProcessResult{serial} process-job-output.sub
 VARS ProcessResult{serial} serial="{serial}"
 
+JOB CleanOutput{serial} clean-job-output.sub
+VARS CleanOutput{serial} serial="{serial}"
+
 PARENT CreateImage{serial} CHILD TestRun{serial}
 PARENT TestRun{serial} CHILD ProcessResult{serial}
+PARENT ProcessResult{serial} CHILD CleanOutput{serial}
 '''
 
 def generate_dag_fragment(serial, combo):

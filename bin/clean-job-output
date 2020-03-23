@@ -1,0 +1,6 @@
+#!/bin/bash
+
+serial=$1
+
+unlink *-image-$serial.qcow2
+unlink $serial.jobid
