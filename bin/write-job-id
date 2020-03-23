@@ -1,0 +1,6 @@
+#!/bin/bash
+
+serial=$1
+job_id=$2
+
+echo $job_id > $serial.jobid

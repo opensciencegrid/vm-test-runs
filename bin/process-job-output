@@ -1,7 +1,7 @@
 #!/bin/sh
 
 serial=$1
-job_id=$2
+job_id=$(cat $serial.jobid)
 
 # Remove this job's input image, which is no longer needed.  Because input
 # images are hardlinked, there are no race conditions among jobs and their

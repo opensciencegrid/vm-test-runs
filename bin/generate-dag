@@ -11,11 +11,25 @@ import vmu
 BASE_IMAGE_PATH="/staging/osg-images"
 
 DAG_FRAGMENT = '''
-# Node {serial}: {platform} - {sources} - {package_set}
+#########################
+# Nodes {serial}
+# Platform: {platform}
+# Sources: {sources}
+# Packages: {package_set}
+#########################
+JOB CreateImage{serial} create-io-image.sub
+VARS CreateImage{serial} serial="{serial}"
+
 JOB TestRun{serial} single-test-run.sub
 VARS TestRun{serial} serial="{serial}" platform="{platform}" jobpriority="{priority}"
-SCRIPT POST TestRun{serial} ../bin/process-job-output {serial} $JOBID
 PRIORITY TestRun{serial} {priority}
+SCRIPT POST TestRun{serial} ../bin/write-job-id {serial} $JOBID
+
+JOB ProcessResult{serial} process-job-output.sub
+VARS ProcessResult{serial} serial="{serial}"
+
+PARENT CreateImage{serial} CHILD TestRun{serial}
+PARENT TestRun{serial} CHILD ProcessResult{serial}
 '''
 
 def generate_dag_fragment(serial, combo):

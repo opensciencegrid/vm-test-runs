@@ -122,11 +122,12 @@ if __name__ == '__main__':
     script_name = os.path.basename(sys.argv[0])
 
     # Process command-line arguments
-    if len(sys.argv) != 1:
-        vmu.die('usage: %s' % (script_name))
+    if len(sys.argv) != 2:
+        vmu.die('usage: %s <TEST CONFIG FILE>' % (script_name))
+
+    config_filename = sys.argv[1]
 
     # Write files
     contents_to_filename = {}
-    for config_filename in sorted(glob.glob('osg-test-*.conf')):
-        create_image(config_filename)
-        os.remove(config_filename)
+    create_image(config_filename)
+    os.remove(config_filename)
