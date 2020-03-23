@@ -113,6 +113,7 @@ if __name__ == '__main__':
     # Start DAG file
     dag_contents = '# osg-test run generated %s\n' % (time.strftime('%Y-%m-%d %H:%M'))
     dag_contents += 'CONFIG inner-dag.config\n'
+    dag_contents += 'VARS ALL_NODES run_dir="%s"' % os.path.dirname(test_run_directory)
 
     # bail if there aren't corresponding VM images before writing any config
     for param_file in run_params:
