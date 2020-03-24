@@ -2,5 +2,14 @@
 
 serial=$1
 
-unlink *-image-$serial.qcow2
+# cleanup test and debug files upon success
 unlink $serial.jobid
+
+for imagetype in result input; do
+    unlink $imagetype-image-$serial.qcow2
+done
+
+for suffix in err out; do
+    unlink create-io-image-$serial.$suffix
+    unlink process-job-output-$serial.$suffix
+done
