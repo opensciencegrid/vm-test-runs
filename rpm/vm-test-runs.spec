@@ -21,10 +21,10 @@ Tools for running OSG VMU tests in the CHTC
 %install
 mkdir -p %{buildroot}/osgtest/runs
 
-install -D rpm/osg-nightly-tests.service %{buildroot}/%{_unitdir}/osg-nightly-tests.service
-install -D rpm/osg-nightly-tests.timer %{buildroot}/%{_unitdir}/osg-nightly-tests.timer
-install -D rpm/vm-test-cleanup.service %{buildroot}/%{_unitdir}/vm-test-cleanup.service
-install -D rpm/vm-test-cleanup.timer %{buildroot}/%{_unitdir}/vm-test-cleanup.timer
+install -D -m 0644 rpm/osg-nightly-tests.service %{buildroot}/%{_unitdir}/osg-nightly-tests.service
+install -D -m 0644 rpm/osg-nightly-tests.timer %{buildroot}/%{_unitdir}/osg-nightly-tests.timer
+install -D -m 0644 rpm/vm-test-cleanup.service %{buildroot}/%{_unitdir}/vm-test-cleanup.service
+install -D -m 0644 rpm/vm-test-cleanup.timer %{buildroot}/%{_unitdir}/vm-test-cleanup.timer
 
 install -D -m 0755 bin/compare-rpm-versions %{buildroot}/%{_bindir}/compare-rpm-versions
 install -D -m 0755 bin/list-rpm-versions %{buildroot}/%{_bindir}/list-rpm-versions
