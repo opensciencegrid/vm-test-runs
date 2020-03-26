@@ -15,6 +15,13 @@ Requires: git
 %description
 Tools for running OSG VMU tests in the CHTC
 
+%pre
+getent group osgtest >/dev/null || groupadd -r osgtest
+getent passwd osgtest >/dev/null || \
+  useradd -g osgtest -m -s /sbin/nologin \
+    -c "for automated OSG nightly tests" osgtest
+exit 0
+
 %prep
 %setup -q
 
