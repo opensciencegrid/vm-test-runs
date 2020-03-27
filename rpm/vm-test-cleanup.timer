@@ -1,5 +1,6 @@
 [Unit]
 Description=Cleanup old OSG VM Universe integration test runs periodically
+Requires=vm-test-cleanup.service
 
 [Timer]
 OnBootSec=10min
