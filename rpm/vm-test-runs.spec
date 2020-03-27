@@ -1,6 +1,6 @@
 Summary: OSG VMU test scripts
 Name: vm-test-runs
-Version: 1.0
+Version: 1.1
 Release: 1%{?dist}
 Source0: %{name}-%{version}.tar.gz
 License: Apache 2.0
@@ -66,6 +66,9 @@ install -D vmu.css %{buildroot}/%{_localstatedir}/www/html/vmu.css
 %{_localstatedir}/www/html/vmu.css
 
 %changelog
+* Fri Mar 27 2020 Brian Lin <blin@cs.wisc.edu> 1.1-1
+- VM test run service cleanup fixes
+
 * Tue Mar 24 2020 Brian Lin <blin@cs.wisc.edu> 1.0-1
 - Package CSS file
 - Systemd unit file fixes
