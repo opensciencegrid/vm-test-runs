@@ -7,47 +7,36 @@ Running Tests as VM Jobs
   - [Missing unicode fonts](#missing-unicode-fonts)
   - [Interactively connecting to a VM](#interactively-connecting-to-a-vm)
 
-This repository drives the OSG Software nightly tests. Whenever updating [osg-run-tests](osg-run-tests), make sure to update the copy in `/usr/bin/` on `osghost`.
+This repository drives the OSG Software nightly tests.
+Whenever updating [osg-run-tests](osg-run-tests), make sure to update the copy in `/usr/bin/` on `osg-sw-submit`.
 
 Setting up credentials
 ----------------------
 
 **Note:** This one time setup must be performed before submitting any test jobs.
 
-1.  Contact Brian L. or Tim C. to have an account created on `osghost.chtc.wisc.edu`
-2.  SSH to `osghost` (you will need to do this from the UW-Madison network) and create a password-less SSH key:
-
-        [user@client ~]$ ssh-keygen -C 'VMU test result upload key for <USER>@osghost' -f ~/.ssh/test_result_upload.key
-
-3.  Contact BrianL or Mat with your public key. They will add your public key to the `authorized_keys` file of the `cndrutil` user on `ingwe`.
-4.  Add `ingwe's` pubkey to your `known_hosts` file by initiating an SSH connection. You do not need to login:
-
-        [user@client ~]$ ssh ingwe.cs.wisc.edu
-        The authenticity of host 'ingwe.cs.wisc.edu (128.105.121.64)' can't be established.
-        RSA key fingerprint is 8c:44:ac:fd:c5:9e:1c:7a:c1:e1:42:40:c3:e5:4b:fc.
-        Are you sure you want to continue connecting (yes/no)? yes
-        Warning: Permanently added 'ingwe.cs.wisc.edu,128.105.121.64' (RSA) to the list of known hosts.
-        blin@ingwe.cs.wisc.edu's password:
+1.  Open a Freshdesk ticket requesting an account on `osg-sw-submit.chtc.wisc.edu` and assign it to the Software group
+2.  Once the ticket has been resolved, verify access by SSHing to `osg-sw-submit`.
 
 Running osg-test in VM Universe
 -------------------------------
 
 The procedure explained in this section replaces [this](https://opensciencegrid.github.io/technology/software/development-process/) if and only if there are functional tests for each package being tested.
 
-1.  From `osghost.chtc.wisc.edu`, make and populate a test run directory:
+1.  From `osg-sw-submit.chtc.wisc.edu`, make and populate a test run directory:
 
-        [user@client ~]$ osg-run-tests '<RUN DESCRIPTION>'
+        [user@osg-sw-submit ~]$ osg-run-tests '<RUN DESCRIPTION>'
+
 2.  Change to the test run directory (see output of osg-run-tests)
-3.  If you need to change `osg-test`, use one of the methods below:
-    -   Make changes to a github fork of osg-test and prepend the source lines in the yaml parameters files (see below) with the following: `<GITHUB ACCOUNT>:<BRANCH OF OSG-TEST>;`
-    -   Edit `test-changes.patch` with test module and library changes and/or edit `osg-test.patch` with osg-test script changes. These patches can be generated with `git diff`.
-
-4.  If there are test failures that shouldn't be marked as failures in the reporting, edit `test-exceptions.yaml` you can add test failures to ignore with the following format:
+3.  If you need to change `osg-test`, make changes to a github fork of osg-test and prepend the source lines in the yaml
+    parameters files (see below) with the following: `<GITHUB ACCOUNT>:<BRANCH OF OSG-TEST>;`
+4.  If there are test failures that shouldn't be marked as failures in the reporting, edit `test-exceptions.yaml` add
+    test failures to ignore with the following format:
 
         # - [test_function, test_module, start date, end date].
         [test_04_trace, test_55_condorce, 2014-12-01, 2015-01-14]
 
-5.  If you want to change test run parameters, edit `parameters.d/*.yaml`, or add/remove yaml files with the same format.
+5.  To change test run parameters, edit `parameters.d/*.yaml`, or add/remove yaml files with the same format.
     Each file in `parameters.d` generates an osg-test run for every possible combination of the `platforms`, `sources`,
     and `package_sets` parameters in that file.
     1.  To change the distribution, modify the `platforms` section. Accepted values are listed below:
@@ -72,7 +61,8 @@ The procedure explained in this section replaces [this](https://opensciencegrid.
             # Run osg-test (from 3.2-minefield) with packages from 3.2-release and 3.2-testing that are then upgraded to 3.3-testing and 3-3-upcoming-testing
             3.2; osg, osg-testing > 3.3/osg-testing, osg-upcoming-testing
 
-    3. The `package_sets` section controls the packages that are installed, the label used for reporting, whether or not SELinux is enabled (default: disabled), and whether or not to pre-install the OSG Java packages (default: enabled): 
+    3. The `package_sets` section controls the packages that are installed, the label used for reporting, whether or not
+       SELinux is enabled, and whether or not to pre-install the OSG Java packages:
 
             package_sets:
             #### Required ####
@@ -89,11 +79,10 @@ The procedure explained in this section replaces [this](https://opensciencegrid.
               packages:
                 - condor.x86_64
                 - osg-ce-condor
-                - rsv
 
     4. The test infrastructure can read multiple yaml files in `parameters.d`, which allows you to run different,
        mutually exclusive tests.
-       For example, if you wanted to test 3.3 development on EL7 in addition to the standard tests, you could add the
+       For example, if you wanted to test 3.4 development on EL7 in addition to the standard tests, you could add the
        following to a file in `parameters.d`:
 
             platform:
@@ -101,48 +90,32 @@ The procedure explained in this section replaces [this](https://opensciencegrid.
               - sl_7_x86_64
 
             sources:
-              - opensciencegrid:master; 3.3; osg-development
+              - opensciencegrid:master; 3.4; osg-development
 
             package_sets:
               - label: All
                 packages:
                   - osg-tested-internal
-              # Explicitly add GRAM packages since they were dropped from osg-ce (SOFTWARE-2278, SOFTWARE-2291)
-              - label: All + GRAM (3.2)
+              - label: All (3.4)
                 packages:
-                  - osg-tested-internal-gram
+                  - osg-tested-internal
               - label: HTCondor
                 packages:
                   - condor.x86_64
                   - osg-ce-condor
-                  - rsv
               - label: GridFTP
                 packages:
                   - osg-gridftp
-                  - edg-mkgridmap
-                  - rsv
-              - label: BeStMan
-                packages:
-                  - osg-se-bestman
-                  - rsv
-              - label: VOMS
-                packages:
-                  - osg-voms
-                  - rsv
-              - label: GUMS
-                packages:
-                  - osg-gums
-                  - rsv
 
 6.  Submit the test run (you must submit the DAG from the run directory):
 
-        [user@client ~]$ ./master-run.dag
+        [user@osg-sw-submit run-20200327-0925]$ ./master-run.sh
 
 7.  Monitor the test run (as desired):
 
-        [user@client ~]$ condor_q -dag
+        [user@osg-sw-submit run-20200327-0925]$ condor_q -dag
 
-8.  When the test run finishes, an email will go out to members of the software team (hardcoded in `email-analysis`). In the e-mail will be links to the web interface which will often not work immediately because the test results only get transferred over every 15 minutes.
+8.  When the test run finishes, an email will go out to members of the software team (hardcoded in `email-analysis`).
 
 Troubleshooting
 ---------------
@@ -181,7 +154,7 @@ Unfortunately, VM Universe jobs don't have the ssh\_to\_job capacity that's avai
 ### `list-rpm-versions`
 
 This script is for listing rpm versions installed in an osg-test job output
-or summarizing across an entire VMU run on osghost.  A copy is installed
+or summarizing across an entire VMU run on osg-sw-submit.  A copy is installed
 there under `/usr/local/bin`.
 
 Below are some use cases for reference / appetite whetting.
@@ -192,7 +165,7 @@ Below are some use cases for reference / appetite whetting.
 
 Usage & Options summary:
 ```
-[edquist@osghost ~]
+[edquist@osg-sw-submit ~]
 $ list-rpm-versions --help
 
 Usage:
@@ -236,7 +209,7 @@ Options:
 
 Example run on a single `output-NNN` dir for all packages:
 ```
-[edquist@osghost /osgtest/runs/run-20161221-0423]
+[edquist@osg-sw-submit /osgtest/runs/run-20161221-0423]
 $ list-rpm-versions output-123 
 
 Package                         output-123
@@ -261,7 +234,7 @@ avalon-framework                4.3-10
 
 Example run on a single `output-NNN` dir for two packages:
 ```
-[edquist@osghost /osgtest/runs/run-20161221-0423]
+[edquist@osg-sw-submit /osgtest/runs/run-20161221-0423]
 $ list-rpm-versions output-123 condor java-1.7.0-openjdk
 
 Package             output-123
@@ -273,7 +246,7 @@ java-1.7.0-openjdk  1:1.7.0.121-2.6.8.0
 
 Example run in summary mode over all `output-NNN` subdirs for a run set:
 ```
-[edquist@osghost ~]
+[edquist@osg-sw-submit ~]
 $ list-rpm-versions -s 20161221-0423 condor java-1.7.0-openjdk
 
 Package             Version-Release      Count
@@ -292,7 +265,7 @@ java-1.7.0-openjdk  1:1.7.0.121-2.6.8.1  168
 
 Same thing, but list the output dir numbers also:
 ```
-[edquist@osghost ~]
+[edquist@osg-sw-submit ~]
 $ list-rpm-versions -sl 20161221-0423 condor java-1.7.0-openjdk
 
 Package             Version-Release      Count  Output-Nums
