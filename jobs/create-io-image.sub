@@ -1,0 +1,11 @@
+universe   = local
+executable = $(run_dir)/bin/create-io-image
+arguments = "osg-test-$(serial).conf"
+
+output = create-io-image-$(serial).out
+error  = create-io-image-$(serial).err
+log    = create-io-image.log
+
+should_transfer_files = NO
+
+queue

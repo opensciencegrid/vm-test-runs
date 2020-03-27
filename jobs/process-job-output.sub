@@ -1,0 +1,11 @@
+universe   = local
+executable = $(run_dir)/bin/process-job-output
+arguments = "$(serial)"
+
+output = process-job-output-$(serial).out
+error  = process-job-output-$(serial).err
+log    = process-job-output.log
+
+should_transfer_files = NO
+
+queue

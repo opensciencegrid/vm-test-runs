@@ -1,5 +1,6 @@
 [Unit]
 Description=OSG VM Universe integration test suite
+Requires=osg-nightly-tests.service
 Wants=condor.service
 
 [Timer]

@@ -9,7 +9,7 @@ import vmu
 from taglib import Html, Tag
 from glob import glob
 
-VMU_TESTS_URL = "http://vdt.cs.wisc.edu/tests/"
+VMU_TESTS_URL = "https://osg-sw-submit.chtc.wisc.edu/tests/"
 OS_TRANSLATION = {'centos': 'CentOS', 'rhel': 'RHEL', 'sl': 'SL'}
 
 def generate_header():
@@ -22,16 +22,8 @@ def generate_header():
     label = vmu.run_label()
     html.body.append_new_tag('h2').append('%s: %s ' % (TIMESTAMP, label))
 
-    # Link back to latest nightly or manual run
-    header_links = html.body.append_new_tag('p')
-    if label == 'nightly':
-        header_links.append_new_tag('a', href=VMU_TESTS_URL + 'latest.html').\
-            append('&lt;&lt; Back to latest nightly').append_new_tag('br')
-    else:
-        header_links.append_new_tag('a', href=VMU_TESTS_URL + 'latest_manual.html').\
-            append('&lt;&lt; Back to latest manual run').append_new_tag('br')
-
     # Link to the ticket of known OSG test bugs
+    header_links = html.body.append_new_tag('p')
     header_links.append_new_tag('a', href='https://jira.opensciencegrid.org/browse/SOFTWARE-1996').\
         append('Known issues with osg-test').append_new_tag('br')
 

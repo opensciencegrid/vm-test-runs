@@ -2,7 +2,7 @@
 Description=Cleanup old OSG VM Universe integration test runs
 
 [Service]
-ExecStart=vm-test-cleanup
+ExecStart=/usr/bin/vm-test-cleanup
 
 [Install]
 WantedBy=multi-user.target

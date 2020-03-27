@@ -1,6 +1,6 @@
 Summary: OSG VMU test scripts
 Name: vm-test-runs
-Version: 0.1
+Version: 1.0
 Release: 1%{?dist}
 Source0: %{name}-%{version}.tar.gz
 License: Apache 2.0
@@ -15,21 +15,30 @@ Requires: git
 %description
 Tools for running OSG VMU tests in the CHTC
 
+%pre
+getent group osgtest >/dev/null || groupadd -r osgtest
+getent passwd osgtest >/dev/null || \
+  useradd -g osgtest -m -s /sbin/nologin \
+    -c "for automated OSG nightly tests" osgtest
+exit 0
+
 %prep
 %setup -q
 
 %install
 mkdir -p %{buildroot}/osgtest/runs
 
-install -D rpm/osg-nightly-tests.service %{buildroot}/%{_unitdir}/osg-nightly-tests.service
-install -D rpm/osg-nightly-tests.timer %{buildroot}/%{_unitdir}/osg-nightly-tests.timer
-install -D rpm/vm-test-cleanup.service %{buildroot}/%{_unitdir}/vm-test-cleanup.service
-install -D rpm/vm-test-cleanup.timer %{buildroot}/%{_unitdir}/vm-test-cleanup.timer
+install -D -m 0644 rpm/osg-nightly-tests.service %{buildroot}/%{_unitdir}/osg-nightly-tests.service
+install -D -m 0644 rpm/osg-nightly-tests.timer %{buildroot}/%{_unitdir}/osg-nightly-tests.timer
+install -D -m 0644 rpm/vm-test-cleanup.service %{buildroot}/%{_unitdir}/vm-test-cleanup.service
+install -D -m 0644 rpm/vm-test-cleanup.timer %{buildroot}/%{_unitdir}/vm-test-cleanup.timer
 
 install -D -m 0755 bin/compare-rpm-versions %{buildroot}/%{_bindir}/compare-rpm-versions
 install -D -m 0755 bin/list-rpm-versions %{buildroot}/%{_bindir}/list-rpm-versions
 install -D -m 0755 bin/osg-run-tests %{buildroot}/%{_bindir}/osg-run-tests
 install -D -m 0755 bin/vm-test-cleanup %{buildroot}/%{_bindir}/vm-test-cleanup
+
+install -D vmu.css %{buildroot}/%{_localstatedir}/www/html/vmu.css
 
 %post
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
@@ -54,6 +63,12 @@ install -D -m 0755 bin/vm-test-cleanup %{buildroot}/%{_bindir}/vm-test-cleanup
 %{_unitdir}/vm-test-cleanup.service
 %{_unitdir}/vm-test-cleanup.timer
 
+%{_localstatedir}/www/html/vmu.css
+
 %changelog
-* Tue Oct 15 2019 Brian Lin <blin@ucsd.edu> 1.0.0-1
+* Tue Mar 24 2020 Brian Lin <blin@cs.wisc.edu> 1.0-1
+- Package CSS file
+- Systemd unit file fixes
+
+* Tue Oct 15 2019 Brian Lin <blin@cs.wisc.edu> 0.1-1
 - Initial packaging

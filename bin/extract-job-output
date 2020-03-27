@@ -63,6 +63,4 @@ for image_path in paths:
             # print "  - extracting"
         g.download(full_image_path, os.path.join(output_dir, image_path))
 
-os.remove(image_filename)
-
 print "ok"

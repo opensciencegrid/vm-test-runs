@@ -3,7 +3,9 @@ Description=OSG VM Universe integration test suite
 Wants=condor.service
 
 [Service]
-ExecStart=osg-run-tests -n
+User=osgtest
+Group=osgtest
+ExecStart=/usr/bin/osg-run-tests -n 'nightly'
 
 [Install]
 WantedBy=multi-user.target

@@ -163,9 +163,10 @@ Unfortunately, VM Universe jobs don't have the ssh\_to\_job capacity that's avai
 1.  Grab the make-interactive-image from git:
 
         git clone https://github.com/opensciencegrid/vm-test-runs.git
-2.  Run `make-interactive-image` using the flavor and version of Linux you need, VMU images are in `/mnt/gluster/chtc/VMs/` (NOTE: the output image needs to be in a directory that's readable by the `qemu` user):
+2.  Run `make-interactive-image` using the flavor and version of Linux you need, VMU images are in `/staging/osg-images/` (NOTE: the output image needs to be in a directory that's readable by the `qemu` user):
 
-        vm-test-runs/make-interactive-image /mnt/gluster/chtc/VMs/<INPUT IMAGE> <OUTPUT IMAGE>
+        vm-test-runs/make-interactive-image /staging/osg-images/<INPUT IMAGE> <OUTPUT IMAGE>
+
 3.  Make a copy of `libvirt-template.xml` and edit the `@DOMAIN@` and `@IMAGEFILE@` to a name that will be used by virsh and the path to the image file you created in the previous step
 4.  Define and start the VM with your copy of the xml file:
 
@@ -216,9 +217,9 @@ information will be printed for the listed packages across all output-NNN
 subdirectories for that set of osg test runs.
 
 If a VMU-RESULTS-URL is provided, the corresponding run dir will be used.
-Eg: "http://vdt.cs.wisc.edu/tests/20180604-1516/005/osg-test-20180604.log"
+Eg: "https://osg-sw-submit.chtc.wisc.edu/tests/20180604-1516/005/osg-test-20180604.log"
 for an individual output job (005),
-or: "http://vdt.cs.wisc.edu/tests/20180604-1516/packages.html"
+or: "https://osg-sw-submit.chtc.wisc.edu/tests/20180604-1516/packages.html"
 for a summary of all jobs for the run.
 
 Options:
