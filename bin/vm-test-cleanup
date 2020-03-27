@@ -8,7 +8,12 @@ day='[0-3][0-9]'
 hour='[012][0-9]'
 minute='[0-5][0-9]'
 
-cd /osgtest/runs
+cd /osgtest/runs/
 /bin/ls -d run-${year}${month}${day}-${hour}${minute} | head -n -${RUNS_TO_KEEP} | while read rundir; do
+    rm -rf "$rundir"
+done
+
+cd /var/www/html/
+/bin/ls -d ${year}${month}${day}-${hour}${minute} | head -n -${RUNS_TO_KEEP} | while read rundir; do
     rm -rf "$rundir"
 done
