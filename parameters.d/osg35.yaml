@@ -88,9 +88,11 @@ package_sets:
       - stashcache-client
       - stash-cache
       - stash-origin
-  - label: GlideinwmsFrontend
-    packages:
-      - glideinwms-vofrontend
-  - label: GlideinwmsFactory
-    packages:
-      - glideinwms-factory
+  ###########################
+  #- label: GlideinwmsFrontend
+  #  packages:
+  #    - glideinwms-vofrontend
+  #- label: GlideinwmsFactory
+  #  packages:
+  #    - glideinwms-factory
+

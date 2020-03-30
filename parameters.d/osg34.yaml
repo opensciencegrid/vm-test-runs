@@ -50,9 +50,10 @@ package_sets:
     packages:
       - osg-oasis
       - singularity
-  - label: GlideinwmsFrontend
-    packages:
-      - glideinwms-vofrontend
-  - label: GlideinwmsFactory
-    packages:
-      - glideinwms-factory
+  ###########################
+  #- label: GlideinwmsFrontend
+  #  packages:
+  #    - glideinwms-vofrontend
+  #- label: GlideinwmsFactory
+  #  packages:
+  #    - glideinwms-factory
