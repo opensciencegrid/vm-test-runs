@@ -88,7 +88,7 @@ package_sets:
       - stashcache-client
       - stash-cache
       - stash-origin
-      -	globus-proxy-utils
+      - globus-proxy-utils
       - gfal2-util
       - gfal2-all
   ###########################
