@@ -18,7 +18,7 @@ def run_command(command, shell=False):
         raise TypeError, 'Need list or tuple, got %s' % (repr(command))
 
     # Run and return command
-    p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=shell)
+    p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=shell)
     (stdout, stderr) = p.communicate()
     return (p.returncode, stdout, stderr)
 
@@ -111,8 +111,14 @@ def create_image(config_filename):
         os.environ["LIBGUESTFS_DEBUG"] = "1"
         os.environ["LIBGUESTFS_TRACE"] = "1"
         print 'Making "%s" from "%s"' % (image_filename, image_directory)
-        os.system('virt-make-fs --size=10M --format=qcow2 %s %s' % (image_directory, image_filename))
+        return_code, stdout, stderr = run_command(['virt-make-fs', '--size=10M', '--format=qcow2',
+                                                   image_directory, image_filename])
+
         shutil.rmtree(image_directory)
+        print stdout
+
+        if return_code:
+            vmu.die(stderr)
 
         contents_to_filename[config_contents] = image_filename
 
