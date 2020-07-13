@@ -144,6 +144,9 @@ if [ -f $INPUT_DIR/osg-test-git.tar.gz ]; then
         tarball=$INPUT_DIR/$PACKAGE-git.tar.gz
         tar xzf $tarball --directory /tmp
         cd /tmp/$PACKAGE-git
+        if [ "$os_major_version" -gt 7 ]; then
+            find . -type f -exec sed -ri '1s,^#!/usr/bin/env python,#!/usr/libexec/platform-python,' '{}' +
+        fi
         make install DESTDIR=/
         log_command printf "%s source: git (%s)\n"  $PACKAGE  $(zcat $tarball | git get-tar-commit-id | cut -c 1-7)
     done
