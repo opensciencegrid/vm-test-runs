@@ -24,7 +24,8 @@ mkdir -p "$STAGED_RUN_DIR"
 cp packages.html results.html ../run_label ../osg-test.patch ../test-changes.patch "$STAGED_RUN_DIR"
 
 (
-    local output_dir staged_output_dir
+    output_dir=
+    staged_output_dir=
 
     shopt -s nullglob
     for output_dir in output-*; do
