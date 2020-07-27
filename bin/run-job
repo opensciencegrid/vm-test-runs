@@ -56,11 +56,19 @@ case $os_major_version in
         osg_url="https://repo.opensciencegrid.org/osg/$osg_series/osg-$osg_series-el6-release-latest.rpm"
         priorities_rpm='yum-plugin-priorities'
         python_lib_dir='/usr/lib/python2.6'
+        python='/usr/bin/python2'
         ;;
     7 )
         osg_url="https://repo.opensciencegrid.org/osg/$osg_series/osg-$osg_series-el7-release-latest.rpm"
         priorities_rpm='yum-plugin-priorities'
         python_lib_dir='/usr/lib/python2.7'
+        python='/usr/bin/python2'
+        ;;
+    8 )
+        osg_url="https://repo.opensciencegrid.org/osg/$osg_series/osg-$osg_series-el8-release-latest.rpm"
+        priorities_rpm=
+        python_lib_dir='/usr/lib/python3.6'
+        python='/usr/libexec/platform-python'
         ;;
     * )
         echo "Could not determine OS major version from '$os_major_version'"
@@ -113,10 +121,14 @@ fi
 
 # make sure we have the latest OS/EPEL packages so osg-test doesn't update
 # _those_
-run_command_with_retries 8 yum -y update
+run_command_with_retries 8 yum -y distro-sync
 
-run_command_with_retries 8 yum -y install $priorities_rpm
-log_command sed -i -e 's/^plugins=.*$/plugins=1/' /etc/yum.conf
+if [ "$os_major_version" -lt 8 ]; then
+    run_command_with_retries 8 yum -y install $priorities_rpm
+    log_command sed -i -e 's/^plugins=.*$/plugins=1/' /etc/yum.conf
+else
+    log_command echo 'EL 8: no priorities plugin'
+fi
 rpm -q osg-release || run_command_with_retries 8 rpm --upgrade $osg_url
 if [ $? -ne 0 ]; then
     log_command echo 'Could not install OSG repository'
@@ -125,13 +137,20 @@ fi
 
 # Install osg-test and osg-ca-generator
 if [ -f $INPUT_DIR/osg-test-git.tar.gz ]; then
-    run_command_with_retries 8 yum -y install git
+    if [ "$os_major_version" -lt 8 ]; then
+        run_command_with_retries 8 yum -y install git
+    else
+        run_command_with_retries 8 yum -y install git-core
+    fi
 
     for PACKAGE in 'osg-test' 'osg-ca-generator'; do
         tarball=$INPUT_DIR/$PACKAGE-git.tar.gz
         tar xzf $tarball --directory /tmp
         cd /tmp/$PACKAGE-git
-        make install DESTDIR=/
+        if [ "$os_major_version" -gt 7 ]; then
+            find . -type f -exec sed -ri '1s,^#!/usr/bin/env python,#!'"$python"',' '{}' +
+        fi
+        make install DESTDIR=/ PYTHON="$python"
         log_command printf "%s source: git (%s)\n"  $PACKAGE  $(zcat $tarball | git get-tar-commit-id | cut -c 1-7)
     done
 else
@@ -186,8 +205,10 @@ log_command ls -lF /etc/sysconfig/network-scripts
 log_command hostname
 log_command hostname --fqdn
 # log_command strace -s 8192 -v $INPUT_DIR/check-hostname osg-test.localdomain
-log_command ifconfig -a
-log_command ip addr show
+command -v ifconfig >/dev/null 2>&1 && \
+    log_command ifconfig -a
+command -v ip >/dev/null 2>&1 && \
+    log_command ip addr show
 log_command rpm --query openssl
 log_command openssl version
 log_command ls -lF /tmp

@@ -155,7 +155,12 @@ class PackageSet(object):
         else:
             self.packages = packages
         if self.selinux:
-            self.packages.append('policycoreutils-python')
+            # Install this by dependency instead of package name because
+            # the package name changed between EL 7 and EL 8.
+            # A better solution would be to just always install this package
+            # into the base VM images, but I haven't made new EL 6 images yet.
+            # - 2020-07-17 mat
+            self.packages.append('/usr/sbin/semanage')
         if self.rng:
             self.packages.append('haveged')
 
