@@ -24,7 +24,7 @@ def generate_header():
 
     # Link to the ticket of known OSG test bugs
     header_links = html.body.append_new_tag('p')
-    header_links.append_new_tag('a', href='https://jira.opensciencegrid.org/browse/SOFTWARE-1996').\
+    header_links.append_new_tag('a', href='https://opensciencegrid.atlassian.net/issues/?filter=16926').\
         append('Known issues with osg-test').append_new_tag('br')
 
     header_links.append_new_tag('a', href='https://jira.opensciencegrid.org/browse/SOFTWARE-2086').\
