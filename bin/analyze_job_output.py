@@ -80,7 +80,7 @@ def write_yaml_value(value):
 
 def write_yaml_mapping(data, key):
     if key in data:
-        if key == 'job_serial':
+        if key in ('job_serial', 'job_id'):
             print('  %s: \'%s\'' % (key, data[key]))
         else:
             value = data[key]
