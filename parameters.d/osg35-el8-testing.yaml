@@ -74,7 +74,7 @@ package_sets:
 #      - lcmaps-db-templates
 #      - vo-client-lcmaps-voms
 #      - globus-proxy-utils # proxy required for all transfer tests
-  - label: XRootD Plugins
+  - label: XRootD Plugins (minus GridFTP)
     packages:
       - xrootd
       - xrootd-multiuser
@@ -85,7 +85,6 @@ package_sets:
       - lcmaps-db-templates
       - vo-client-lcmaps-voms
       - globus-proxy-utils
-      - osg-gridftp-xrootd
   - label: StashCache
     packages:
       - stashcache-client
