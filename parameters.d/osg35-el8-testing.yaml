@@ -37,21 +37,7 @@ package_sets:
   # osg_java - Pre-install OSG java packages (default: False)
   # rng - Install entropy generation package (default: False)
   ##################
-#  - label: All
-#    packages:
-#      - osg-tested-internal
-#  - label: HTCondor (3.5)
-#    packages:
-#      - condor
-#      - osg-ce-condor
-#      - globus-proxy-utils  # proxy required for job submission
-#  - label: GridFTP (3.5)
-#    packages:
-#      - osg-gridftp
-#      - osg-gridftp-xrootd
-#      - globus-gass-copy-progs
-#      - uberftp
-#      - globus-proxy-utils  # proxy required for all transfer tests
+
   - label: CVMFS + Singularity
     packages:
       - osg-oasis
@@ -59,21 +45,6 @@ package_sets:
   - label: osg-wn-client
     packages:
       - osg-wn-client
-#  - label: HDFS Plugins
-#    packages:
-#      - osg-gridftp-hdfs
-#      - globus-gass-copy-progs
-#      - gfal2-plugin-gridftp
-#      - gfal2-util
-#      - gfal2-plugin-file
-#  #disabled (SOFTWARE-3431)
-#  #    - xrootd
-#  #    - xrootd-hdfs
-#  #    - xrootd-client
-#  #    - xrootd-lcmaps
-#      - lcmaps-db-templates
-#      - vo-client-lcmaps-voms
-#      - globus-proxy-utils # proxy required for all transfer tests
   - label: XRootD Plugins (minus GridFTP)
     packages:
       - xrootd
@@ -93,6 +64,38 @@ package_sets:
       - globus-proxy-utils
       - gfal2-util
       - gfal2-all
+
+### The following tests have been disabled until the required packages are available.
+#  - label: All
+#    packages:
+#      - osg-tested-internal
+#  - label: HTCondor (3.5)
+#    packages:
+#      - condor
+#      - osg-ce-condor
+#      - globus-proxy-utils  # proxy required for job submission
+#  - label: GridFTP (3.5)
+#    packages:
+#      - osg-gridftp
+#      - osg-gridftp-xrootd
+#      - globus-gass-copy-progs
+#      - uberftp
+#      - globus-proxy-utils  # proxy required for all transfer tests
+#  - label: HDFS Plugins
+#    packages:
+#      - osg-gridftp-hdfs
+#      - globus-gass-copy-progs
+#      - gfal2-plugin-gridftp
+#      - gfal2-util
+#      - gfal2-plugin-file
+#  #disabled (SOFTWARE-3431)
+#  #    - xrootd
+#  #    - xrootd-hdfs
+#  #    - xrootd-client
+#  #    - xrootd-lcmaps
+#      - lcmaps-db-templates
+#      - vo-client-lcmaps-voms
+#      - globus-proxy-utils # proxy required for all transfer tests
   ###########################
   #- label: GlideinwmsFrontend
   #  packages:
