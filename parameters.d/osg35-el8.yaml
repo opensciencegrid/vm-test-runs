@@ -36,6 +36,15 @@ package_sets:
   # osg_java - Pre-install OSG java packages (default: False)
   # rng - Install entropy generation package (default: False)
   ##################
+  - label: CVMFS + Singularity
+    packages:
+      - osg-oasis
+      - singularity
+  - label: osg-wn-client
+    packages:
+      - osg-wn-client
+
+### The following tests have been disabled until the required packages are available.
 #  - label: All
 #    packages:
 #      - osg-tested-internal
@@ -51,13 +60,6 @@ package_sets:
 #      - globus-gass-copy-progs
 #      - uberftp
 #      - globus-proxy-utils  # proxy required for all transfer tests
-  - label: CVMFS + Singularity
-    packages:
-      - osg-oasis
-      - singularity
-  - label: osg-wn-client
-    packages:
-      - osg-wn-client
 #  - label: HDFS Plugins
 #    packages:
 #      - osg-gridftp-hdfs
