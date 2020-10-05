@@ -59,6 +59,8 @@ package_sets:
       - vo-client-lcmaps-voms
       - globus-proxy-utils
       - osg-gridftp-xrootd
+      - osg-xrootd-standalone
+      - x509-scitokens-issuer-client
   - label: StashCache
     packages:
       - stashcache-client
