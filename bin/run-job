@@ -135,6 +135,15 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# safety net
+if ! [ -e /usr/bin/python ]; then
+    if [ -e /usr/bin/python3 ]; then
+        ln -s python3 /usr/bin/python
+    elif [ -e /usr/libexec/platform-python ]; then
+        ln -s /usr/libexec/platform-python /usr/bin/python
+    fi
+fi
+
 # Install osg-test and osg-ca-generator
 if [ -f $INPUT_DIR/osg-test-git.tar.gz ]; then
     if [ "$os_major_version" -lt 8 ]; then
