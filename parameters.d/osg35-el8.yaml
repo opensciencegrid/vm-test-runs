@@ -17,6 +17,7 @@ sources:
   # 3.2; osg, osg-testing > 3.3/osg-testing, osg-upcoming-testing
   ###################
   - opensciencegrid:master; 3.5; osg
+  - opensciencegrid:master; 3.5; osg, epel-testing
   - opensciencegrid:master; 3.5; osg > osg-testing
 #  - opensciencegrid:master; 3.5; osg
 #  - opensciencegrid:master; 3.5; osg-rolling
