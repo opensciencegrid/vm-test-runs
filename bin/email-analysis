@@ -25,13 +25,14 @@ RUN_LABEL = vmu.run_label()
 
 # Adapted from Mat's aggregator/emailer.py script
 def mail_message(subject, message, recipients):
-    from_addr = 'OSG Tests <technology-team@opensciencegrid.org>'
+    from_addr = 'OSG Tests <condor@osg-sw-submit.chtc.wisc.edu>'
     payload = 'Subject: %s\r\n' % (subject)
     payload += 'From: %s\r\n' % (from_addr)
+    payload += 'Reply-To: technology-team@opensciencegrid.org\r\n'
     payload += 'To: %s\r\n' % (', '.join(recipients))
     payload += '\r\n'
     payload += message
-    smtp = smtplib.SMTP('wid-service-1.chtc.wisc.edu')
+    smtp = smtplib.SMTP('smtp.wiscmail.wisc.edu')
     smtp.sendmail(from_addr, recipients, payload)
     smtp.quit()
 
