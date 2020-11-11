@@ -94,6 +94,7 @@ def canonical_src_string(sources):
     m = re.search(r'(^\w+:[./\w-]+)\s*;\s*(.*)', result)
     if m:
         branch, result = m.groups()
+    result = re.sub(r'epel-testing', 'EPEL Testing', result)
     result = re.sub(r'osg-minefield', 'Minefield', result)
     result = re.sub(r'osg-development', 'Development', result)
     result = re.sub(r'osg-testing', 'Testing', result)
