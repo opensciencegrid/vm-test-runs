@@ -103,6 +103,13 @@ package_sets:
     packages:
       - myproxy
       - myproxy-server
+  - label: VOMS
+    packages:
+      - voms-server
+      - voms-clients
+      - voms-mysql-plugin
+      - mariadb
+      - mariadb-server
   ###########################
   #- label: GlideinwmsFrontend
   #  packages:

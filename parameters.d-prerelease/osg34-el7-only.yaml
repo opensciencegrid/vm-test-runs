@@ -39,4 +39,10 @@ package_sets:
       - lcmaps-db-templates
       - vo-client-lcmaps-voms
       - globus-proxy-utils # proxy required for all transfer tests
-
+  - label: VOMS
+    packages:
+      - voms-server
+      - voms-clients
+      - voms-mysql-plugin
+      - mariadb
+      - mariadb-server

@@ -83,3 +83,10 @@ package_sets:
   - label: GlideinwmsFactory
     packages:
       - glideinwms-factory
+  - label: VOMS
+    packages:
+      - voms-server
+      - voms-clients
+      - voms-mysql-plugin
+      - mariadb
+      - mariadb-server
