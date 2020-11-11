@@ -8,6 +8,9 @@ sources:
   - opensciencegrid:master; 3.5; osg > osg-prerelease, osg-upcoming-prerelease, osg-upcoming
 
 package_sets:
-  - label: All
+  - label: Worker Node
     packages:
-      - osg-tested-internal
+      - osg-wn-client
+      - osg-oasis
+      - singularity
+
