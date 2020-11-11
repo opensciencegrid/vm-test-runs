@@ -31,7 +31,24 @@ package_sets:
   # osg_java - Pre-install OSG java packages (default: False)
   # rng - Install entropy generation package (default: False)
   ##################
-
+  - label: StashCache
+    packages:
+      - stashcache-client
+      - stash-cache
+      - stash-origin
+      - globus-proxy-utils
+      - gfal2-util
+      - gfal2-all
+  - label: XRootD
+    packages:
+      - osg-xrootd-standalone
+      - xrootd-multiuser
+      - xrootd-client
+      - xrootd-fuse
+      - xrootd-scitokens
+      - globus-proxy-utils
+      - osg-gridftp-xrootd
+      - x509-scitokens-issuer-client
   - label: HDFS Plugins
     packages:
       - osg-gridftp-hdfs
@@ -47,25 +64,4 @@ package_sets:
       - lcmaps-db-templates
       - vo-client-lcmaps-voms
       - globus-proxy-utils # proxy required for all transfer tests
-  - label: XRootD Plugins
-    packages:
-      - xrootd
-      - xrootd-multiuser
-      - xrootd-lcmaps
-      - xrootd-client
-      - xrootd-fuse
-      - xrootd-scitokens
-      - lcmaps-db-templates
-      - vo-client-lcmaps-voms
-      - globus-proxy-utils
-      - osg-gridftp-xrootd
-      - osg-xrootd-standalone
-      - x509-scitokens-issuer-client
-  - label: StashCache
-    packages:
-      - stashcache-client
-      - stash-cache
-      - stash-origin
-      - globus-proxy-utils
-      - gfal2-util
-      - gfal2-all
+
