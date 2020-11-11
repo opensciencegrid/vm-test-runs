@@ -33,6 +33,7 @@ def mail_message(subject, message, recipients):
     payload += '\r\n'
     payload += message
     smtp = smtplib.SMTP('smtp.wiscmail.wisc.edu')
+    smtp.starttls()
     smtp.sendmail(from_addr, recipients, payload)
     smtp.quit()
 
