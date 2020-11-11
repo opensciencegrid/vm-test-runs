@@ -11,6 +11,82 @@ sources:
   - opensciencegrid:master; 3.5; osg > osg-prerelease, osg-upcoming-prerelease, osg-upcoming
 
 package_sets:
-  - label: All
+  - label: Compute Entrypoint
     packages:
-      - osg-tested-internal
+      - osg-ce-condor
+      - torque-server
+      - torque-mom
+      - torque-client
+      - torque-scheduler
+      - slurm
+      - slurm-slurmd
+      - slurm-slurmctld
+      - slurm-perlapi
+      - slurm-slurmdbd
+      - globus-proxy-utils
+  - label: Worker Node
+    packages:
+      - osg-wn-client
+      - osg-oasis
+      - singularity
+  - label: StashCache
+    packages:
+      - stashcache-client
+      - stash-cache
+      - stash-origin
+      - globus-proxy-utils
+      - gfal2-util
+      - gfal2-all
+  - label: XRootD
+    packages:
+      - osg-xrootd-standalone
+      - xrootd-multiuser
+      - xrootd-client
+      - xrootd-fuse
+      - xrootd-scitokens
+      - globus-proxy-utils
+      - osg-gridftp-xrootd
+      - x509-scitokens-issuer-client
+  - label: GridFTP
+    packages:
+      - osg-gridftp
+      - osg-gridftp-xrootd
+      - globus-gass-copy-progs
+      - uberftp
+      - globus-proxy-utils  # proxy required for all transfer tests
+  - label: HDFS Plugins
+    packages:
+      - osg-gridftp-hdfs
+      - globus-gass-copy-progs
+      - gfal2-plugin-gridftp
+      - gfal2-util
+      - gfal2-plugin-file
+  #disabled (SOFTWARE-3431)
+  #    - xrootd
+  #    - xrootd-hdfs
+  #    - xrootd-client
+  #    - xrootd-lcmaps
+      - lcmaps-db-templates
+      - vo-client-lcmaps-voms
+      - globus-proxy-utils # proxy required for all transfer tests
+  - label: GSI OpenSSH
+    packages:
+      - gsi-openssh-server
+      - gsi-openssh-clients
+  - label: MyProxy
+    packages:
+      - myproxy
+      - myproxy-server
+  - label: GlideinwmsFrontend
+    packages:
+      - glideinwms-vofrontend
+  - label: GlideinwmsFactory
+    packages:
+      - glideinwms-factory
+  - label: VOMS
+    packages:
+      - voms-server
+      - voms-clients
+      - voms-mysql-plugin
+      - mariadb
+      - mariadb-server

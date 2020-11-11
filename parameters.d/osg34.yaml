@@ -34,23 +34,37 @@ package_sets:
   # osg_java - Pre-install OSG java packages (default: False)
   # rng - Install entropy generation package (default: False)
   ##################
-  - label: All
+  - label: Compute Entrypoint
     packages:
-      - osg-tested-internal
-  - label: HTCondor
-    packages:
-      - condor.x86_64
       - osg-ce-condor
-      - rsv
-  - label: GridFTP
+      - torque-server
+      - torque-mom
+      - torque-client
+      - torque-scheduler
+      - slurm
+      - slurm-slurmd
+      - slurm-slurmctld
+      - slurm-perlapi
+      - slurm-slurmdbd
+      - globus-proxy-utils
+  - label: Worker Node
+    packages:
+      - osg-wn-client
+      - osg-oasis
+      - singularity
+  - label: GridFTP (3.4)
     packages:
       - osg-gridftp
       - osg-gridftp-xrootd
       - rsv
-  - label: CVMFS + Singularity
+  - label: GSI OpenSSH
     packages:
-      - osg-oasis
-      - singularity
+      - gsi-openssh-server
+      - gsi-openssh-clients
+  - label: MyProxy
+    packages:
+      - myproxy
+      - myproxy-server
   ###########################
   #- label: GlideinwmsFrontend
   #  packages:

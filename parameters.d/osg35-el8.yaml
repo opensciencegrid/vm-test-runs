@@ -37,71 +37,8 @@ package_sets:
   # osg_java - Pre-install OSG java packages (default: False)
   # rng - Install entropy generation package (default: False)
   ##################
-  - label: CVMFS + Singularity
-    packages:
-      - osg-oasis
-      - singularity
-  - label: osg-wn-client
+  - label: Worker Node
     packages:
       - osg-wn-client
-
-### The following tests have been disabled until the required packages are available.
-#  - label: All
-#    packages:
-#      - osg-tested-internal
-#  - label: HTCondor (3.5)
-#    packages:
-#      - condor
-#      - osg-ce-condor
-#      - globus-proxy-utils  # proxy required for job submission
-#  - label: GridFTP (3.5)
-#    packages:
-#      - osg-gridftp
-#      - osg-gridftp-xrootd
-#      - globus-gass-copy-progs
-#      - uberftp
-#      - globus-proxy-utils  # proxy required for all transfer tests
-#  - label: HDFS Plugins
-#    packages:
-#      - osg-gridftp-hdfs
-#      - globus-gass-copy-progs
-#      - gfal2-plugin-gridftp
-#      - gfal2-util
-#      - gfal2-plugin-file
-#  #disabled (SOFTWARE-3431)
-#  #    - xrootd
-#  #    - xrootd-hdfs
-#  #    - xrootd-client
-#  #    - xrootd-lcmaps
-#      - lcmaps-db-templates
-#      - vo-client-lcmaps-voms
-#      - globus-proxy-utils # proxy required for all transfer tests
-#  - label: XRootD Plugins (minus GridFTP)
-#    packages:
-#      - xrootd
-#      - xrootd-multiuser
-#      - xrootd-lcmaps
-#      - xrootd-client
-#      - xrootd-fuse
-#      - xrootd-scitokens
-#      - lcmaps-db-templates
-#      - vo-client-lcmaps-voms
-#      - globus-proxy-utils
-#      - osg-xrootd-standalone
-#      - x509-scitokens-issuer-client
-#  - label: StashCache
-#    packages:
-#      - stashcache-client
-#      - stash-cache
-#      - stash-origin
-#      - globus-proxy-utils
-#      - gfal2-util
-#      - gfal2-all
-  ###########################
-  #- label: GlideinwmsFrontend
-  #  packages:
-  #    - glideinwms-vofrontend
-  #- label: GlideinwmsFactory
-  #  packages:
-  #    - glideinwms-factory
-
+      - osg-oasis
+      - singularity
