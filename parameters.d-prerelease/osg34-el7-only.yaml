@@ -6,6 +6,20 @@ sources:
   - opensciencegrid:master; 3.4; osg-prerelease
 
 package_sets:
+  - label: Compute Entrypoint
+    packages:
+      - osg-ce-condor
+      - torque-server
+      - torque-mom
+      - torque-client
+      - torque-scheduler
+      - slurm
+      - slurm-slurmd
+      - slurm-slurmctld
+      - slurm-perlapi
+      - slurm-slurmdbd
+      - mariadb-server
+      - globus-proxy-utils
   - label: StashCache
     packages:
       - stashcache-client

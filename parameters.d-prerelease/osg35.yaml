@@ -23,6 +23,7 @@ package_sets:
       - slurm-slurmctld
       - slurm-perlapi
       - slurm-slurmdbd
+      - mariadb-server
       - globus-proxy-utils
   - label: Worker Node
     packages:

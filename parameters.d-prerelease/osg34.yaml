@@ -9,19 +9,6 @@ sources:
   - opensciencegrid:master; 3.4; osg > osg-prerelease
 
 package_sets:
-  - label: Compute Entrypoint
-    packages:
-      - osg-ce-condor
-      - torque-server
-      - torque-mom
-      - torque-client
-      - torque-scheduler
-      - slurm
-      - slurm-slurmd
-      - slurm-slurmctld
-      - slurm-perlapi
-      - slurm-slurmdbd
-      - globus-proxy-utils
   - label: Worker Node
     packages:
       - osg-wn-client
