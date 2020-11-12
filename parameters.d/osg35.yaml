@@ -53,6 +53,7 @@ package_sets:
       - slurm-perlapi
       - slurm-slurmdbd
       - globus-proxy-utils
+      - mariadb-server
   - label: Worker Node
     packages:
       - osg-wn-client
