@@ -23,7 +23,7 @@ package_sets:
   - label: VOMS (EL6)
     packages:
       - voms-server
-      - voms-clients
+      - voms-clients-cpp
       - voms-mysql-plugin
       - mysql
       - mysql-server
