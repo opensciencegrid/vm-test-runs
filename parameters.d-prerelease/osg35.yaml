@@ -87,7 +87,7 @@ package_sets:
   - label: VOMS
     packages:
       - voms-server
-      - voms-clients
+      - voms-clients-cpp
       - voms-mysql-plugin
       - mariadb
       - mariadb-server
