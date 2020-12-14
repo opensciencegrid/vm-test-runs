@@ -101,10 +101,11 @@ package_sets:
     packages:
       - gsi-openssh-server
       - gsi-openssh-clients
-  - label: MyProxy
-    packages:
-      - myproxy
-      - myproxy-server
+  # Disabled until SOFTWARE-4374 is addressed
+  # - label: MyProxy
+  #   packages:
+  #     - myproxy
+  #     - myproxy-server
   - label: VOMS
     packages:
       - voms-server
