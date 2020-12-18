@@ -83,6 +83,8 @@ def canonical_os_string(os_release):
     # Handle OS string from 'platforms' test parameters
     result = result.replace('rhel', 'RHEL')
     result = result.replace('sl', 'SL')
+    # order matters!
+    result = result.replace('centos_stream', 'CentOS Stream')
     result = result.replace('centos', 'CentOS')
     result = re.sub(r'_(\d)_.*', r' \1', result)
     return result
