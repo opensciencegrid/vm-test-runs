@@ -41,6 +41,7 @@ package_sets:
   - label: Compute Entrypoint
     packages:
       - osg-ce-condor
+      - htcondor-ce-view
       - torque-server
       - torque-mom
       - torque-client
