@@ -13,6 +13,7 @@ package_sets:
   - label: Compute Entrypoint
     packages:
       - osg-ce-condor
+      - htcondor-ce-view
       - torque-server
       - torque-mom
       - torque-client
@@ -24,6 +25,11 @@ package_sets:
       - slurm-slurmdbd
       - mariadb-server
       - globus-proxy-utils
+  - label: Central Collector
+    packages:
+      - htcondor-ce-collector
+      - htcondor-ce-view
+      - fetch-crl
   - label: Worker Node
     packages:
       - osg-wn-client
