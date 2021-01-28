@@ -78,7 +78,7 @@ package_sets:
 #      - mariadb-server
 #      - globus-proxy-utils
 #  - label: Central Collector
-#    pacakges:
+#    packages:
 #      - htcondor-ce-collector
 #      - htcondor-ce-view
 #      - fetch-crl
