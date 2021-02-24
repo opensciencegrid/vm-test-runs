@@ -51,13 +51,13 @@ case $os_major_version in
         osg_url="https://repo.opensciencegrid.org/osg/$osg_series/osg-$osg_series-el7-release-latest.rpm"
         priorities_rpm='yum-plugin-priorities'
         python_lib_dir='/usr/lib/python2.7'
-        python='/usr/bin/python2'
+        python='/usr/bin/python3'
         ;;
     8 )
         osg_url="https://repo.opensciencegrid.org/osg/$osg_series/osg-$osg_series-el8-release-latest.rpm"
         priorities_rpm=
         python_lib_dir='/usr/lib/python3.6'
-        python='/usr/libexec/platform-python'
+        python='/usr/bin/python3'
         ;;
     * )
         echo "Could not determine OS major version from '$os_major_version'"
@@ -123,6 +123,9 @@ if [ $? -ne 0 ]; then
     log_command echo 'Could not install OSG repository'
     exit 1
 fi
+
+# Install Python 3
+run_command_with_retries 8 yum -y install python3 python3-rpm
 
 # Install osg-test and osg-ca-generator
 if [ -f $INPUT_DIR/osg-test-git.tar.gz ]; then
