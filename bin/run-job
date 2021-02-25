@@ -50,7 +50,7 @@ case $os_major_version in
     7 )
         osg_url="https://repo.opensciencegrid.org/osg/$osg_series/osg-$osg_series-el7-release-latest.rpm"
         priorities_rpm='yum-plugin-priorities'
-        python_lib_dir='/usr/lib/python2.7'
+        python_lib_dir='/usr/lib/python3.6'
         python='/usr/bin/python3'
         ;;
     8 )
