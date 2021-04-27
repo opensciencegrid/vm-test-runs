@@ -36,7 +36,7 @@ package_sets:
   # osg_java - Pre-install OSG java packages (default: False)
   # rng - Install entropy generation package (default: False)
   ##################
-  - label: Compute Entrypoint (3.6)
+  - label: Compute Entrypoint (no Globus)
     packages:
       - osg-ce-condor
       - htcondor-ce-view
