@@ -61,17 +61,17 @@ package_sets:
       - xrootd-scitokens
       - globus-proxy-utils
       - x509-scitokens-issuer-client
- - label: Compute Entrypoint (no Torque)
-   packages:
-     - osg-ce-condor
-     - htcondor-ce-view
-     - slurm
-     - slurm-slurmd
-     - slurm-slurmctld
-     - slurm-perlapi
-     - slurm-slurmdbd
-     - mariadb-server
-     - globus-proxy-utils
+  - label: Compute Entrypoint (no Torque)
+    packages:
+      - osg-ce-condor
+      - htcondor-ce-view
+      - slurm
+      - slurm-slurmd
+      - slurm-slurmctld
+      - slurm-perlapi
+      - slurm-slurmdbd
+      - mariadb-server
+      - globus-proxy-utils
 ### The following tests have been disabled until the required packages are available.
 #  - label: Central Collector
 #    packages:
