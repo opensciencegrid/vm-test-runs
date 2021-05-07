@@ -1,0 +1,49 @@
+###################
+# OSG 3.5 tests
+# File format documention:
+# https://github.com/opensciencegrid/vm-test-runs#running-osg-test-in-vm-universe
+###################
+
+platforms:
+  - centos_8_x86_64
+
+sources:
+  ###################
+  # Format:
+  # [<Github account>:<osg-test branch>;] <OSG ver>; <REPO 1, REPO 2...REPO N> [> <Update OSG ver>/<Update REPO 1, REPO 2...REPO N>]
+  # Example:
+  # Run osg-test (from 3.2-minefield) with packages from 3.2-release and 3.2-testing that are then upgraded to
+  # 3.3-testing and 3-3-upcoming-testing:
+  # 3.2; osg, osg-testing > 3.3/osg-testing, osg-upcoming-testing
+  ###################
+  - opensciencegrid:master; 3.5; osg-testing, osg-upcoming-testing
+  # - opensciencegrid:master; 3.5; osg > osg-testing, osg-upcoming-testing
+  - opensciencegrid:master; 3.5; osg-development, osg-upcoming-development
+  # - opensciencegrid:master; 3.5; osg > osg-development, osg-upcoming-development
+
+package_sets:
+  #### Required ####
+  # label - used for reporting, should be consistent across param files
+  # packages - list of packages to install in the test run
+  #### Optional ####
+  # selinux - enable SELinux for the package set, otherwise Permissive mode (default: True)
+  # osg_java - Pre-install OSG java packages (default: False)
+  # rng - Install entropy generation package (default: False)
+  ##################
+  - label: Compute Entrypoint (no Torque)
+    packages:
+      - osg-ce-condor
+      - htcondor-ce-view
+      - slurm
+      - slurm-slurmd
+      - slurm-slurmctld
+      - slurm-perlapi
+      - slurm-slurmdbd
+      - mariadb-server
+      - globus-proxy-utils
+### The following tests have been disabled until the required packages are available.
+#  - label: Central Collector
+#    packages:
+#      - htcondor-ce-collector
+#      - htcondor-ce-view
+#      - fetch-crl
