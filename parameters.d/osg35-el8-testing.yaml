@@ -61,14 +61,14 @@ package_sets:
       - xrootd-scitokens
       - globus-proxy-utils
       - x509-scitokens-issuer-client
+  - label: GridFTP
+    packages:
+      - osg-gridftp
+      - osg-gridftp-xrootd
+      - globus-gass-copy-progs
+      - uberftp
+      - globus-proxy-utils  # proxy required for all transfer tests
 ### The following tests have been disabled until the required packages are available.
-#  - label: GridFTP
-#    packages:
-#      - osg-gridftp
-#      - osg-gridftp-xrootd
-#      - globus-gass-copy-progs
-#      - uberftp
-#      - globus-proxy-utils  # proxy required for all transfer tests
 #  - label: HDFS Plugins
 #    packages:
 #      - osg-gridftp-hdfs
