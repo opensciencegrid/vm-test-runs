@@ -8,6 +8,16 @@ sources:
   # - opensciencegrid:master; 3.6; osg > osg-prerelease, osg-upcoming-prerelease, osg-upcoming
 
 package_sets:
+  - label: Compute Entrypoint (no Globus/Torque)
+    packages:
+      - osg-ce-condor
+      - htcondor-ce-view
+      - slurm
+      - slurm-slurmd
+      - slurm-slurmctld
+      - slurm-perlapi
+      - slurm-slurmdbd
+      - mariadb-server
   - label: Worker Node
     packages:
       - osg-wn-client

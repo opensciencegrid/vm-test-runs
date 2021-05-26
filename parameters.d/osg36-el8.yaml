@@ -22,8 +22,8 @@ sources:
   - opensciencegrid:master; 3.6; osg > osg-testing
   - opensciencegrid:master; 3.5; osg > 3.6/osg
 #  - opensciencegrid:master; 3.6; osg, osg-upcoming
-#  - opensciencegrid:master; 3.6; osg-testing, osg-upcoming-testing
-#  - opensciencegrid:master; 3.6; osg > osg-testing, osg-upcoming-testing
+ - opensciencegrid:master; 3.6; osg-testing, osg-upcoming-testing
+ - opensciencegrid:master; 3.6; osg > osg-testing, osg-upcoming-testing
 
 package_sets:
   #### Required ####

@@ -10,7 +10,7 @@ sources:
   # - opensciencegrid:master; 3.6; osg > osg-prerelease, osg-upcoming-prerelease, osg-upcoming
 
 package_sets:
-  - label: Compute Entrypoint (3.6)
+  - label: Compute Entrypoint (no Globus)
     packages:
       - osg-ce-condor
       - htcondor-ce-view
