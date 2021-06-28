@@ -70,17 +70,6 @@ package_sets:
       - globus-gass-copy-progs
       - uberftp
       - globus-proxy-utils  # proxy required for all transfer tests
-### The following tests have been disabled until the required packages are available.
-#  - label: HDFS Plugins
-#    packages:
-#      - osg-gridftp-hdfs
-#      - globus-gass-copy-progs
-#      - gfal2-plugin-gridftp
-#      - gfal2-util
-#      - gfal2-plugin-file
-#      - lcmaps-db-templates
-#      - vo-client-lcmaps-voms
-#      - globus-proxy-utils # proxy required for all transfer tests
   ###########################
   #- label: GlideinwmsFrontend
   #  packages:
