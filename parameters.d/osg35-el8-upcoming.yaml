@@ -44,6 +44,23 @@ package_sets:
       - slurm-slurmdbd
       - mariadb-server
       - globus-proxy-utils
+  - label: StashCache
+    packages:
+      - stashcache-client
+      - stash-cache
+      - stash-origin
+      - globus-proxy-utils
+      - gfal2-util
+      - gfal2-all
+  - label: XRootD (minus GridFTP)
+    packages:
+      - osg-xrootd-standalone
+      - xrootd-multiuser
+      - xrootd-client
+      - xrootd-fuse
+      - xrootd-scitokens
+      - globus-proxy-utils
+      - x509-scitokens-issuer-client
 ### The following tests have been disabled until the required packages are available.
 #  - label: Central Collector
 #    packages:
