@@ -58,11 +58,6 @@ package_sets:
       - htcondor-ce-collector
       - htcondor-ce-view
       - fetch-crl
-  - label: Worker Node
-    packages:
-      - osg-wn-client
-      - osg-oasis
-      - singularity
   - label: StashCache
     packages:
       - stashcache-client
