@@ -1,5 +1,4 @@
 ###################
-# OSG 3.5 tests
 # File format documention:
 # https://github.com/opensciencegrid/vm-test-runs#running-osg-test-in-vm-universe
 ###################
@@ -21,10 +20,8 @@ sources:
   - opensciencegrid:master; 3.5; osg
   - opensciencegrid:master; 3.5; osg, epel-testing
   - opensciencegrid:master; 3.5; osg > osg-testing
-#  - opensciencegrid:master; 3.5; osg
 #  - opensciencegrid:master; 3.5; osg-rolling
 #  - opensciencegrid:master; 3.5; osg-testing
-#  - opensciencegrid:master; 3.5; osg > osg-testing
 #  - opensciencegrid:master; 3.5; osg, osg-upcoming
 #  - opensciencegrid:master; 3.5; osg-rolling, osg-upcoming-rolling
 #  - opensciencegrid:master; 3.5; osg-testing, osg-upcoming-testing
@@ -36,7 +33,6 @@ package_sets:
   # packages - list of packages to install in the test run
   #### Optional ####
   # selinux - enable SELinux for the package set, otherwise Permissive mode (default: True)
-  # osg_java - Pre-install OSG java packages (default: False)
   # rng - Install entropy generation package (default: False)
   ##################
   - label: Worker Node

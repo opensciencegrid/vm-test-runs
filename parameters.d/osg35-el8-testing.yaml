@@ -41,11 +41,6 @@ package_sets:
   # osg_java - Pre-install OSG java packages (default: False)
   # rng - Install entropy generation package (default: False)
   ##################
-  - label: Worker Node
-    packages:
-      - osg-wn-client
-      - osg-oasis
-      - singularity
   - label: GridFTP
     packages:
       - osg-gridftp
