@@ -4,6 +4,8 @@
 ###################
 
 platforms:
+  - centos_7_x86_64
+  - sl_7_x86_64
   - centos_8_x86_64
   - centos_stream_8_x86_64
   - rocky_8_x86_64
@@ -20,12 +22,14 @@ sources:
   - opensciencegrid:master; 3.5; osg
   - opensciencegrid:master; 3.5; osg, epel-testing
   - opensciencegrid:master; 3.5; osg > osg-testing
-#  - opensciencegrid:master; 3.5; osg-rolling
-#  - opensciencegrid:master; 3.5; osg-testing
-#  - opensciencegrid:master; 3.5; osg, osg-upcoming
-#  - opensciencegrid:master; 3.5; osg-rolling, osg-upcoming-rolling
-#  - opensciencegrid:master; 3.5; osg-testing, osg-upcoming-testing
-#  - opensciencegrid:master; 3.5; osg > osg-testing, osg-upcoming-testing
+  - opensciencegrid:master; 3.5; osg-rolling
+  - opensciencegrid:master; 3.5; osg-testing
+  - opensciencegrid:master; 3.4; osg > 3.5/osg
+  - opensciencegrid:master; 3.5; osg, osg-upcoming
+  - opensciencegrid:master; 3.5; osg, osg-upcoming, epel-testing
+  - opensciencegrid:master; 3.5; osg-rolling, osg-upcoming-rolling
+  - opensciencegrid:master; 3.5; osg-testing, osg-upcoming-testing
+  - opensciencegrid:master; 3.5; osg > osg-testing, osg-upcoming-testing
 
 package_sets:
   #### Required ####
