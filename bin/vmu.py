@@ -38,6 +38,9 @@ def load_run_params(param_dir):
     # Slurp param files in reverse order so that the latest OSG versions show
     # at the top of the results
     for param_file in reversed(sorted(glob("%s/*" % param_dir))):
+        param_basename = os.path.basename(param_file)
+        if param_basename.startswith("template-") or param_basename.startswith("disabled-"):
+            continue
         with open(param_file, 'r') as yaml_file:
             yaml_contents = yaml_file.read()
         try:

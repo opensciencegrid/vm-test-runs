@@ -1,3 +1,6 @@
+# NOTE: This is a template file.
+#   Fill in the package sets with your desired packages,
+#   and rename this file to remove the "template-" prefix.
 ###################
 # File format documention:
 # https://github.com/opensciencegrid/vm-test-runs#running-osg-test-in-vm-universe

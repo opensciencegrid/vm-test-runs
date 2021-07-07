@@ -1,3 +1,6 @@
+# NOTE: The tests in this file are disabled.
+#   To run them, uncomment the package_sets
+#   and rename this file to remove the "disabled-" prefix.
 ###################
 # OSG 3.5 tests
 # File format documention:
