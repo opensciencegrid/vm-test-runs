@@ -14,12 +14,20 @@ OS_TRANSLATION = {'centos': 'CentOS', 'rhel': 'RHEL', 'sl': 'SL'}
 
 def generate_header():
     '''Create the HTML object and its header'''
-    css = VMU_TESTS_URL + 'vmu.css'
-    html = Html(page_title='OSG VMU Automated Test Results', css_link=css)
-    html.body.append_new_tag('h1').append('OSG VMU Automated Test Results')
-
     # Read description file
     label = vmu.run_label()
+    page_title = "VMU Run: "
+    if label == "nightly":
+        page_title += "%s-%s-%s nightly" % (TIMESTAMP[0:4], TIMESTAMP[4:6], TIMESTAMP[6:8])
+        # ^^ only need the day for nightlies
+    else:
+        page_title += "%s" % label
+        # ^^ labels tend to be unique
+
+    css = VMU_TESTS_URL + 'vmu.css'
+    html = Html(page_title, css_link=css)
+    html.body.append_new_tag('h1').append('OSG VMU Automated Test Results')
+
     html.body.append_new_tag('h2').append('%s: %s ' % (TIMESTAMP, label))
 
     # Link to the ticket of known OSG test bugs
