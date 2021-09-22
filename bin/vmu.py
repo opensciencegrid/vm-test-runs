@@ -46,7 +46,7 @@ def load_run_params(param_dir):
             # skip non-yaml files
             pass
         else:
-            if set(param_contents) == set(['platforms', 'sources', 'package_sets']):
+            if param_contents and set(param_contents) == set(['platforms', 'sources', 'package_sets']):
                 param_contents['package_sets'] = [PackageSet.from_dict(x) for x in param_contents['package_sets']]
                 run_params.append(param_contents)
     if not run_params:
