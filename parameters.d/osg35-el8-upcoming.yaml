@@ -49,7 +49,7 @@ package_sets:
       - stash-cache
       - stash-origin
       - globus-proxy-utils
-      - gfal2-util
+      - python3-gfal2-util
       - gfal2-all
   - label: XRootD (minus GridFTP)
     packages:

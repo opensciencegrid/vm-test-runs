@@ -69,7 +69,7 @@ package_sets:
       - stash-cache
       - stash-origin
       - globus-proxy-utils
-      - gfal2-util
+      - python3-gfal2-util
       - gfal2-all
   - label: XRootD
     packages:
@@ -93,7 +93,7 @@ package_sets:
       - osg-gridftp-hdfs
       - globus-gass-copy-progs
       - gfal2-plugin-gridftp
-      - gfal2-util
+      - python3-gfal2-util
       - gfal2-plugin-file
       - lcmaps-db-templates
       - vo-client-lcmaps-voms
