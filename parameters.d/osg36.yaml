@@ -65,7 +65,7 @@ package_sets:
   #     - stashcache-client
   #     - stash-cache
   #     - stash-origin
-  #     - gfal2-util
+  #     - python3-gfal2-util
   #     - gfal2-all
   # - label: XRootD (3.6)
   #   packages:
