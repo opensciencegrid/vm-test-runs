@@ -70,8 +70,6 @@ package_sets:
   #     - xrootd-client
   #     - xrootd-fuse
   #     - xrootd-scitokens
-  #     - globus-proxy-utils
-  #     - x509-scitokens-issuer-client
   ###########################
   #- label: GlideinwmsFrontend
   #  packages:
