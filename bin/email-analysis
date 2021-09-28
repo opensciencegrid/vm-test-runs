@@ -53,7 +53,8 @@ my_timestamp = re.sub(r'^run-', '', my_directory)
 message = '''OSG VMU tests: %s
 https://osg-sw-submit.chtc.wisc.edu/tests/%s/results.html
 https://osg-sw-submit.chtc.wisc.edu/tests/%s/packages.html
-https://jira.opensciencegrid.org/browse/SOFTWARE-1996\n\n''' % (RUN_LABEL, my_timestamp, my_timestamp)
+
+''' % (RUN_LABEL, my_timestamp, my_timestamp)
 
 if not os.path.exists(ANALYSIS_FILENAME):
     subject = 'OSG VMU test results: FAIL: no %s' % (ANALYSIS_FILENAME)
