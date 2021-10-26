@@ -17,7 +17,7 @@ periodic_remove         = ( (JobStatus == 5) && (HoldReasonCode =?= 3) && (NumJo
 request_disk            = 8GB
 # Avoid machines with common failures:
 # e2371, e2387, e326: htcondor-inf #104692
-requirements            = (TARGET.HasVirshDefaultNetwork == True) && (TARGET.HasCHTCStaging == True) \
+requirements            = (TARGET.HasVirshDefaultNetwork == True) && (TARGET.HasCHTCStaging == True) && \
     (TARGET.Machine != "e2371.chtc.wisc.edu") && \
     (TARGET.Machine != "e2387.chtc.wisc.edu") && \
     (TARGET.Machine !=  "e326.chtc.wisc.edu")
