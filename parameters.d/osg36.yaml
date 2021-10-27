@@ -60,20 +60,6 @@ package_sets:
       - osg-wn-client
       - osg-oasis
       - singularity
-  # - label: StashCache (3.6)
-  #   packages:
-  #     - stashcache-client
-  #     - stash-cache
-  #     - stash-origin
-  #     - python3-gfal2-util
-  #     - gfal2-all
-  # - label: XRootD (3.6)
-  #   packages:
-  #     - osg-xrootd-standalone
-  #     - xrootd-multiuser
-  #     - xrootd-client
-  #     - xrootd-fuse
-  #     - xrootd-scitokens
   ###########################
   #- label: GlideinwmsFrontend
   #  packages:
