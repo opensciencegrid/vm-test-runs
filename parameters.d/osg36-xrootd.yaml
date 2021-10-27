@@ -54,4 +54,3 @@ package_sets:
       - osg-xrootd-standalone
       - xrootd-multiuser
       - xrootd-client
-      - xrootd-scitokens
