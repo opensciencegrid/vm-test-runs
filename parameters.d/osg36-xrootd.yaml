@@ -29,11 +29,11 @@ sources:
   # - opensciencegrid:master; 3.6; osg, osg-upcoming, epel-testing
   # - opensciencegrid:master; 3.6; osg-testing, osg-upcoming-testing
   # - opensciencegrid:master; 3.6; osg > osg-testing, osg-upcoming-testing
-  - opensciencegrid:xrootd-for-3.6; 3.5; osg > 3.6/osg-testing
-  - opensciencegrid:xrootd-for-3.6; 3.5; osg, osg-upcoming > 3.6/osg-testing
+  - opensciencegrid:xrootd-for-3.6; 3.5; osg > 3.6/osg-minefield
+  - opensciencegrid:xrootd-for-3.6; 3.5; osg, osg-upcoming > 3.6/osg-minefield
   - opensciencegrid:xrootd-for-3.6; 3.6; osg-minefield
-  - opensciencegrid:xrootd-for-3.6; 3.6; osg-testing
-  - opensciencegrid:xrootd-for-3.6; 3.6; osg-testing > osg-minefield
+  #- opensciencegrid:xrootd-for-3.6; 3.6; osg-testing
+  #- opensciencegrid:xrootd-for-3.6; 3.6; osg-testing > osg-minefield
 
 package_sets:
   #### Required ####
