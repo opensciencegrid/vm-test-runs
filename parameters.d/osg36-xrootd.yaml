@@ -56,3 +56,9 @@ package_sets:
       - osg-xrootd-standalone
       - xrootd-multiuser
       - xrootd-client
+      - voms-clients-cpp
+      # below required for setting up a voms server; not needed for voms-proxy-direct
+      - voms-server
+      - voms-mysql-plugin
+      - mariadb
+      - mariadb-server
