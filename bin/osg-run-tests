@@ -109,7 +109,7 @@ RUN_DIRECTORY=$TEST_HOME/$RUN_DIR_NAME
 echo "Run directory: $RUN_DIRECTORY"
 
 # Prepare the run directory
-safe_run git clone --quiet --depth 1 --branch "$GH_BRANCH" git://github.com/"$GH_ACCOUNT"/vm-test-runs.git $RUN_DIRECTORY
+safe_run git clone --quiet --depth 1 --branch "$GH_BRANCH" https://github.com/"$GH_ACCOUNT"/vm-test-runs.git $RUN_DIRECTORY
 
 if [ $PRERELEASE -eq 1 ]; then
     echo "Using parameters for prerelease tests"
