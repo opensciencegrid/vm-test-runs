@@ -1,0 +1,6 @@
+universe   = local
+executable = $(run_dir)/bin/email-analysis
+
+should_transfer_files = NO
+
+queue
