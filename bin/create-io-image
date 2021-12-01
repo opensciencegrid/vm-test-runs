@@ -33,7 +33,7 @@ def make_source_tarball_from_github(package, repo='opensciencegrid', branch='mas
     branch: source branch or tag
     """
     source_dir_name = package + '-git'
-    source_tarball_name = source_dir_name + '.tar.gz'
+    source_tarball_name = f"{source_dir_name}.{repo}.{branch.replace('/', '_')}.tar.gz"
     # Return immediately if the source tarball seems to exist already
     if os.path.exists(source_tarball_name):
         return source_tarball_name
@@ -97,14 +97,15 @@ def create_image(config_filename):
         try:
             # Clone osg-test from source
             repo, branch = re.search(r'testsource = (.*):(.*)', config_contents).groups()
-            tarballs.append(make_source_tarball_from_github('osg-test', repo, branch))
-            tarballs.append(make_source_tarball_from_github('osg-ca-generator'))
+            tarballs.append((make_source_tarball_from_github('osg-test', repo, branch),
+                             'osg-test.tar.gz'))
+            tarballs.append((make_source_tarball_from_github('osg-ca-generator'),
+                             'osg-ca-generator.tar.gz'))
         except AttributeError:
             # user did not request osg-test from source i.e. install from yum repos instead
             pass
-        for tarball_name in tarballs:
-            shutil.copy(tarball_name, input_directory)
-
+        for src, dest in tarballs:
+            shutil.copy(src, f'{input_directory}/{dest}')
 
         os.mkdir(os.path.join(image_directory, 'output'))
 
