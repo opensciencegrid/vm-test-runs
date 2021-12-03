@@ -99,9 +99,9 @@ def create_image(config_filename):
             # Clone osg-test from source
             repo, branch = re.search(r'testsource = (.*):(.*)', config_contents).groups()
             tarballs.append((make_source_tarball_from_github('osg-test', repo, branch),
-                             'osg-test.tar.gz'))
+                             'osg-test-git.tar.gz'))
             tarballs.append((make_source_tarball_from_github('osg-ca-generator'),
-                             'osg-ca-generator.tar.gz'))
+                             'osg-ca-generator-git.tar.gz'))
         except AttributeError:
             # user did not request osg-test from source i.e. install from yum repos instead
             pass
