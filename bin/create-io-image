@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import glob
 import os
@@ -9,13 +9,15 @@ import sys
 import tempfile
 import vmu
 
+from typing import Dict
+
 def run_command(command, shell=False):
     # Preprocess command
     if shell:
         if not isinstance(command, str):
             command = ' '.join(command)
     elif not (isinstance(command, list) or isinstance(command, tuple)):
-        raise TypeError, 'Need list or tuple, got %s' % (repr(command))
+        raise TypeError('Need list or tuple, got %s' % (repr(command)))
 
     # Run and return command
     p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=shell)
@@ -33,7 +35,7 @@ def make_source_tarball_from_github(package, repo='opensciencegrid', branch='mas
     branch: source branch or tag
     """
     source_dir_name = package + '-git'
-    source_tarball_name = source_dir_name + '.tar.gz'
+    source_tarball_name = f"{source_dir_name}.{repo}.{branch.replace('/', '_')}.tar.gz"
     # Return immediately if the source tarball seems to exist already
     if os.path.exists(source_tarball_name):
         return source_tarball_name
@@ -44,21 +46,21 @@ def make_source_tarball_from_github(package, repo='opensciencegrid', branch='mas
     command = ('git', 'clone', '--bare', 'https://github.com/%s/%s' % (repo, package), clone_directory)
     (exit_status, stdout, stderr) = run_command(command)
     if exit_status != 0:
-        print 'git clone failed with exit status %d' % exit_status
-        print stdout
-        print stderr
+        print('git clone failed with exit status {exit_status}')
+        print(stdout)
+        print(stderr)
         sys.exit(1)
 
     # Make source tarball from the specified branch
-    print 'Making "%s" from "%s"' % (source_tarball_name, clone_directory)
+    print('Making "%s" from "%s"' % (source_tarball_name, clone_directory))
     command = ('git', '--git-dir=' + clone_directory,
                'archive', '--prefix=' + source_dir_name + '/', '--output=' + source_tarball_name,
                branch)
     (exit_status, stdout, stderr) = run_command(command)
     if exit_status != 0:
-        print 'git archive failed with exit status %d' % exit_status
-        print stdout
-        print stderr
+        print(f'git archive failed with exit status {exit_status}')
+        print(stdout)
+        print(stderr)
         sys.exit(1)
 
     # Clean up
@@ -68,15 +70,14 @@ def make_source_tarball_from_github(package, repo='opensciencegrid', branch='mas
 
 
 def create_image(config_filename):
-    f = open(config_filename, 'r')
-    config_contents = f.read()
-    f.close()
+    with open(config_filename, 'r') as f:
+        config_contents = f.read()
 
     serial_number = re.search(r'(\d+)', config_filename).group(1)
     image_filename = 'input-image-%s.qcow2' % (serial_number)
 
-    if contents_to_filename.has_key(config_contents):
-        print 'Linking from "%s" -> "%s"' % (contents_to_filename[config_contents], image_filename)
+    if config_contents in contents_to_filename.keys():
+        print(f'Linking from "{contents_to_filename[config_contents]}" -> "{image_filename}"')
         os.link(contents_to_filename[config_contents], image_filename)
 
     else:
@@ -97,25 +98,26 @@ def create_image(config_filename):
         try:
             # Clone osg-test from source
             repo, branch = re.search(r'testsource = (.*):(.*)', config_contents).groups()
-            tarballs.append(make_source_tarball_from_github('osg-test', repo, branch))
-            tarballs.append(make_source_tarball_from_github('osg-ca-generator'))
+            tarballs.append((make_source_tarball_from_github('osg-test', repo, branch),
+                             'osg-test-git.tar.gz'))
+            tarballs.append((make_source_tarball_from_github('osg-ca-generator'),
+                             'osg-ca-generator-git.tar.gz'))
         except AttributeError:
             # user did not request osg-test from source i.e. install from yum repos instead
             pass
-        for tarball_name in tarballs:
-            shutil.copy(tarball_name, input_directory)
-
+        for src, dest in tarballs:
+            shutil.copy(src, f'{input_directory}/{dest}')
 
         os.mkdir(os.path.join(image_directory, 'output'))
 
         os.environ["LIBGUESTFS_DEBUG"] = "1"
         os.environ["LIBGUESTFS_TRACE"] = "1"
-        print 'Making "%s" from "%s"' % (image_filename, image_directory)
+        print(f'Making "{image_filename}" from "{image_directory}"')
         return_code, stdout, stderr = run_command(['virt-make-fs', '--size=10M', '--format=qcow2',
                                                    image_directory, image_filename])
 
         shutil.rmtree(image_directory)
-        print stdout
+        print(stdout)
 
         if return_code:
             vmu.die(stderr)
@@ -136,6 +138,6 @@ if __name__ == '__main__':
     config_filename = sys.argv[1]
 
     # Write files
-    contents_to_filename = {}
+    contents_to_filename: Dict[str, str] = {}
     create_image(config_filename)
     os.remove(config_filename)
