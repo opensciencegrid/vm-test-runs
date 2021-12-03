@@ -149,16 +149,8 @@ else
         rpm_version=`rpm --query osg-test`
         log_command echo "osg-test source: file $rpm_version" # For post-run analysis
     else
-        run_command_with_retries 8 yum -y --enablerepo=osg-minefield install osg-test --disablerepo=osg
-        if [ $? -ne 0 ]; then
-            echo 'Could not install osg-test'
-            exit 1
-        fi
-        for PACKAGE in 'osg-test' 'osg-ca-generator'; do
-            log_command rpm --verify $PACKAGE
-            rpm_version=`rpm --query $PACKAGE`
-            log_command echo "$PACKAGE source: yum $rpm_version" # For post-run analysis
-        done
+        echo 'Missing local osg-test RPM'
+        exit 1
     fi
 fi
 
