@@ -15,6 +15,7 @@ sources:
   - opensciencegrid:xrootd-for-3.6; 3.6; osg-prerelease
   - opensciencegrid:xrootd-for-3.6; 3.6; osg > osg-prerelease
   - opensciencegrid:xrootd-for-3.6; 3.5; osg, osg-upcoming > 3.6/osg-prerelease
+  - opensciencegrid:xrootd-for-3.6; 3.5; osg > 3.6/osg-prerelease
 
 package_sets:
   #### Required ####
