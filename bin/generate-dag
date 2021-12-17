@@ -20,7 +20,7 @@ DAG_FRAGMENT = '''
 JOB CreateImage{serial} create-io-image.sub
 VARS CreateImage{serial} serial="{serial}"
 RETRY CreateImage{serial} 3
-CATEGORY CreateImage CreateImage{serial}
+CATEGORY CreateImage{serial} CreateImage
 
 JOB TestRun{serial} single-test-run.sub
 VARS TestRun{serial} serial="{serial}" platform="{platform}" jobpriority="{priority}"
