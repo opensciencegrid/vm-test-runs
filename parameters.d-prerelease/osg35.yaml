@@ -37,7 +37,7 @@ package_sets:
       - singularity
   - label: StashCache
     packages:
-      - stashcache-client
+      - /usr/bin/stashcp
       - stash-cache
       - stash-origin
       - globus-proxy-utils
