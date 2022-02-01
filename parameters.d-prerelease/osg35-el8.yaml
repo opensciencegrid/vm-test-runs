@@ -1,5 +1,4 @@
 platforms:
-  - centos_8_x86_64
   - centos_stream_8_x86_64
   - rocky_8_x86_64
 
