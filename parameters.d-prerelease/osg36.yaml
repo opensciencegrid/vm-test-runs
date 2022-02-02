@@ -36,7 +36,7 @@ package_sets:
       - singularity
   # - label: StashCache (3.6)
   #   packages:
-  #     - stashcache-client
+  #     - /usr/bin/stashcp
   #     - stash-cache
   #     - stash-origin
   #     - python3-gfal2-util
