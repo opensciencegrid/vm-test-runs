@@ -140,7 +140,7 @@ if __name__ == '__main__':
     dag_contents += '\n'
     dag_contents += '# Don\'t run too many simultaneous LocalIO jobs because they are I/O-heavy\n'
     dag_contents += '# and run on the local machine\n';
-    dag_contents += 'MAXJOBS LocalIO 10\n'
+    dag_contents += 'MAXJOBS LocalIO 20\n'
     dag_contents += '# Allow DAG to complete successfully if any tests have failed\n'
     dag_contents += 'FINAL MarkDagSuccessful true.sub\n'
     vmu.write_file(dag_contents, os.path.join(test_run_directory, 'test-run.dag'))
