@@ -133,6 +133,7 @@ if [ -f $INPUT_DIR/osg-test-git.tar.gz ]; then
 
     for PACKAGE in 'osg-test' 'osg-ca-generator'; do
         tarball=$INPUT_DIR/$PACKAGE-git.tar.gz
+        log_command stat $tarball
         tar xzf $tarball --directory /tmp
         cd /tmp/$PACKAGE-git
         if [ "$os_major_version" -gt 7 ]; then
