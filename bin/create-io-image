@@ -36,8 +36,8 @@ def make_source_tarball_from_github(package, repo='opensciencegrid', branch='mas
     """
     source_dir_name = package + '-git'
     source_tarball_name = f"{source_dir_name}.{repo}.{branch.replace('/', '_')}.tar.gz"
-    # Return immediately if the source tarball seems to exist already
-    if os.path.exists(source_tarball_name):
+    # Return immediately if the source tarball seems to exist and is undamaged
+    if os.path.exists(source_tarball_name) and run_command("tar tzf %r >/dev/null", shell=True)[0] == 0:
         return source_tarball_name
 
     # Clone the repo into a temporary directory
