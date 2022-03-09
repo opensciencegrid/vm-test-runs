@@ -35,7 +35,9 @@ def make_source_tarball_from_github(package, repo='opensciencegrid', branch='mas
     branch: source branch or tag
     """
     source_dir_name = package + '-git'
-    source_tarball_name = f"{source_dir_name}.{repo}.{branch.replace('/', '_')}.tar.gz"
+    source_tarball_base = f"{source_dir_name}.{repo}.{branch.replace('/', '_')}"
+    temp_tarball_name = f"{source_tarball_base}.{os.getpid()}.tar.gz"
+    source_tarball_name = f"{source_tarball_base}.tar.gz"
     # Return immediately if the source tarball seems to exist and is undamaged
     if os.path.exists(source_tarball_name) and run_command("tar tzf %r >/dev/null", shell=True)[0] == 0:
         return source_tarball_name
@@ -54,13 +56,23 @@ def make_source_tarball_from_github(package, repo='opensciencegrid', branch='mas
     # Make source tarball from the specified branch
     print('Making "%s" from "%s"' % (source_tarball_name, clone_directory))
     command = ('git', '--git-dir=' + clone_directory,
-               'archive', '--prefix=' + source_dir_name + '/', '--output=' + source_tarball_name,
+               'archive', '--prefix=' + source_dir_name + '/', '--output=' + temp_tarball_name,
                branch)
     (exit_status, stdout, stderr) = run_command(command)
     if exit_status != 0:
         print(f'git archive failed with exit status {exit_status}')
         print(stdout)
         print(stderr)
+        sys.exit(1)
+    try:
+        shutil.move(temp_tarball_name, source_tarball_name)
+    except FileExistsError:
+        # Another instance beat us to the punch; hope they'll get it right.
+        os.unlink(temp_tarball_name)
+        pass
+    except OSError as err:
+        print(f"Moving {source_tarball_name} failed with error {err}")
+        os.unlink(temp_tarball_name)
         sys.exit(1)
 
     # Clean up
