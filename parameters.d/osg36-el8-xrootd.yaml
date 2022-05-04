@@ -22,9 +22,6 @@ sources:
   - opensciencegrid:xrootd-for-3.6; 3.6; osg-testing
   - opensciencegrid:xrootd-for-3.6; 3.6; osg > osg-testing
   - opensciencegrid:xrootd-for-3.6; 3.5; osg, osg-upcoming > 3.6/osg
-  #- opensciencegrid:xrootd-for-3.6; 3.5; osg, osg-upcoming > 3.6/osg-minefield
-  #- opensciencegrid:xrootd-for-3.6; 3.6; osg > osg-minefield
-  #- opensciencegrid:xrootd-for-3.6; 3.6; osg-minefield
 
 package_sets:
   #### Required ####

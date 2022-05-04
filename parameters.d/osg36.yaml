@@ -21,7 +21,7 @@ sources:
   - opensciencegrid:master; 3.6; osg, epel-testing
   - opensciencegrid:master; 3.6; osg-testing
   - opensciencegrid:master; 3.6; osg > osg-testing
-  - opensciencegrid:master; 3.5; osg > 3.6/osg
+  - opensciencegrid:master; 3.5; osg-upcoming > 3.6/osg
   - opensciencegrid:master; 3.6; osg, osg-upcoming
   - opensciencegrid:master; 3.6; osg, osg-upcoming, epel-testing
   - opensciencegrid:master; 3.6; osg-testing, osg-upcoming-testing
