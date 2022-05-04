@@ -34,14 +34,14 @@ package_sets:
       - osg-wn-client
       - osg-oasis
       - singularity
-  # - label: StashCache (3.6)
+  # - label: StashCache
   #   packages:
   #     - /usr/bin/stashcp
   #     - stash-cache
   #     - stash-origin
   #     - python3-gfal2-util
   #     - gfal2-all
-  # - label: XRootD (3.6)
+  # - label: XRootD
   #   packages:
   #     - osg-xrootd-standalone
   #     - xrootd-multiuser
