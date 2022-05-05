@@ -14,7 +14,6 @@ sources:
   - opensciencegrid:xrootd-for-3.6; 3.6; osg-prerelease
   - opensciencegrid:xrootd-for-3.6; 3.6; osg > osg-prerelease
   - opensciencegrid:xrootd-for-3.6; 3.5; osg, osg-upcoming > 3.6/osg-prerelease
-  - opensciencegrid:xrootd-for-3.6; 3.5; osg > 3.6/osg-prerelease
 
 package_sets:
   #### Required ####
@@ -25,14 +24,14 @@ package_sets:
   # osg_java - Pre-install OSG java packages (default: False)
   # rng - Install entropy generation package (default: False)
   ##################
-  - label: StashCache (3.6)
+  - label: StashCache
     packages:
       - /usr/bin/stashcp
       - stash-cache
       - stash-origin
       - python3-gfal2-util
       - gfal2-all
-  - label: XRootD (3.6)
+  - label: XRootD
     packages:
       - osg-xrootd-standalone
       - xrootd-multiuser

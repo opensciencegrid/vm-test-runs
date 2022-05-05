@@ -21,7 +21,7 @@ sources:
   - opensciencegrid:master; 3.6; osg, epel-testing
   - opensciencegrid:master; 3.6; osg-testing
   - opensciencegrid:master; 3.6; osg > osg-testing
-  - opensciencegrid:master; 3.5; osg > 3.6/osg
+  - opensciencegrid:master; 3.5; osg, osg-upcoming > 3.6/osg
   - opensciencegrid:master; 3.6; osg, osg-upcoming
   - opensciencegrid:master; 3.6; osg-testing, osg-upcoming-testing
   - opensciencegrid:master; 3.6; osg > osg-testing, osg-upcoming-testing
@@ -35,7 +35,7 @@ package_sets:
   # osg_java - Pre-install OSG java packages (default: False)
   # rng - Install entropy generation package (default: False)
   ##################
-  - label: Compute Entrypoint (no Globus/Torque)
+  - label: Compute Entrypoint (no Torque)
     packages:
       - osg-ce-condor
       - htcondor-ce-view
