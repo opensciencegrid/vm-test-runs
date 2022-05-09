@@ -25,6 +25,9 @@ sources:
   - opensciencegrid:master; 3.6; osg, osg-upcoming
   - opensciencegrid:master; 3.6; osg-testing, osg-upcoming-testing
   - opensciencegrid:master; 3.6; osg > osg-testing, osg-upcoming-testing
+  # - opensciencegrid:master; 3.5; osg, osg-upcoming > 3.6/osg-minefield
+  # - opensciencegrid:master; 3.6; osg-minefield
+  # - opensciencegrid:master; 3.6; osg > osg-minefield
 
 package_sets:
   #### Required ####
@@ -50,11 +53,24 @@ package_sets:
   #     - htcondor-ce-collector
   #     - htcondor-ce-view
   #     - fetch-crl
+  - label: StashCache
+    packages:
+      - /usr/bin/stashcp
+      - stash-cache
+      - stash-origin
+      - python3-gfal2-util
+      - gfal2-all
   - label: Worker Node
     packages:
       - osg-wn-client
       - osg-oasis
       - singularity
+  - label: XRootD
+    packages:
+      - osg-xrootd-standalone
+      - xrootd-multiuser
+      - xrootd-client
+      - voms-clients-cpp
   ###########################
   #- label: GlideinwmsFrontend
   #  packages:
