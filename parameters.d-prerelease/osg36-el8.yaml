@@ -19,8 +19,22 @@ package_sets:
       - slurm-perlapi
       - slurm-slurmdbd
       - mariadb-server
+  - label: StashCache
+    packages:
+      - /usr/bin/stashcp
+      - stash-cache
+      - stash-origin
+      - python3-gfal2-util
+      - gfal2-all
   - label: Worker Node
     packages:
       - osg-wn-client
       - osg-oasis
       - singularity
+  - label: XRootD
+    packages:
+      - osg-xrootd-standalone
+      - xrootd-multiuser
+      - xrootd-client
+      - xrootd-fuse
+      - xrootd-scitokens
