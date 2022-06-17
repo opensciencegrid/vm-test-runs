@@ -1,6 +1,7 @@
 platforms:
   - centos_stream_8_x86_64
   - rocky_8_x86_64
+  - alma_8_x86_64
 
 sources:
   - opensciencegrid:master; 3.6; osg-prerelease
