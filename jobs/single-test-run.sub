@@ -15,7 +15,9 @@ periodic_release        = ( (HoldReasonCode == 3) && (NumJobStarts < 3) ) || ( (
 periodic_remove         = ( (JobStatus == 5) && (HoldReasonCode =?= 3) && (NumJobStarts >= 3) ) || (time() - QDate >  43200)
 
 request_disk            = 8GB
-requirements            = (TARGET.HasVirshDefaultNetwork == True) && (TARGET.HasCHTCStaging == True)
+# NOTE: Please inform infrastructure of machines in the following list:
++BadMachineList         = ""
+requirements            = (TARGET.HasVirshDefaultNetwork == True) && (TARGET.HasCHTCStaging == True) && !StringListMember(TARGET.Machine, MY.BadMachineList)
 
 log                     = osg-test.log
 
