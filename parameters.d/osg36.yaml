@@ -65,11 +65,11 @@ package_sets:
       - stash-origin
       - python3-gfal2-util
       - gfal2-all
-  - label: Worker Node
+  - label: Worker Node (privileged)
     packages:
       - osg-wn-client
       - osg-oasis
-      - singularity
+      - apptainer-suid
   - label: XRootD
     packages:
       - osg-xrootd-standalone
