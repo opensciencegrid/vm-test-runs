@@ -59,6 +59,12 @@ case $os_major_version in
         python_lib_dir='/usr/lib/python3.6'
         python='/usr/bin/python3'
         ;;
+    9 )
+        osg_url="https://repo.opensciencegrid.org/osg/$osg_series/osg-$osg_series-el9-release-latest.rpm"
+        priorities_rpm=
+        python_lib_dir='/usr/lib/python3.9'
+        python='/usr/bin/python3'
+        ;;
     * )
         echo "Could not determine OS major version from '$os_major_version'"
         exit 2
