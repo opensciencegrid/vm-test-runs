@@ -5,9 +5,9 @@
 ###################
 
 platforms:
-  - centos_stream_8_x86_64
-  - rocky_8_x86_64
-  - alma_8_x86_64
+  - centos_stream_9_x86_64
+  - rocky_9_x86_64
+  - alma_9_x86_64
 
 sources:
   ###################
@@ -18,10 +18,10 @@ sources:
   # 3.3-testing and 3-3-upcoming-testing:
   # 3.2; osg, osg-testing > 3.3/osg-testing, osg-upcoming-testing
   ###################
-  - opensciencegrid:master; 3.6; osg
-  - opensciencegrid:master; 3.6; osg, epel-testing
-  - opensciencegrid:master; 3.6; osg-testing
-  - opensciencegrid:master; 3.6; osg > osg-testing
+  # - opensciencegrid:master; 3.6; osg
+  # - opensciencegrid:master; 3.6; osg, epel-testing
+  # - opensciencegrid:master; 3.6; osg-testing
+  # - opensciencegrid:master; 3.6; osg > osg-testing
   - opensciencegrid:master; 3.5; osg, osg-upcoming > 3.6/osg
   - opensciencegrid:master; 3.6; osg, osg-upcoming
   - opensciencegrid:master; 3.6; osg-testing, osg-upcoming-testing
@@ -61,22 +61,3 @@ package_sets:
       - stash-origin
       - python3-gfal2-util
       - gfal2-all
-  - label: Worker Node (privileged)
-    packages:
-      - osg-wn-client
-      - osg-oasis
-      - apptainer-suid
-  - label: XRootD
-    packages:
-      - osg-xrootd-standalone
-      - xrootd-multiuser
-      - xrootd-client
-      - voms-clients-cpp
-  ###########################
-  #- label: GlideinwmsFrontend
-  #  packages:
-  #    - glideinwms-vofrontend
-  #- label: GlideinwmsFactory
-  #  packages:
-  #    - glideinwms-factory
-
