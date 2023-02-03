@@ -24,8 +24,9 @@ sources:
   # - opensciencegrid:master; 3.6; osg > osg-testing
   - opensciencegrid:master; 3.6; osg, osg-upcoming
   - opensciencegrid:master; 3.6; osg-testing, osg-upcoming-testing
+  - opensciencegrid:master; 3.6; osg-minefield, osg-upcoming-minefield
   # - opensciencegrid:master; 3.6; osg > osg-testing, osg-upcoming-testing
-  - opensciencegrid:master; 3.6; osg-minefield
+  # - opensciencegrid:master; 3.6; osg-minefield
   # - opensciencegrid:master; 3.6; osg > osg-minefield
 
 package_sets:
