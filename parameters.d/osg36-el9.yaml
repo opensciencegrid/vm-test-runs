@@ -18,9 +18,9 @@ sources:
   # 3.3-testing and 3-3-upcoming-testing:
   # 3.2; osg, osg-testing > 3.3/osg-testing, osg-upcoming-testing
   ###################
-  - opensciencegrid:master; 3.6; osg
-  - opensciencegrid:master; 3.6; osg, epel-testing
-  - opensciencegrid:master; 3.6; osg-testing
+  # - opensciencegrid:master; 3.6; osg
+  # - opensciencegrid:master; 3.6; osg, epel-testing
+  # - opensciencegrid:master; 3.6; osg-testing
   # - opensciencegrid:master; 3.6; osg > osg-testing
   # - opensciencegrid:master; 3.6; osg, osg-upcoming
   # - opensciencegrid:master; 3.6; osg-testing, osg-upcoming-testing
@@ -37,6 +37,23 @@ package_sets:
   # osg_java - Pre-install OSG java packages (default: False)
   # rng - Install entropy generation package (default: False)
   ##################
+  - label: Compute Entrypoint (no Torque)
+    packages:
+      - osg-ce-condor
+      - htcondor-ce-view
+      - slurm
+      - slurm-slurmd
+      - slurm-slurmctld
+      - slurm-perlapi
+      - slurm-slurmdbd
+      - mariadb-server
+  - label: StashCache
+    packages:
+      - /usr/bin/stashcp
+      - stash-cache
+      - stash-origin
+      - python3-gfal2-util
+      - gfal2-all
   - label: Worker Node (privileged)
     packages:
       - osg-wn-client
