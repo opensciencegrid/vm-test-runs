@@ -10,19 +10,28 @@ sources:
   - opensciencegrid:master; 3.6; osg > osg-prerelease, osg-upcoming-prerelease, osg-upcoming
 
 package_sets:
-  - label: Compute Entrypoint
+  - label: Compute Entrypoint (Condor)
     packages:
       - osg-ce-condor
       - htcondor-ce-view
-      - torque-server
-      - torque-mom
-      - torque-client
-      - torque-scheduler
+  - label: Compute Entrypoint (SLURM)
+    packages:
+      - osg-ce-slurm
+      - htcondor-ce-view
       - slurm
       - slurm-slurmd
       - slurm-slurmctld
       - slurm-perlapi
       - slurm-slurmdbd
+      - mariadb-server
+  - label: Compute Entrypoint (Torque)
+    packages:
+      - osg-ce-pbs
+      - htcondor-ce-view
+      - torque-server
+      - torque-mom
+      - torque-client
+      - torque-scheduler
       - mariadb-server
   - label: Central Collector
     packages:

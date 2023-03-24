@@ -10,9 +10,13 @@ sources:
   - opensciencegrid:master; 3.6; osg > osg-prerelease, osg-upcoming-prerelease, osg-upcoming
 
 package_sets:
-  - label: Compute Entrypoint (no Globus/Torque)
+  - label: Compute Entrypoint (Condor)
     packages:
       - osg-ce-condor
+      - htcondor-ce-view
+  - label: Compute Entrypoint (SLURM)
+    packages:
+      - osg-ce-slurm
       - htcondor-ce-view
       - slurm
       - slurm-slurmd
