@@ -39,19 +39,28 @@ package_sets:
   # osg_java - Pre-install OSG java packages (default: False)
   # rng - Install entropy generation package (default: False)
   ##################
-  - label: Compute Entrypoint
+  - label: Compute Entrypoint (Condor)
     packages:
       - osg-ce-condor
       - htcondor-ce-view
-      - torque-server
-      - torque-mom
-      - torque-client
-      - torque-scheduler
+  - label: Compute Entrypoint (SLURM)
+    packages:
+      - osg-ce-slurm
+      - htcondor-ce-view
       - slurm
       - slurm-slurmd
       - slurm-slurmctld
       - slurm-perlapi
       - slurm-slurmdbd
+      - mariadb-server
+  - label: Compute Entrypoint (Torque)
+    packages:
+      - osg-ce-pbs
+      - htcondor-ce-view
+      - torque-server
+      - torque-mom
+      - torque-client
+      - torque-scheduler
       - mariadb-server
   - label: Central Collector
     packages:

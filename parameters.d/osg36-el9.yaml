@@ -37,9 +37,13 @@ package_sets:
   # osg_java - Pre-install OSG java packages (default: False)
   # rng - Install entropy generation package (default: False)
   ##################
-  - label: Compute Entrypoint (no Torque)
+  - label: Compute Entrypoint (Condor)
     packages:
       - osg-ce-condor
+      - htcondor-ce-view
+  - label: Compute Entrypoint (SLURM)
+    packages:
+      - osg-ce-slurm
       - htcondor-ce-view
       - slurm
       - slurm-slurmd
