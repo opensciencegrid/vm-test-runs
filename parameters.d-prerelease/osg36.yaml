@@ -55,8 +55,7 @@ package_sets:
       - osg-xrootd-standalone
       - xrootd-multiuser
       - xrootd-client
-      - xrootd-fuse
-      - xrootd-scitokens
+      - voms-clients-cpp
   ###########################
   #- label: GlideinwmsFrontend
   #  packages:
