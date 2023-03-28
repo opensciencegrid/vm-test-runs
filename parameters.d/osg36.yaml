@@ -43,7 +43,7 @@ package_sets:
     packages:
       - osg-ce-condor
       - htcondor-ce-view
-  - label: Compute Entrypoint (SLURM)
+  - label: Compute Entrypoint (Slurm)
     packages:
       - osg-ce-slurm
       - htcondor-ce-view
