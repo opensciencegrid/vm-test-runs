@@ -20,12 +20,12 @@ sources:
   ###################
   # - opensciencegrid:master; 3.6; osg
   # - opensciencegrid:master; 3.6; osg, epel-testing
-  # - opensciencegrid:master; 3.6; osg-testing
+  - opensciencegrid:master; 3.6; osg-testing
   # - opensciencegrid:master; 3.6; osg > osg-testing
   # - opensciencegrid:master; 3.6; osg, osg-upcoming
   # - opensciencegrid:master; 3.6; osg-testing, osg-upcoming-testing
   # - opensciencegrid:master; 3.6; osg > osg-testing, osg-upcoming-testing
-  - opensciencegrid:master; 3.6; osg-minefield
+  # - opensciencegrid:master; 3.6; osg-minefield
   # - opensciencegrid:master; 3.6; osg > osg-minefield
 
 package_sets:
@@ -41,7 +41,7 @@ package_sets:
     packages:
       - osg-ce-condor
       - htcondor-ce-view
-  - label: Compute Entrypoint (SLURM)
+  - label: Compute Entrypoint (Slurm)
     packages:
       - osg-ce-slurm
       - htcondor-ce-view
