@@ -1,0 +1,41 @@
+platforms:
+  - centos_stream_9_x86_64
+  - rocky_9_x86_64
+  - alma_9_x86_64
+
+sources:
+  - opensciencegrid:master; 3.6; osg-prerelease
+
+package_sets:
+  - label: Compute Entrypoint (Condor)
+    packages:
+      - osg-ce-condor
+      - htcondor-ce-view
+  - label: Compute Entrypoint (Slurm)
+    packages:
+      - osg-ce-slurm
+      - htcondor-ce-view
+      - slurm
+      - slurm-slurmd
+      - slurm-slurmctld
+      - slurm-perlapi
+      - slurm-slurmdbd
+      - mariadb-server
+  - label: StashCache
+    packages:
+      - /usr/bin/stashcp
+      - stash-cache
+      - stash-origin
+      - python3-gfal2-util
+      - gfal2-all
+  - label: Worker Node (privileged)
+    packages:
+      - osg-wn-client
+      - osg-oasis
+      - apptainer-suid
+  - label: XRootD
+    packages:
+      - osg-xrootd-standalone
+      - xrootd-multiuser
+      - xrootd-client
+      - voms-clients-cpp
