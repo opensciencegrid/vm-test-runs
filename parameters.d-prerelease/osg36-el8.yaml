@@ -36,6 +36,11 @@ package_sets:
       - osg-wn-client
       - osg-oasis
       - apptainer-suid
+  - label: Worker Node (privileged, tarball deps)
+    packages:
+      - hosted-ce-tools
+      - osg-update-data
+      - osg-wn-client
   - label: XRootD
     packages:
       - osg-xrootd-standalone
