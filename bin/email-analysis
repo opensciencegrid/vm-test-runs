@@ -11,7 +11,6 @@ import vmu
 # https://opensciencegrid.github.io/technology/
 RECIPIENTS = (
     'Brian Lin <blin@cs.wisc.edu>',
-    'Carl Edquist <edquist@cs.wisc.edu>',
     'Diego Davila <didavila@ucsd.edu>',
     'Mat Selmeci <matyas@cs.wisc.edu>',
     'Tim Cartwright <cat@cs.wisc.edu>',
