@@ -1,0 +1,31 @@
+#!/bin/bash
+# find-recent-runs [regexp]
+#
+# Prints a table of 'recent' test runs whose run_label files match the given
+# regexp.  recent is defined as the last 3 calendar months, because using
+# a glob was easier than doing date comparison.
+# If the regexp is not specified then all recent runs are printed.
+#
+# Requires a version of date(1) that understands dates like "3 months ago".
+#
+
+pattern=$1
+runsDir=/home/runs
+thisMonth=$(date +%Y%m)
+lastMonth=$(date +%Y%m -d 'last month')
+twoMonthsAgo=$(date +%Y%m -d '2 months ago')
+threeMonthsAgo=$(date +%Y%m -d '3 months ago')
+
+[[ -n $threeMonthsAgo && -n $twoMonthsAgo && -n $lastMonth ]] || {
+    echo >&2 "This version of date isn't smart enough"
+    exit 1
+}
+
+cd "$runsDir" || exit 1
+set -o nullglob
+for dir in run-"${threeMonthsAgo}"* run-"${twoMonthsAgo}"* run-"${lastMonth}"* run-"${thisMonth}"*; do
+    labelFile=$dir/run_label
+    label=$(grep -sE "$pattern" "$labelFile" | head -n 1)
+    [[ -n $label ]] || continue
+    printf "%17s\t%s\n" "$dir" "$label"
+done
