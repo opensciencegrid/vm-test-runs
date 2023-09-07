@@ -125,7 +125,7 @@ def create_image(config_filename):
         os.environ["LIBGUESTFS_DEBUG"] = "1"
         os.environ["LIBGUESTFS_TRACE"] = "1"
         print(f'Making "{image_filename}" from "{image_directory}"')
-        return_code, stdout, stderr = run_command(['virt-make-fs', '--size=10M', '--format=qcow2',
+        return_code, stdout, stderr = run_command(['virt-make-fs', '--size=64M', '--format=qcow2',
                                                    image_directory, image_filename])
 
         shutil.rmtree(image_directory)
