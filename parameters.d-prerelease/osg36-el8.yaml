@@ -47,3 +47,6 @@ package_sets:
       - xrootd-multiuser
       - xrootd-client
       - voms-clients-cpp
+  - label: OSG Token Renewer
+    packages:
+      - osg-token-renewer
