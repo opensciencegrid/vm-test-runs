@@ -46,21 +46,23 @@ osg_series=`grep series $INPUT_DIR/osg-test.conf | sed -e 's/series *= *//'`
 # Set variables based on OS major version
 os_major_version=`sed -e 's/^[^0-9]*//' -e 's/\..*$//' /etc/redhat-release`
 epel_url="https://dl.fedoraproject.org/pub/epel/epel-release-latest-$os_major_version.noarch.rpm"
+
+# Starting with OSG 23, we dump release RPMs in the XX-main part of the tree
+[[ $osg_series =~ ^[2-9][0-9]$ ]] && osg_series=${osg_series}-main
+osg_url="https://repo.opensciencegrid.org/osg/${osg_series}/osg-${osg_series}-el${os_major_version}-release-latest.rpm"
+
 case $os_major_version in
     7 )
-        osg_url="https://repo.opensciencegrid.org/osg/$osg_series/osg-$osg_series-el7-release-latest.rpm"
         priorities_rpm='yum-plugin-priorities'
         python_lib_dir='/usr/lib/python3.6'
         python='/usr/bin/python3'
         ;;
     8 )
-        osg_url="https://repo.opensciencegrid.org/osg/$osg_series/osg-$osg_series-el8-release-latest.rpm"
         priorities_rpm=
         python_lib_dir='/usr/lib/python3.6'
         python='/usr/bin/python3'
         ;;
     9 )
-        osg_url="https://repo.opensciencegrid.org/osg/$osg_series/osg-$osg_series-el9-release-latest.rpm"
         priorities_rpm=
         python_lib_dir='/usr/lib/python3.9'
         python='/usr/bin/python3'
