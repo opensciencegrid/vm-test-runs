@@ -1,6 +1,6 @@
 Summary: OSG VMU test scripts
 Name: vm-test-runs
-Version: 1.1
+Version: 1.2
 Release: 1%{?dist}
 Source0: %{name}-%{version}.tar.gz
 License: Apache 2.0
@@ -34,6 +34,7 @@ install -D -m 0644 rpm/vm-test-cleanup.service %{buildroot}/%{_unitdir}/vm-test-
 install -D -m 0644 rpm/vm-test-cleanup.timer %{buildroot}/%{_unitdir}/vm-test-cleanup.timer
 
 install -D -m 0755 bin/compare-rpm-versions %{buildroot}/%{_bindir}/compare-rpm-versions
+install -D -m 0755 bin/find-recent-runs %{buildroot}/%{_bindir}/find-recent-runs
 install -D -m 0755 bin/list-rpm-versions %{buildroot}/%{_bindir}/list-rpm-versions
 install -D -m 0755 bin/osg-run-tests %{buildroot}/%{_bindir}/osg-run-tests
 install -D -m 0755 bin/vm-test-cleanup %{buildroot}/%{_bindir}/vm-test-cleanup
@@ -54,6 +55,7 @@ install -D vmu.css %{buildroot}/%{_localstatedir}/www/html/vmu.css
 %attr(1777,root,root) %dir /osgtest/runs
 
 %{_bindir}/compare-rpm-versions
+%{_bindir}/find-recent-runs
 %{_bindir}/list-rpm-versions
 %{_bindir}/osg-run-tests
 %{_bindir}/vm-test-cleanup
@@ -66,6 +68,9 @@ install -D vmu.css %{buildroot}/%{_localstatedir}/www/html/vmu.css
 %{_localstatedir}/www/html/vmu.css
 
 %changelog
+* Fri Aug 04 2023 Mátyás Selmeci <matyas@cs.wisc.edu> 1.2-1
+- Add find-recent-runs script
+
 * Fri Mar 27 2020 Brian Lin <blin@cs.wisc.edu> 1.1-1
 - VM test run service cleanup fixes
 
