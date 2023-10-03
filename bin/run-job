@@ -128,6 +128,10 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Print the exact URL to one of the Base OS RPMs
+run_command_with_retries 3 yum install -y yum-utils
+log_command repoquery --location curl
+
 # Do not ignore missing packages; already the default for el8
 if [ "$os_major_version" -eq 7 ]; then
     run_command_with_retries 8 yum-config-manager \
