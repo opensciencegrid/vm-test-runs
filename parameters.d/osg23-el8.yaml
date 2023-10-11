@@ -55,15 +55,6 @@ package_sets:
       - slurm-perlapi
       - slurm-slurmdbd
       - mariadb-server
-  - label: Compute Entrypoint (Torque)
-    packages:
-      - osg-ce-pbs
-      - htcondor-ce-view
-      - torque-server
-      - torque-mom
-      - torque-client
-      - torque-scheduler
-      - mariadb-server
   - label: Central Collector
     packages:
       - htcondor-ce-collector
