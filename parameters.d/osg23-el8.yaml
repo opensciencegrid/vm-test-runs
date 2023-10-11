@@ -1,5 +1,5 @@
 ###################
-# OSG 23 tests
+# OSG 23 tests for EL8
 # File format documention:
 # https://github.com/opensciencegrid/vm-test-runs#running-osg-test-in-vm-universe
 ###################
@@ -8,9 +8,6 @@ platforms:
   - centos_stream_8_x86_64
   - rocky_8_x86_64
   - alma_8_x86_64
-  - centos_stream_9_x86_64
-  - rocky_9_x86_64
-  - alma_9_x86_64
 
 sources:
   ###################
@@ -57,15 +54,6 @@ package_sets:
       - slurm-slurmctld
       - slurm-perlapi
       - slurm-slurmdbd
-      - mariadb-server
-  - label: Compute Entrypoint (Torque)
-    packages:
-      - osg-ce-pbs
-      - htcondor-ce-view
-      - torque-server
-      - torque-mom
-      - torque-client
-      - torque-scheduler
       - mariadb-server
   - label: Central Collector
     packages:
