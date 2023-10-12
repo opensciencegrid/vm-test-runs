@@ -1,3 +1,0 @@
-cat /etc/cron.d/vmu-run-cleanup 
-# Cleanup VMU test runs, keeping latest N
-46 1 * * * root /osgtest/runs/cleanup.sh
