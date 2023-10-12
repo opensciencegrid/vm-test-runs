@@ -100,14 +100,7 @@ def parseargs():
         if m:
             outdir = "%s/run-%s" % (GLOBAL_RUNS_DIR, m.group(1))
             if m.group(2) is not None:
-                # TODO: Consolidate this when there are no more test runs with the old
-                # directory structure, e.g. the following is empty:
-                # $ find /osgtest/runs/ -maxdepth 2 -type d -name 'output-*'
-                output_dir = "jobs/output-%s" % m.group(2)
-                if os.path.isdir(outdir + output_dir):
-                    outdir += output_dir
-                else:
-                    outdir += "/output-%s" % m.group(2)
+                outdir += "/jobs/output-%s" % m.group(2)
             else:
                 summarize = True
 
@@ -126,9 +119,22 @@ def group_adjacent(a,k):
     ''' group_adjacent([1,2,3,4,5,6], 3) -> [(1,2,3), (4,5,6)] '''
     return zip(*([iter(a)] * k))
 
+def parse_nevra(item):
+    nevr,a = item.rsplit('.',1)
+    n,ev,r = nevr.rsplit('-',2)
+    na = "%s.%s" % (n,a)
+    evr = "%s-%s" % (ev,r)
+    return na,evr
+
+def get_nv_evr_list(items):
+    if re.search(r'[._]el[89][._]', items[-1]):
+        return map(parse_nevra, items)
+    else:
+        return group_adjacent(items, 2)
+
 def nvrgen(items):
     # generate sequence of ["name.arch", "epoch:version-release"] pairs
-    for na,evr in group_adjacent(items, 2):
+    for na,evr in get_nv_evr_list(items):
         if strip_arch:
             na = arch_strip(na)
         if strip_dist:
@@ -155,7 +161,7 @@ def rpm_qa2na_vr(line):
 
 def scrape_installed_packages(txt):
     installed_pkgs = {}
-    items_pat = (r'^(?:Dependency )?(Installed|Updated|Replaced):\n'
+    items_pat = (r'^(?:Dependency )?(Installed|Updated|Upgraded|Replaced):\n'
                  r'(.*?)\n(?:\n|(?=[^ ]))')
     for section, pkgtxt in re.findall(items_pat, txt, re.S | re.M):
         pkg_items = pkgtxt.split()
@@ -280,13 +286,8 @@ def get_run_output_dirs(rundir):
     elif re.match(r'20[0-9]{6}-[0-9]{4}$', rundir):
         rundir = "%s/run-%s" % (GLOBAL_RUNS_DIR, rundir)
 
-    # TODO: Consolidate this when there are no more test runs with the old
-    # directory structure, e.g. the following is empty:
-    # $ find /osgtest/runs/ -maxdepth 2 -type d -name 'output-*'
-    for globpat in ("%s/jobs/output-[0-9][0-9][0-9]*/" % rundir, "%s/output-[0-9][0-9][0-9]*/" % rundir):
-        outputs = sorted(glob.glob(globpat))
-        if outputs:
-            break
+    globpat = "%s/jobs/output-[0-9][0-9][0-9]*/" % rundir
+    outputs = sorted(glob.glob(globpat))
 
     if not outputs:
         raise RuntimeError("no output dirs found under '%s'" % rundir)
