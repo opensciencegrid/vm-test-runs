@@ -1,6 +1,6 @@
 Summary: OSG VMU test scripts
 Name: vm-test-runs
-Version: 1.2
+Version: 1.3
 Release: 1%{?dist}
 Source0: %{name}-%{version}.tar.gz
 License: Apache 2.0
@@ -65,9 +65,12 @@ install -D vmu.css %{buildroot}/%{_localstatedir}/www/html/vmu.css
 %{_unitdir}/vm-test-cleanup.service
 %{_unitdir}/vm-test-cleanup.timer
 
-%{_localstatedir}/www/html/vmu.css
+%attr(0644,root,root) %{_localstatedir}/www/html/vmu.css
 
 %changelog
+* Thu Oct 12 2023 Mátyás Selmeci <matyas@cs.wisc.edu> 1.3-1
+- Add local changes from osg-sw-submit; decrease number of old test runs kept
+
 * Fri Aug 04 2023 Mátyás Selmeci <matyas@cs.wisc.edu> 1.2-1
 - Add find-recent-runs script
 
