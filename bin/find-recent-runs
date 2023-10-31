@@ -21,11 +21,22 @@ threeMonthsAgo=$(date +%Y%m -d '3 months ago')
     exit 1
 }
 
+# handle months that are longer than the previous month
+if [[ $thisMonth == "$lastMonth" ]]; then
+    lastMonth=$(date +%Y%m -d '1 month 4 days ago')
+fi
+if [[ $lastMonth == "$twoMonthsAgo" ]]; then
+    twoMonthsAgo=$(date +%Y%m -d '2 months 4 days ago')
+fi
+if [[ $twoMonthsAgo == "$threeMonthsAgo" ]]; then
+    threeMonthsAgo=$(date +%Y%m -d '3 months 4 days ago')
+fi
+
 cd "$runsDir" || exit 1
-set -o nullglob
+shopt -s nullglob
 for dir in run-"${threeMonthsAgo}"* run-"${twoMonthsAgo}"* run-"${lastMonth}"* run-"${thisMonth}"*; do
     labelFile=$dir/run_label
-    label=$(grep -sE "$pattern" "$labelFile" | head -n 1)
+    label=$(grep -sEi "$pattern" "$labelFile" | head -n 1)
     [[ -n $label ]] || continue
     printf "%17s\t%s\n" "$dir" "$label"
 done
