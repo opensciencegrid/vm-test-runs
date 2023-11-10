@@ -59,6 +59,7 @@ package_sets:
     packages:
       - osg-ce-pbs
       - htcondor-ce-view
+      - torque
       - torque-server
       - torque-mom
       - torque-client
