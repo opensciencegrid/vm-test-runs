@@ -95,6 +95,8 @@ package_sets:
     packages:
       - osg-token-renewer
   ###########################
+  ## We don't want to run these tests every night; we run them ad-hoc
+  ## when new gWMS releases are built.
   #- label: GlideinwmsFrontend
   #  packages:
   #    - glideinwms-vofrontend
