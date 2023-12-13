@@ -58,7 +58,7 @@ package_sets:
   #     - htcondor-ce-collector
   #     - htcondor-ce-view
   #     - fetch-crl
-  - label: StashCache
+  - label: XCache
     packages:
       - /usr/bin/stashcp
       - stash-cache
