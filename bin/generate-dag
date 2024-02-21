@@ -19,6 +19,7 @@ DAG_FRAGMENT = '''
 #########################
 JOB CreateImage{serial} create-io-image.sub
 VARS CreateImage{serial} serial="{serial}"
+PRIORITY 2
 RETRY CreateImage{serial} 3
 CATEGORY CreateImage{serial} LocalIO
 
