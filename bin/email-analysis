@@ -53,7 +53,6 @@ my_timestamp = re.sub(r'^run-', '', my_directory)
 message = '''OSG VMU tests: %s
 https://osg-sw-submit.chtc.wisc.edu/tests/%s/results.html
 https://osg-sw-submit.chtc.wisc.edu/tests/%s/packages.html
-https://opensciencegrid.atlassian.net/issues/?filter=16926
 
 ''' % (RUN_LABEL, my_timestamp, my_timestamp)
 
