@@ -10,13 +10,13 @@ RECIPIENTS = ('Brian Lin <blin@cs.wisc.edu>',
 
 # Adapted from Tim's email-analysis script, which was adapted from Mat's aggregator/emailer.py script
 def mail_message(subject, message, recipients):
-    from_addr = 'Tim Cartwright <cat@cs.wisc.edu>'
+    from_addr = 'OSG Tests <condor@osg-sw-submit.chtc.wisc.edu>'
     payload = 'Subject: %s\r\n' % (subject)
     payload += 'From: %s\r\n' % (from_addr)
     payload += 'To: %s\r\n' % (', '.join(recipients))
     payload += '\r\n'
     payload += message
-    smtp = smtplib.SMTP('gypsum.cs.wisc.edu')
+    smtp = smtplib.SMTP('smtp.wiscmail.wisc.edu')
     smtp.sendmail(from_addr, recipients, payload)
     smtp.quit()
 
