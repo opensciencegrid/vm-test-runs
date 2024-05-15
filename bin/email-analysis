@@ -14,7 +14,6 @@ RECIPIENTS = (
     'Diego Davila <didavila@ucsd.edu>',
     'Mat Selmeci <matyas@cs.wisc.edu>',
     'Matt Westphall <westphall@wisc.edu>',
-    'Tim Cartwright <cat@cs.wisc.edu>',
     'Tim Theisen <tim@cs.wisc.edu>'
     )
 
