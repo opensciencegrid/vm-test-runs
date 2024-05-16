@@ -94,9 +94,13 @@ else
 fi
 
 if [[ -z $ip_address ]]; then
-  # attempt to recover from a failed IPv4 address assignment by adding the cloudflare IPv6 resolver
+  # attempt to recover from a failed IPv4 address assignment by adding IPv6 DNS resolvers
   # to /etc/resolv.conf
-  echo "nameserver 2606:4700:4700::1111" >> /etc/resolv.conf
+  cat << EOF >> /etc/resolv.conf
+search chtc.wisc.edu
+nameserver 2607:f388::53:1
+nameserver 2607:f388::53:2
+EOF
 fi
 
 echo "$ip_address osg-test.localdomain osg-test" >> /etc/hosts
