@@ -16,7 +16,7 @@ periodic_remove         = ( (JobStatus == 5) && (HoldReasonCode =?= 3) && (NumJo
 
 request_disk            = 16GB
 # NOTE: Please inform infrastructure of machines in the following list:
-+BadMachineList         = "e2455.chtc.wisc.edu,e2456.chtc.wisc.edu,e2457.chtc.wisc.edu,e2461.chtc.wisc.edu,e2462.chtc.wisc.edu,e2463.chtc.wisc.edu,e2465.chtc.wisc.edu,e2466.chtc.wisc.edu,e2467.chtc.wisc.edu,e2470.chtc.wisc.edu,e2471.chtc.wisc.edu,e2472.chtc.wisc.edu,e2474.chtc.wisc.edu,e2475.chtc.wisc.edu,e2476.chtc.wisc.edu,e2478.chtc.wisc.edu,e2479.chtc.wisc.edu,e2483.chtc.wisc.edu,e2485.chtc.wisc.edu"
++BadMachineList         = "e2455.chtc.wisc.edu,e2456.chtc.wisc.edu,e2457.chtc.wisc.edu,e2461.chtc.wisc.edu,e2462.chtc.wisc.edu,e2463.chtc.wisc.edu,e2465.chtc.wisc.edu,e2466.chtc.wisc.edu,e2467.chtc.wisc.edu,e2469.chtc.wisc.edu,e2470.chtc.wisc.edu,e2471.chtc.wisc.edu,e2472.chtc.wisc.edu,e2474.chtc.wisc.edu,e2475.chtc.wisc.edu,e2476.chtc.wisc.edu,e2478.chtc.wisc.edu,e2479.chtc.wisc.edu,e2483.chtc.wisc.edu,e2485.chtc.wisc.edu"
 requirements            = (TARGET.HasVirshDefaultNetwork == True) && (TARGET.HasCHTCStaging == True) && !StringListMember(TARGET.Machine, MY.BadMachineList)
 
 log                     = osg-test.log
