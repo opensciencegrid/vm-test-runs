@@ -6,7 +6,6 @@
 
 platforms:
   - centos_7_x86_64
-  - sl_7_x86_64
 
 sources:
   ###################
