@@ -7,15 +7,14 @@ platforms:
   - alma_9_x86_64
 
 sources:
-  - opensciencegrid:master; 3.6; osg-prerelease
-  - opensciencegrid:master; 3.6; osg > osg-prerelease
-  - opensciencegrid:master; 3.6; osg-prerelease, osg-upcoming-prerelease, osg-upcoming
-  - opensciencegrid:master; 3.6; osg > osg-prerelease, osg-upcoming-prerelease, osg-upcoming
-  - opensciencegrid:master; 3.6; osg, osg-upcoming > 23/osg-prerelease
   - opensciencegrid:master; 23; osg-prerelease
   - opensciencegrid:master; 23; osg > osg-prerelease
   - opensciencegrid:master; 23; osg-prerelease, osg-upcoming-prerelease, osg-upcoming
   - opensciencegrid:master; 23; osg > osg-prerelease, osg-upcoming-prerelease, osg-upcoming
+  - opensciencegrid:master; 24; osg-prerelease
+  - opensciencegrid:master; 24; osg > osg-prerelease
+  - opensciencegrid:master; 24; osg-prerelease, osg-upcoming-prerelease, osg-upcoming
+  - opensciencegrid:master; 24; osg > osg-prerelease, osg-upcoming-prerelease, osg-upcoming
 
 package_sets:
   - label: Compute Entrypoint (Condor)

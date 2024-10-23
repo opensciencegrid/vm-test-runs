@@ -1,5 +1,5 @@
 ###################
-# OSG 3.6 tests
+# OSG 23 tests for EL8
 # File format documention:
 # https://github.com/opensciencegrid/vm-test-runs#running-osg-test-in-vm-universe
 ###################
@@ -17,15 +17,18 @@ sources:
   # 3.3-testing and 3-3-upcoming-testing:
   # 3.2; osg, osg-testing > 3.3/osg-testing, osg-upcoming-testing
   ###################
-  - opensciencegrid:master; 3.6; osg
-  - opensciencegrid:master; 3.6; osg, epel-testing
-  - opensciencegrid:master; 3.6; osg-testing
-  - opensciencegrid:master; 3.6; osg > osg-testing
-  - opensciencegrid:master; 3.6; osg, osg-upcoming
-  - opensciencegrid:master; 3.6; osg-testing, osg-upcoming-testing
-  - opensciencegrid:master; 3.6; osg > osg-testing, osg-upcoming-testing
-  # - opensciencegrid:master; 3.6; osg-minefield
-  # - opensciencegrid:master; 3.6; osg > osg-minefield
+  - opensciencegrid:master; 24; osg
+  - opensciencegrid:master; 24; osg, epel-testing
+  - opensciencegrid:master; 24; osg-testing
+  - opensciencegrid:master; 24; osg > osg-testing
+  - opensciencegrid:master; 23; osg-upcoming > 24/osg
+  - opensciencegrid:master; 24; osg, osg-upcoming
+  - opensciencegrid:master; 24; osg, osg-upcoming, epel-testing
+  - opensciencegrid:master; 24; osg-testing, osg-upcoming-testing
+  - opensciencegrid:master; 24; osg > osg-testing, osg-upcoming-testing
+  # - opensciencegrid:master; 23; osg, osg-upcoming > 24/osg-minefield
+  # - opensciencegrid:master; 24; osg-minefield
+  # - opensciencegrid:master; 24; osg > osg-minefield
 
 package_sets:
   #### Required ####
@@ -50,18 +53,19 @@ package_sets:
       - slurm-perlapi
       - slurm-slurmdbd
       - mariadb-server
-  # - label: Central Collector
-  #   packages:
-  #     - htcondor-ce-collector
-  #     - htcondor-ce-view
-  #     - fetch-crl
-  - label: XCache
+  - label: Central Collector
     packages:
-      - /usr/bin/stashcp
-      - stash-cache
-      - stash-origin
-      - python3-gfal2-util
-      - gfal2-all
+      - htcondor-ce-collector
+      - htcondor-ce-view
+      - fetch-crl
+#  TODO: Migrate these tests from osdf to pelican
+#  - label: XCache
+#    packages:
+#      - /usr/bin/stashcp
+#      - stash-cache
+#      - stash-origin
+#      - python3-gfal2-util
+#      - gfal2-all
   - label: Worker Node (privileged)
     packages:
       - osg-wn-client
@@ -69,7 +73,6 @@ package_sets:
       - apptainer-suid
   - label: Worker Node (privileged, tarball deps)
     packages:
-      - hosted-ce-tools
       - osg-update-data
       - osg-wn-client
   - label: XRootD
@@ -78,16 +81,10 @@ package_sets:
       - xrootd-multiuser
       - xrootd-client
       - voms-clients-cpp
-  - label: OSG Token Renewer
+  - label: GlideinwmsFrontend
     packages:
-      - osg-token-renewer
-  ###########################
-  ## We don't want to run these tests every night; we run them ad-hoc
-  ## when new gWMS releases are built.
-  #- label: GlideinwmsFrontend
-  #  packages:
-  #    - glideinwms-vofrontend
-  #- label: GlideinwmsFactory
-  #  packages:
-  #    - glideinwms-factory
+      - glideinwms-vofrontend
+  - label: GlideinwmsFactory
+    packages:
+      - glideinwms-factory
 
