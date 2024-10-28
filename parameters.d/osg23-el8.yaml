@@ -70,7 +70,7 @@ package_sets:
       - osg-wn-client
       - osg-oasis
       - apptainer-suid
-  - label: Worker Node (privileged, tarball deps)
+  - label: Worker Node (privileged, tarball deps + hosted-ce-tools)
     packages:
       - hosted-ce-tools
       - osg-update-data
