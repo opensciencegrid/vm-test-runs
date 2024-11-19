@@ -31,13 +31,6 @@ package_sets:
       - slurm-perlapi
       - slurm-slurmdbd
       - mariadb-server
-  - label: XCache
-    packages:
-      - /usr/bin/stashcp
-      - stash-cache
-      - stash-origin
-      - python3-gfal2-util
-      - gfal2-all
   - label: Worker Node (privileged)
     packages:
       - osg-wn-client
@@ -49,9 +42,6 @@ package_sets:
       - xrootd-multiuser
       - xrootd-client
       - voms-clients-cpp
-  - label: OSG Token Renewer
-    packages:
-      - osg-token-renewer
   - label: GlideinwmsFrontend
     packages:
       - glideinwms-vofrontend
