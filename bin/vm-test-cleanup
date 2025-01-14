@@ -1,6 +1,6 @@
 #!/bin/bash
 
-RUNS_TO_KEEP=100
+RUNS_TO_KEEP=80
 
 year='20[1-9][0-9]'
 month='[01][0-9]'
