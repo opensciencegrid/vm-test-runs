@@ -9,7 +9,7 @@ import vmu
 from taglib import Html, Tag
 from glob import glob
 
-VMU_TESTS_URL = "https://osg-sw-submit.chtc.wisc.edu/tests/"
+VMU_TESTS_URL = "/tests/"
 OS_TRANSLATION = {'centos': 'CentOS', 'rhel': 'RHEL', 'sl': 'SL'}
 
 def generate_header():
