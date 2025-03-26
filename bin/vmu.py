@@ -90,7 +90,7 @@ def canonical_os_string(os_release):
     result = result.replace('centos', 'CentOS')
     result = result.replace('rocky', 'Rocky')
     result = result.replace('alma', 'Alma')
-    result = re.sub(r'_(\d)_.*', r' \1', result)
+    result = re.sub(r'_(\d)\.(.*)', r' \1 (\2)', result)
     return result
 
 def canonical_src_string(sources):

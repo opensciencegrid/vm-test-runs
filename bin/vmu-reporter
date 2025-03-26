@@ -221,11 +221,11 @@ def generate_cell(run):
 
 def sort_platforms_by_dver(platform_list):
     '''Sorts the OS's by dver so that we know which column to put each run
-     Assumes the OS's have the format: <flavor>_<dver>_<arch>'''
+     Assumes the OS's have the format: <flavor>_<dver>.<arch>'''
     dvers = {}
     for platform in platform_list:
         translated_platform = vmu.canonical_os_string(platform)
-        dver = translated_platform[-1]
+        dver = translated_platform.split(' ')[-2]
         try:
             dvers[dver].add(translated_platform)
         except KeyError:

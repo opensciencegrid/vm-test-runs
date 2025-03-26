@@ -46,10 +46,13 @@ def re_extract(regexp, data, flags=0, default=None, group=None):
 def extract_inet_address(run_job_log):
     eth0_block = re_extract(r'^\d:\s*eth0:(.*?)(?:^\d)', run_job_log, re.MULTILINE | re.DOTALL, group=1)
     ens3_block = re_extract(r'^\d:\s*ens3:(.*?)(?:^\d)', run_job_log, re.MULTILINE | re.DOTALL, group=1)
+    enp1s0_block = re_extract(r'^\d:\s*enp1s0:(.*?)(?:^\d)', run_job_log, re.MULTILINE | re.DOTALL, group=1)
     if eth0_block:
         return re_extract(r'^\s+inet\s+(.*?)\/', eth0_block, re.MULTILINE, group=1)
     elif ens3_block:
         return re_extract(r'^\s+inet\s+(.*?)\/', ens3_block, re.MULTILINE, group=1)
+    elif enp1s0_block:
+        return re_extract(r'^\s+inet\s+(.*?)\/', enp1s0_block, re.MULTILINE, group=1)
     else:
         return None
 

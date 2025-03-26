@@ -88,6 +88,8 @@ if [[ -n `ip addr | grep eth0` ]]; then
     ip_address=`ip addr show eth0 | awk 'match($0, /inet ([0-9.]+)/, a) { print a[1] }'`
 elif [[ -n `ip addr | grep ens3` ]]; then
     ip_address=`ip addr show ens3 | awk 'match($0, /inet ([0-9.]+)/, a) { print a[1] }'`
+elif [[ -n `ip addr | grep enp1s0` ]]; then
+    ip_address=`ip addr show enp1s0 | awk 'match($0, /inet ([0-9.]+)/, a) { print a[1] }'`
 else
     echo 'Could not find IP address'
     exit 1
