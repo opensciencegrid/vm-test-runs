@@ -228,6 +228,12 @@ if __name__ == '__main__':
     os_string = re.sub(r'release\s+', '', os_long_string)
     os_string = re.sub(r'\s*\(.*\)$', '', os_string)
     data['os_release'] = os_string
+
+    # Get the arch of the host
+    # This can currently be found by RPM names in the logs, but we might want
+    # to make it a first class log message
+    platform = re_extract(r'el[0-9]\.(aarch64|x86_64).rpm', run_job_log, group=1)
+    data['platform'] = platform
     
     # Look for whole-run failures
     inet_address = extract_inet_address(run_job_log)

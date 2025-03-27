@@ -77,7 +77,7 @@ def generate_table():
     # Get number of platforms per dver so we know the length of the dver columns
     num_el = {}
     for platform in TABLE_LABELS['platforms']:
-        dver = platform[-1]
+        dver = platform.split(' ')[-2]
         try:
             num_el[dver] += 1
         except KeyError:
@@ -91,7 +91,7 @@ def generate_table():
     # Print out all the OS flavors
     os_row = Tag('tr')
     for platform in TABLE_LABELS['platforms']:
-        os_row.append_new_tag('th').append(' ' + platform[:-1])
+        os_row.append_new_tag('th').append(' ' + platform)
 
     header = Tag('thead').extend([dver_row, os_row])
     body = generate_table_body()
@@ -224,7 +224,7 @@ def sort_platforms_by_dver(platform_list):
      Assumes the OS's have the format: <flavor>_<dver>.<arch>'''
     dvers = {}
     for platform in platform_list:
-        translated_platform = vmu.canonical_os_string(platform)
+        translated_platform = vmu.canonical_os_string(platform, True)
         dver = translated_platform.split(' ')[-2]
         try:
             dvers[dver].add(translated_platform)
@@ -239,7 +239,7 @@ def sort_tests(tests):
     '''Sort each test into a nested dictionary for easier population of the results table'''
     sorted_tests = dict()
     for test in tests:
-        platform = vmu.canonical_os_string(test['os_release'])
+        platform = vmu.canonical_os_string(test['os_release'] + test['platform'])
         src = vmu.canonical_src_string(test['param_sources'])
         pkg = PACKAGE_MAPPING[test['param_packages']]
         try:

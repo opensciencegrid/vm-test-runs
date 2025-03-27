@@ -109,7 +109,7 @@ for run in runs:
     total_jobs += 1
     if status == 1:
         jobs_died += 1
-    tally_run_results(results_by_os, vmu.canonical_os_string(run['os_release']), status)
+    tally_run_results(results_by_os, vmu.canonical_os_string(run['os_release'] + run['platform']), status)
     tally_run_results(results_by_pkg, PACKAGE_MAPPING[run['param_packages']], status)
     tally_run_results(results_by_src, vmu.canonical_src_string(run['param_sources']), status)
 
