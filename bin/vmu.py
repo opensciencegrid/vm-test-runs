@@ -73,24 +73,26 @@ def package_mapping(flat_params):
     lists of packages as keys and their labels as values'''
     return dict((', '.join(x.packages), x.label) for x in flat_params['package_sets'])
 
-def canonical_os_string(os_release):
+def canonical_os_string(os_release, param_name=False):
     '''Make the OS release from test parameters or /etc/redhat/release human readable'''
-    # Handle OS string from /etc/redhat-release
-    result = os_release.replace('Red Hat Enterprise Linux Server', 'RHEL')
-    result = result.replace('Scientific Linux', 'SL')
-    result = result.replace('CentOS Linux', 'CentOS')
-    result = result.replace('CentOS Stream', 'C. Stream')
-    result = result.replace('Rocky Linux', 'Rocky')
-    result = result.replace('AlmaLinux', 'Alma')
-    result = re.sub(r'(\d)\.\d+.*', r'\1', result)
-    # Handle OS string from 'platforms' test parameters
-    result = result.replace('rhel', 'RHEL')
-    result = result.replace('sl', 'SL')
-    result = result.replace('centos_stream', 'C. Stream')
-    result = result.replace('centos', 'CentOS')
-    result = result.replace('rocky', 'Rocky')
-    result = result.replace('alma', 'Alma')
-    result = re.sub(r'_(\d)_.*', r' \1', result)
+    if not param_name:
+        # Handle OS string from /etc/redhat-release
+        result = os_release.replace('Red Hat Enterprise Linux Server', 'RHEL')
+        result = result.replace('Scientific Linux', 'SL')
+        result = result.replace('CentOS Linux', 'CentOS')
+        result = result.replace('CentOS Stream', 'C. Stream')
+        result = result.replace('Rocky Linux', 'Rocky')
+        result = result.replace('AlmaLinux', 'Alma')
+        result = re.sub(r'(\d)(\.\d+)?(.*)', r'\1 (\3)', result)
+    else:
+        # Handle OS string from 'platforms' test parameters
+        result = os_release.replace('rhel', 'RHEL')
+        result = result.replace('sl', 'SL')
+        result = result.replace('centos_stream', 'C. Stream')
+        result = result.replace('centos', 'CentOS')
+        result = result.replace('rocky', 'Rocky')
+        result = result.replace('alma', 'Alma')
+        result = re.sub(r'_(\d)\.(.*)', r' \1 (\2)', result)
     return result
 
 def canonical_src_string(sources):

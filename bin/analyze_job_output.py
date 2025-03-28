@@ -46,10 +46,13 @@ def re_extract(regexp, data, flags=0, default=None, group=None):
 def extract_inet_address(run_job_log):
     eth0_block = re_extract(r'^\d:\s*eth0:(.*?)(?:^\d)', run_job_log, re.MULTILINE | re.DOTALL, group=1)
     ens3_block = re_extract(r'^\d:\s*ens3:(.*?)(?:^\d)', run_job_log, re.MULTILINE | re.DOTALL, group=1)
+    enp1s0_block = re_extract(r'^\d:\s*enp1s0:(.*?)(?:^\d)', run_job_log, re.MULTILINE | re.DOTALL, group=1)
     if eth0_block:
         return re_extract(r'^\s+inet\s+(.*?)\/', eth0_block, re.MULTILINE, group=1)
     elif ens3_block:
         return re_extract(r'^\s+inet\s+(.*?)\/', ens3_block, re.MULTILINE, group=1)
+    elif enp1s0_block:
+        return re_extract(r'^\s+inet\s+(.*?)\/', enp1s0_block, re.MULTILINE, group=1)
     else:
         return None
 
@@ -225,6 +228,12 @@ if __name__ == '__main__':
     os_string = re.sub(r'release\s+', '', os_long_string)
     os_string = re.sub(r'\s*\(.*\)$', '', os_string)
     data['os_release'] = os_string
+
+    # Get the arch of the host
+    # This can currently be found by RPM names in the logs, but we might want
+    # to make it a first class log message
+    platform = re_extract(r'el[0-9]\.(aarch64|x86_64).rpm', run_job_log, group=1)
+    data['platform'] = platform
     
     # Look for whole-run failures
     inet_address = extract_inet_address(run_job_log)

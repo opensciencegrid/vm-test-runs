@@ -48,7 +48,8 @@ request_disk            = 16GB
  txie-dsigpu4000.chtc.wisc.edu,\
  voyles2000.chtc.wisc.edu,\
 "
-requirements            = (TARGET.HasVirshDefaultNetwork == True) && (TARGET.HasCHTCStaging == True) && !StringListMember(TARGET.Machine, MY.BadMachineList)
+requirements            = (TARGET.Arch == split("$(platform)",".")[1]) && (TARGET.HasVirshDefaultNetwork == True) && (TARGET.HasCHTCStaging == True) && !StringListMember(TARGET.Machine, MY.BadMachineList)
+
 
 log                     = osg-test.log
 
