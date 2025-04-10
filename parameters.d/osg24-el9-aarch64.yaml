@@ -18,7 +18,9 @@ sources:
   # 3.3-testing and 3-3-upcoming-testing:
   # 3.2; osg, osg-testing > 3.3/osg-testing, osg-upcoming-testing
   ###################
+  - opensciencegrid:master; 24; osg
   - opensciencegrid:master; 24; osg-testing
+  - opensciencegrid:master; 24; osg > osg-testing
   # - opensciencegrid:master; 23; osg, osg-upcoming > 24/osg-minefield
   # - opensciencegrid:master; 24; osg-minefield
   # - opensciencegrid:master; 24; osg > osg-minefield
