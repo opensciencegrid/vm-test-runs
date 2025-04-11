@@ -232,7 +232,8 @@ if __name__ == '__main__':
     # Get the arch of the host
     # This can currently be found by RPM names in the logs, but we might want
     # to make it a first class log message
-    platform = re_extract(r'el[0-9]\.(aarch64|x86_64).rpm', run_job_log, group=1)
+    platform = (re_extract(r'el[0-9]\.(aarch64|x86_64).rpm', run_job_log, group=1) or
+                re_extract(r'(aarch64|x86_64)', run_job_log, group=1))
     data['platform'] = platform
     
     # Look for whole-run failures
