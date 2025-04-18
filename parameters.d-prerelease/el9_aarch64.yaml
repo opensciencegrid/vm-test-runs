@@ -7,6 +7,8 @@ platforms:
 sources:
   - opensciencegrid:master; 24; osg-prerelease
   - opensciencegrid:master; 24; osg > osg-prerelease
+  - opensciencegrid:master; 24; osg-prerelease, osg-upcoming-prerelease, osg-upcoming
+  - opensciencegrid:master; 24; osg > osg-prerelease, osg-upcoming-prerelease, osg-upcoming
 
 package_sets:
   - label: Compute Entrypoint (Condor)
