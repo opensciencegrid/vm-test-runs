@@ -15,7 +15,7 @@ periodic_release        = ( (HoldReasonCode == 3) && (NumJobStarts < 3) ) || ( (
 periodic_remove         = ( (JobStatus == 5) && (HoldReasonCode =?= 3) && (NumJobStarts >= 3) ) || (time() - QDate >  43200)
 
 request_disk            = 16GB
-# NOTE: Please inform infrastructure of machines in the following list:
+# See https://opensciencegrid.atlassian.net/browse/INF-2975 for debugging the machines in this list.
 +BadMachineList         = "\
  e2455.chtc.wisc.edu,\
  e2456.chtc.wisc.edu,\
