@@ -87,4 +87,8 @@ package_sets:
   - label: GlideinwmsFactory
     packages:
       - glideinwms-factory
+  - label: HTVault-Config
+    packages:
+      - htvault-config
+      - htgettoken
 
