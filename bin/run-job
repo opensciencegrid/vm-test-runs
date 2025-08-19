@@ -44,7 +44,7 @@ run_command_with_retries()
 osg_series=`grep series $INPUT_DIR/osg-test.conf | sed -e 's/series *= *//'`
 
 # Set variables based on OS major version
-os_major_version=`sed -e 's/^[^0-9]*//' -e 's/\..*$//' /etc/redhat-release`
+os_major_version=`sed -e 's/^[^0-9]*//' -e 's/[^0-9].*$//' /etc/redhat-release`
 epel_url="https://dl.fedoraproject.org/pub/epel/epel-release-latest-$os_major_version.noarch.rpm"
 
 # Starting with OSG 23, we dump release RPMs in the XX-main part of the tree
@@ -65,6 +65,11 @@ case $os_major_version in
     9 )
         priorities_rpm=
         python_lib_dir='/usr/lib/python3.9'
+        python='/usr/bin/python3'
+        ;;
+    10 )
+        priorities_rpm=
+        python_lib_dir='/usr/lib/python3.12'
         python='/usr/bin/python3'
         ;;
     * )
