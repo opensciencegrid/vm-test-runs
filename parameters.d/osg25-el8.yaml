@@ -1,13 +1,12 @@
 ###################
-# OSG 24 tests for EL9
+# OSG 24 tests for EL8
 # File format documention:
 # https://github.com/opensciencegrid/vm-test-runs#running-osg-test-in-vm-universe
 ###################
 
 platforms:
-  - centos_stream_9.x86_64
-  - rocky_9.x86_64
-  - alma_9.x86_64
+  - rocky_8.x86_64
+  - alma_8.x86_64
 
 sources:
   ###################
@@ -18,18 +17,8 @@ sources:
   # 3.3-testing and 3-3-upcoming-testing:
   # 3.2; osg, osg-testing > 3.3/osg-testing, osg-upcoming-testing
   ###################
-  - opensciencegrid:master; 24; osg
-  - opensciencegrid:master; 24; osg, epel-testing
-  - opensciencegrid:master; 24; osg-testing
-  - opensciencegrid:master; 24; osg > osg-testing
-  - opensciencegrid:master; 23; osg-upcoming > 24/osg
-  - opensciencegrid:master; 24; osg, osg-upcoming
-  - opensciencegrid:master; 24; osg, osg-upcoming, epel-testing
-  - opensciencegrid:master; 24; osg-testing, osg-upcoming-testing
-  - opensciencegrid:master; 24; osg > osg-testing, osg-upcoming-testing
-  # - opensciencegrid:master; 23; osg, osg-upcoming > 24/osg-minefield
-  # - opensciencegrid:master; 24; osg-minefield
-  # - opensciencegrid:master; 24; osg > osg-minefield
+  - opensciencegrid:master; 24; osg, osg-upcoming > 25/osg-minefield
+  - opensciencegrid:master; 25; osg-minefield
 
 package_sets:
   #### Required ####
@@ -53,16 +42,6 @@ package_sets:
       - slurm-slurmctld
       - slurm-perlapi
       - slurm-slurmdbd
-      - mariadb-server
-  - label: Compute Entrypoint (Torque)
-    packages:
-      - osg-ce-pbs
-      - htcondor-ce-view
-      - torque
-      - torque-server
-      - torque-mom
-      - torque-client
-      - torque-scheduler
       - mariadb-server
   - label: Central Collector
     packages:
