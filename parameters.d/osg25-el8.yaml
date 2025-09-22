@@ -5,6 +5,8 @@
 ###################
 
 platforms:
+  # - rocky_8.aarch64
+  # - alma_8.aarch64
   - rocky_8.x86_64
   - alma_8.x86_64
 
