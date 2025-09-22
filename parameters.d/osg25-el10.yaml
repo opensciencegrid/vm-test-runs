@@ -5,6 +5,9 @@
 ###################
 
 platforms:
+  - centos_stream_10.aarch64
+  - rocky_10.aarch64
+  - alma_10.aarch64
   - centos_stream_10.x86_64
   - rocky_10.x86_64
   - alma_10.x86_64
