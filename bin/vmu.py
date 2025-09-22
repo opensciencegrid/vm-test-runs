@@ -83,7 +83,7 @@ def canonical_os_string(os_release, param_name=False):
         result = result.replace('CentOS Stream', 'C. Stream')
         result = result.replace('Rocky Linux', 'Rocky')
         result = result.replace('AlmaLinux', 'Alma')
-        result = re.sub(r'(\d)(\.\d+)?(.*)', r'\1 (\3)', result)
+        result = re.sub(r'(\d{1,2})(\.\d+)?(.*)', r'\1 (\3)', result)
     else:
         # Handle OS string from 'platforms' test parameters
         result = os_release.replace('rhel', 'RHEL')
@@ -92,7 +92,7 @@ def canonical_os_string(os_release, param_name=False):
         result = result.replace('centos', 'CentOS')
         result = result.replace('rocky', 'Rocky')
         result = result.replace('alma', 'Alma')
-        result = re.sub(r'_(\d)\.(.*)', r' \1 (\2)', result)
+        result = re.sub(r'_(\d{1,2})\.(.*)', r' \1 (\2)', result)
     return result
 
 def canonical_src_string(sources):
