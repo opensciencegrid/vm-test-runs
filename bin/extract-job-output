@@ -61,9 +61,6 @@ for image_path in paths:
             # print "  - creating directory"
             os.makedirs(local_dir)
             # print "  - extracting"
-        try:
-            g.download(full_image_path, os.path.join(output_dir, image_path))
-        except Exception as e:
-            print("Can't download path %s" % full_image_path, e)
+        g.download(full_image_path, os.path.join(output_dir, image_path))
 
 print "ok"
