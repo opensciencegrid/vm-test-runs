@@ -20,7 +20,7 @@ def run_command(command, shell=False):
         raise TypeError('Need list or tuple, got %s' % (repr(command)))
 
     # Run and return command
-    p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=shell)
+    p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=shell, encoding="latin-1")
     (stdout, stderr) = p.communicate()
     return (p.returncode, stdout, stderr)
 
@@ -128,10 +128,11 @@ def create_image(config_filename):
         return_code, stdout, stderr = run_command(['virt-make-fs', '--size=64M', '--format=qcow2',
                                                    image_directory, image_filename])
 
-        shutil.rmtree(image_directory)
         print(stdout)
         if stderr:
             print(stderr, file=sys.stderr)
+
+        shutil.rmtree(image_directory)
 
         if return_code:
             vmu.die(stderr)

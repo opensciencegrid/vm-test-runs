@@ -1,9 +1,12 @@
 universe   = local
 executable = $(run_dir)/bin/create-io-image
 arguments = "osg-test-$(serial).conf"
+environment = "PYTHONUNBUFFERED=1"
 
 output = create-io-image-$(serial).out
+stream_output = true
 error  = create-io-image-$(serial).err
+stream_error = true
 log    = create-io-image.log
 
 should_transfer_files = NO
