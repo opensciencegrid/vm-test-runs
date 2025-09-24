@@ -150,6 +150,9 @@ fi
 # Install Python 3
 run_command_with_retries 8 yum -y install python3 python3-rpm
 
+# openssl is required for CA generation but not installed by default on Alma 10
+run_command_with_retries 8 yum -y install /usr/bin/openssl
+
 # Install osg-test and osg-ca-generator
 if [ -f $INPUT_DIR/osg-test-git.tar.gz ]; then
     if [ "$os_major_version" -lt 8 ]; then
