@@ -61,6 +61,12 @@ for image_path in paths:
             # print "  - creating directory"
             os.makedirs(local_dir)
             # print "  - extracting"
-        g.download(full_image_path, os.path.join(output_dir, image_path))
+        try:
+            g.download(full_image_path, os.path.join(output_dir, image_path))
+        except RuntimeError as err:
+            if "No such file or directory" in str(err):
+                print(err)
+                continue
+
 
 print "ok"
