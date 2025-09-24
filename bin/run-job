@@ -203,6 +203,7 @@ if [ $? -eq 0 ]; then
     log_command subscription-manager list
     log_command subscription-manager status
 fi
+rpm --showrc > $OUTPUTDIR/rpm-showrc.log 2>&1
 
 # Run osg-test
 rpm --query --all > $OUTPUT_DIR/rpm-qa-start.log 2>&1
