@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 MOUNT_DIR=/mnt/user
 INPUT_DIR=$MOUNT_DIR/input
@@ -233,7 +233,10 @@ log_command tar -czvf /var/log.tar.gz /var/log
 if [ ! -e $SYSTEM_LOG_DIR ]; then
     mkdir $SYSTEM_LOG_DIR
 fi
-cp -r \
+
+shopt -s nullglob
+
+for it in \
     /etc/host.conf \
     /etc/hosts \
     /etc/nsswitch.conf \
@@ -242,5 +245,10 @@ cp -r \
     /etc/sysconfig/network-scripts/ifcfg-* \
     /etc/udev/rules.d/70-persistent-net.rules \
     /etc/yum.repos.d \
-    /var/log.tar.gz \
-    $SYSTEM_LOG_DIR/
+    /var/log.tar.gz
+do
+    # doing the explicit file/dir existence check to avoid copying broken symlinks
+    if [[ -e ${it} ]]; then
+        cp -rL "${it}" "${SYSTEM_LOG_DIR}/"
+    fi
+done
