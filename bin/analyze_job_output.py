@@ -109,7 +109,7 @@ def parse_log(osg_test_log, test_exceptions, components):
     problems = []
     ignored_failures = 0
     cleanup_failures = 0
-    for m in re.finditer(r'^(ERROR|FAIL): (\w+) \(osgtest\.tests\.(\w+)\.(\w+)\)', osg_test_log, re.MULTILINE):
+    for m in re.finditer(r'^(ERROR|FAIL): (\w+) \(osgtest\.tests\.(\w+)\.(\w+).*\)', osg_test_log, re.MULTILINE):
         status, function, module, module_name = m.groups()
         if module == 'special_cleanup':
             cleanup_failures += 1
