@@ -67,13 +67,6 @@ package_sets:
       - htcondor-ce-collector
       - htcondor-ce-view
       - fetch-crl
-  - label: XCache
-    packages:
-      - /usr/bin/stashcp
-      - stash-cache
-      - stash-origin
-      - python3-gfal2-util
-      - gfal2-all
   - label: Worker Node (privileged)
     packages:
       - osg-wn-client
