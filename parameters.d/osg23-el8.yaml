@@ -21,12 +21,10 @@ sources:
   - opensciencegrid:master; 23; osg, epel-testing
   - opensciencegrid:master; 23; osg-testing
   - opensciencegrid:master; 23; osg > osg-testing
-  - opensciencegrid:master; 3.6; osg-upcoming > 23/osg
   - opensciencegrid:master; 23; osg, osg-upcoming
   - opensciencegrid:master; 23; osg, osg-upcoming, epel-testing
   - opensciencegrid:master; 23; osg-testing, osg-upcoming-testing
   - opensciencegrid:master; 23; osg > osg-testing, osg-upcoming-testing
-  # - opensciencegrid:master; 3.6; osg, osg-upcoming > 23/osg-minefield
   # - opensciencegrid:master; 23; osg-minefield
   # - opensciencegrid:master; 23; osg > osg-minefield
 
