@@ -7,10 +7,6 @@ platforms:
   - alma_9.x86_64
 
 sources:
-  - opensciencegrid:master; 23; osg-prerelease
-  - opensciencegrid:master; 23; osg > osg-prerelease
-  - opensciencegrid:master; 23; osg-prerelease, osg-upcoming-prerelease, osg-upcoming
-  - opensciencegrid:master; 23; osg > osg-prerelease, osg-upcoming-prerelease, osg-upcoming
   - opensciencegrid:master; 24; osg-prerelease
   - opensciencegrid:master; 24; osg > osg-prerelease
   - opensciencegrid:master; 24; osg-prerelease, osg-upcoming-prerelease, osg-upcoming
