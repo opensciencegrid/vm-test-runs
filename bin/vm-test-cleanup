@@ -1,19 +1,48 @@
 #!/bin/bash
 
-RUNS_TO_KEEP=80
+usage_pct() {
+    df -P /var/www/html 2>/dev/null | tail -1 | awk '{print $5}' | tr -d '%'
+}
 
-year='20[1-9][0-9]'
-month='[01][0-9]'
-day='[0-3][0-9]'
-hour='[012][0-9]'
-minute='[0-5][0-9]'
+# Check current usage of the filesystem containing /var/www/html
+cur=$(usage_pct)
+if [ -z "$cur" ]; then
+    # couldn't determine usage; exit without doing anything
+    exit 0
+fi
 
-cd /osgtest/runs/
-/bin/ls -d run-${year}${month}${day}-${hour}${minute} | head -n -${RUNS_TO_KEEP} | while read rundir; do
-    rm -rf "$rundir"
-done
+# Only start deleting if usage is above 90%
+if [ "$cur" -le 90 ]; then
+    exit 0
+fi
 
-cd /var/www/html/
-/bin/ls -d ${year}${month}${day}-${hour}${minute} | head -n -${RUNS_TO_KEEP} | while read rundir; do
-    rm -rf "$rundir"
+cd /var/www/html/ || exit 0
+
+# Timestamp pattern: %Y%m%d-%H%M (e.g. 20250101-1230)
+ts_pattern='20[0-9][0-9][01][0-9][0-3][0-9]-[0-2][0-9][0-5][0-9]'
+
+# Delete oldest timestamped directories until usage drops below 85%
+while [ "$cur" -ge 85 ]; do
+    oldest=$(ls -1d $ts_pattern 2>/dev/null | sort | head -n 1)
+    if [ -z "$oldest" ]; then
+        # No matching directories left to delete
+        break
+    fi
+
+    # Ensure it's a directory before removing
+    if [ -d "$oldest" ]; then
+        rm -rf -- "$oldest"
+    fi
+
+    # Also remove corresponding /osgtest/runs/run-<TIMESTAMP>
+    run_dir="/osgtest/runs/run-$oldest"
+    if [ -d "$run_dir" ]; then
+        rm -rf -- "$run_dir"
+    fi
+
+    # Recompute usage
+    cur=$(usage_pct)
+    if [ -z "$cur" ]; then
+        break
+    fi
 done
