@@ -1,28 +1,48 @@
 #!/bin/bash
+#
+# Delete old VMU test runs from `/var/www/html` and `/osgtest/runs` based on
+# free disk space on `/var/www/html`.  (I am watching that instead of
+# `/osgtest/runs` because `/var/www/html` is on a smaller partition.)
+#
+
+WATCHED_DIRECTORY=/var/www/html
+RUNS_DIRECTORY=/osgtest/runs
+HIGH_WATER_MARK=90
+LOW_WATER_MARK=85
+
+
+fail () {
+    set +exu
+    local ret="${1}"
+    shift
+    echo -e "${@}" >&2
+    exit "${ret}"
+}
+
 
 usage_pct() {
-    df -P /var/www/html 2>/dev/null | tail -1 | awk '{print $5}' | tr -d '%'
+    df -P /var/www/html | tail -1 | awk '{print $5}' | tr -d '%'
 }
+
 
 # Check current usage of the filesystem containing /var/www/html
 cur=$(usage_pct)
-if [ -z "$cur" ]; then
-    # couldn't determine usage; exit without doing anything
+[[ -n $cur ]] || fail 3 "Could not determine usage"
+
+# Only start deleting if usage is above the high water mark
+if [ "$cur" -lt $HIGH_WATER_MARK ]; then
+    echo "No cleanup necessary: usage is ${cur}%"
     exit 0
 fi
 
-# Only start deleting if usage is above 90%
-if [ "$cur" -le 90 ]; then
-    exit 0
-fi
-
-cd /var/www/html/ || exit 0
+cd "$WATCHED_DIRECTORY" || fail 4 "Could not enter $WATCHED_DIRECTORY"
 
 # Timestamp pattern: %Y%m%d-%H%M (e.g. 20250101-1230)
 ts_pattern='20[0-9][0-9][01][0-9][0-3][0-9]-[0-2][0-9][0-5][0-9]'
 
-# Delete oldest timestamped directories until usage drops below 85%
-while [ "$cur" -ge 85 ]; do
+count=0
+# Delete oldest timestamped directories until usage drops below the low water mark
+while [ "$cur" -ge $LOW_WATER_MARK ]; do
     oldest=$(ls -1d $ts_pattern 2>/dev/null | sort | head -n 1)
     if [ -z "$oldest" ]; then
         # No matching directories left to delete
@@ -32,10 +52,11 @@ while [ "$cur" -ge 85 ]; do
     # Ensure it's a directory before removing
     if [ -d "$oldest" ]; then
         rm -rf -- "$oldest"
+        count=$((count + 1))
     fi
 
-    # Also remove corresponding /osgtest/runs/run-<TIMESTAMP>
-    run_dir="/osgtest/runs/run-$oldest"
+    # Also remove corresponding test run directory
+    run_dir="${RUNS_DIRECTORY}/run-$oldest"
     if [ -d "$run_dir" ]; then
         rm -rf -- "$run_dir"
     fi
@@ -46,3 +67,4 @@ while [ "$cur" -ge 85 ]; do
         break
     fi
 done
+echo "${count} directories deleted"
