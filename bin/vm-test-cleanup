@@ -6,7 +6,7 @@
 # not delete the corresponding directory from `/osgtest/runs`.
 #
 
-WATCHED_DIRECTORY=/var/www/html
+SUMMARIES_DIRECTORY=/var/www/html
 RUNS_DIRECTORY=/osgtest/runs
 HIGH_WATER_MARK=90
 LOW_WATER_MARK=85
@@ -28,7 +28,7 @@ usage_pct() {
 }
 
 
-set -eu
+set -u
 
 # Timestamp pattern: %Y%m%d-%H%M (e.g. 20250101-1230)
 ts_pattern='20[0-9][0-9][01][0-9][0-3][0-9]-[0-2][0-9][0-5][0-9]'
@@ -38,11 +38,17 @@ count=0
 # Function to clean a single directory until its filesystem usage drops
 clean_directory() {
     local dir_path="$1"
+    local prefix="$2"
+    local pattern="${prefix}${ts_pattern}"
 
     # Check current usage of the filesystem containing dir_path
     local cur
     cur=$(usage_pct "$dir_path")
-    [[ -n $cur ]] || fail 3 "Could not determine usage for ${dir_path}"
+    if [[ -z $cur ]]
+    then
+        echo "Could not determine usage for ${dir_path}" >&2
+        return 2
+    fi
 
     # Only start deleting if usage is above the high water mark
     if [ "$cur" -lt $HIGH_WATER_MARK ]; then
@@ -50,21 +56,28 @@ clean_directory() {
         return 0
     fi
 
-    cd "$dir_path" || fail 4 "Could not enter $dir_path"
+    if ! cd "${dir_path}"
+    then
+        echo "Could not enter $dir_path" >&2
+        return 4
+    fi
 
+    local dirs dir_count oldest
     # Delete oldest timestamped directories until usage drops below the low water mark
     while [ "$cur" -ge $LOW_WATER_MARK ]; do
-        # note: do not quote $ts_pattern below
-        dirs=$(ls -1d $ts_pattern 2>/dev/null | sort)
+        # note: do not quote $pattern below
+        dirs=$(ls -1d ${pattern} 2>/dev/null | sort)
         dir_count=$(wc -l <<<"${dirs}")
         if [[ ${dir_count} -le ${KEEP_DIRS} ]]
         then
-            fail 5 "Exiting early for ${dir_path} because only ${dir_count} directories remain"
+            echo "Exiting early for ${dir_path} because only ${dir_count} directories remain" >&2
+            return 1
         fi
         oldest=$(head -n 1 <<<"${dirs}")
 
         # Ensure it's a directory before removing
         if [ -d "$oldest" ]; then
+            echo "Deleting ${oldest}"
             rm -rf -- "$oldest"
             count=$((count + 1))
         fi
@@ -75,12 +88,19 @@ clean_directory() {
             break
         fi
     done
+    return 0
 }
 
-# Clean the watched web directory separately
-clean_directory "$WATCHED_DIRECTORY"
+ret=0
 
-# Clean the runs directory separately
-clean_directory "$RUNS_DIRECTORY"
+# Clean the test summaries directory
+clean_directory "$SUMMARIES_DIRECTORY" ""
+ret=$(( ret | $? ))
+
+# Clean the test runs directory
+clean_directory "$RUNS_DIRECTORY" "run-"
+ret=$(( ret | $? ))
 
 echo "${count} directories deleted"
+
+exit "${ret}"
