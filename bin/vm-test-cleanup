@@ -1,8 +1,9 @@
 #!/bin/bash
 #
 # Delete old VMU test runs from `/var/www/html` and `/osgtest/runs` based on
-# free disk space on `/var/www/html`.  (I am watching that instead of
-# `/osgtest/runs` because `/var/www/html` is on a smaller partition.)
+# free disk space on their respective filesystems.  Each directory is watched
+# and cleaned separately.  When deleting a directory from `/var/www/html`, do
+# not delete the corresponding directory from `/osgtest/runs`.
 #
 
 WATCHED_DIRECTORY=/var/www/html
@@ -22,55 +23,64 @@ fail () {
 
 
 usage_pct() {
-    df -P /var/www/html | tail -1 | awk '{print $5}' | tr -d '%'
+    # usage_pct <path>
+    df -P "$1" | tail -1 | awk '{print $5}' | tr -d '%'
 }
 
 
 set -eu
 
-# Check current usage of the filesystem containing /var/www/html
-cur=$(usage_pct)
-[[ -n $cur ]] || fail 3 "Could not determine usage"
-
-# Only start deleting if usage is above the high water mark
-if [ "$cur" -lt $HIGH_WATER_MARK ]; then
-    echo "No cleanup necessary: usage is ${cur}%"
-    exit 0
-fi
-
-cd "$WATCHED_DIRECTORY" || fail 4 "Could not enter $WATCHED_DIRECTORY"
-
 # Timestamp pattern: %Y%m%d-%H%M (e.g. 20250101-1230)
 ts_pattern='20[0-9][0-9][01][0-9][0-3][0-9]-[0-2][0-9][0-5][0-9]'
 
 count=0
-# Delete oldest timestamped directories until usage drops below the low water mark
-while [ "$cur" -ge $LOW_WATER_MARK ]; do
-    # note: do not quote $ts_pattern below
-    dirs=$(ls -1d $ts_pattern 2>/dev/null | sort)
-    dir_count=$(wc -l <<<"${dirs}")
-    if [[ ${dir_count} -le ${KEEP_DIRS} ]]
-    then
-        fail 5 "Exiting early because only ${dir_count} directories remain"
-    fi
-    oldest=$(head -n 1 <<<"${dirs}")
 
-    # Ensure it's a directory before removing
-    if [ -d "$oldest" ]; then
-        rm -rf -- "$oldest"
-        count=$((count + 1))
-    fi
+# Function to clean a single directory until its filesystem usage drops
+clean_directory() {
+    local dir_path="$1"
 
-    # Also remove corresponding test run directory
-    run_dir="${RUNS_DIRECTORY}/run-$oldest"
-    if [ -d "$run_dir" ]; then
-        rm -rf -- "$run_dir"
+    # Check current usage of the filesystem containing dir_path
+    local cur
+    cur=$(usage_pct "$dir_path")
+    [[ -n $cur ]] || fail 3 "Could not determine usage for ${dir_path}"
+
+    # Only start deleting if usage is above the high water mark
+    if [ "$cur" -lt $HIGH_WATER_MARK ]; then
+        echo "No cleanup necessary for ${dir_path}: usage is ${cur}%"
+        return 0
     fi
 
-    # Recompute usage
-    cur=$(usage_pct)
-    if [ -z "$cur" ]; then
-        break
-    fi
-done
+    cd "$dir_path" || fail 4 "Could not enter $dir_path"
+
+    # Delete oldest timestamped directories until usage drops below the low water mark
+    while [ "$cur" -ge $LOW_WATER_MARK ]; do
+        # note: do not quote $ts_pattern below
+        dirs=$(ls -1d $ts_pattern 2>/dev/null | sort)
+        dir_count=$(wc -l <<<"${dirs}")
+        if [[ ${dir_count} -le ${KEEP_DIRS} ]]
+        then
+            fail 5 "Exiting early for ${dir_path} because only ${dir_count} directories remain"
+        fi
+        oldest=$(head -n 1 <<<"${dirs}")
+
+        # Ensure it's a directory before removing
+        if [ -d "$oldest" ]; then
+            rm -rf -- "$oldest"
+            count=$((count + 1))
+        fi
+
+        # Recompute usage for this directory's filesystem
+        cur=$(usage_pct "$dir_path")
+        if [ -z "$cur" ]; then
+            break
+        fi
+    done
+}
+
+# Clean the watched web directory separately
+clean_directory "$WATCHED_DIRECTORY"
+
+# Clean the runs directory separately
+clean_directory "$RUNS_DIRECTORY"
+
 echo "${count} directories deleted"
