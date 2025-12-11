@@ -9,6 +9,7 @@ WATCHED_DIRECTORY=/var/www/html
 RUNS_DIRECTORY=/osgtest/runs
 HIGH_WATER_MARK=90
 LOW_WATER_MARK=85
+KEEP_DIRS=5
 
 
 fail () {
@@ -24,6 +25,8 @@ usage_pct() {
     df -P /var/www/html | tail -1 | awk '{print $5}' | tr -d '%'
 }
 
+
+set -eu
 
 # Check current usage of the filesystem containing /var/www/html
 cur=$(usage_pct)
@@ -43,11 +46,14 @@ ts_pattern='20[0-9][0-9][01][0-9][0-3][0-9]-[0-2][0-9][0-5][0-9]'
 count=0
 # Delete oldest timestamped directories until usage drops below the low water mark
 while [ "$cur" -ge $LOW_WATER_MARK ]; do
-    oldest=$(ls -1d $ts_pattern 2>/dev/null | sort | head -n 1)
-    if [ -z "$oldest" ]; then
-        # No matching directories left to delete
-        break
+    # note: do not quote $ts_pattern below
+    dirs=$(ls -1d $ts_pattern 2>/dev/null | sort)
+    dir_count=$(wc -l <<<"${dirs}")
+    if [[ ${dir_count} -le ${KEEP_DIRS} ]]
+    then
+        fail 5 "Exiting early because only ${dir_count} directories remain"
     fi
+    oldest=$(head -n 1 <<<"${dirs}")
 
     # Ensure it's a directory before removing
     if [ -d "$oldest" ]; then
