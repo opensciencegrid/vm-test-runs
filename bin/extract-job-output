@@ -8,7 +8,7 @@ import sys
 blacklist = set(['/lost+found'])
 
 def print_now(message):
-    print message,
+    print(message, end=' ')
     sys.stdout.flush()
 
 g = guestfs.GuestFS()
@@ -23,7 +23,7 @@ if os.path.getsize(image_filename) == 0:
 
 try:
     os.makedirs(output_dir)
-except OSError, exc:
+except OSError as exc:
     if exc.errno == errno.EEXIST:
         sys.exit("Output directory '%s' already exists, will not overwrite, try again" % output_dir)
     raise
@@ -35,7 +35,7 @@ g.launch()
 
 filesystems = g.list_filesystems()
 if len(filesystems) != 1:
-    print 'Found %d filesystems, unable to continue' % len(filesystems)
+    print('Found %d filesystems, unable to continue' % len(filesystems))
     sys.exit(2)
 
 g.mount(filesystems[0][0], '/')
@@ -69,4 +69,4 @@ for image_path in paths:
                 continue
 
 
-print "ok"
+print("ok")

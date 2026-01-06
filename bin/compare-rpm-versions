@@ -38,7 +38,7 @@ dist_pat = r'((\.osg(\d+)?)?\.[es]l[5-9](_[\d.]+)?(\.centos)?|\.osg|\.fc\d+)$'
 vmurun_pat = r'(?:/|^)(20\d{6}-\d{4})/(\d\d\d+)(?:/|$)'
 
 def usage():
-    print __doc__ % os.path.basename(__file__)
+    print(__doc__ % os.path.basename(__file__))
     sys.exit()
 
 for arg in sys.argv[1:]:
@@ -113,7 +113,7 @@ def nvrmap(output):
         globpat = "%s/output/osg-test-*.log" % output
         log = glob.glob(globpat)
         if len(log) != 1:
-            print >>sys.stderr, "Error: could not find '%s'" % globpat
+            print("Error: could not find '%s'" % globpat, file=sys.stderr)
             sys.exit(1)
         log = log[0]
 
@@ -123,9 +123,9 @@ def nvrmap(output):
         m = re.search(r'\*\*\*\*\* All RPMs\n(.*?)\n\n', txt, re.S)
         if m:
             txt = m.group(1)
-            return dict(map(rpm_qa2na_vr, txt.split()))
+            return dict(list(map(rpm_qa2na_vr, txt.split())))
         else:
-            print >>sys.stderr, "No RPMs found in profiler output '%s'" % log
+            print("No RPMs found in profiler output '%s'" % log, file=sys.stderr)
             sys.exit(1)
     elif ' ' in txt:
         # strip "DEBUG util.py:388:  " in case this is coming from a root.log
@@ -139,9 +139,9 @@ def nvrmap(output):
         return dict(nvrgen(items))
     else:
         # at most 1-word per line; assume this is 'rpm -qa' output
-        return dict(map(rpm_qa2na_vr, txt.split()))
+        return dict(list(map(rpm_qa2na_vr, txt.split())))
 
-rpms1,rpms2 = map(nvrmap,dirs)
+rpms1,rpms2 = list(map(nvrmap,dirs))
 
 if strip_arch:
     bare_rpms1 = set(rpms1)
@@ -170,7 +170,7 @@ def colorize_vr(vr1, vr2):
     elif r1 != r2:
         r1,r2 = colorize('1;34', r1, r2)
 
-    return map('-'.join, [[v1,r1],[v2,r2]])
+    return list(map('-'.join, [[v1,r1],[v2,r2]]))
 
 def pkgpath_tidy(path):
     m = re.search(vmurun_pat, path)
@@ -183,16 +183,16 @@ for pkg in sorted(all_rpms if show_all or show_miss else all_match_rpms):
     if show_all or vr1 != vr2:
         pkg_diffs.append([pkg, vr1, vr2])
 
-titles = map(pkgpath_tidy, dirs)
+titles = list(map(pkgpath_tidy, dirs))
 if pkg_diffs:
     pkg_diffs[:0] = [["Package"] + titles]
-    widths = [ max(map(len,col)) for col in zip(*pkg_diffs) ]
+    widths = [ max(list(map(len,col))) for col in zip(*pkg_diffs) ]
     pkg_diffs[1:1] = [[ '-' * n for n in widths ]]
     for i,row in enumerate(pkg_diffs):
         spacing = [ w-len(x) for x,w in zip(row,widths) ]
         if use_color and i > 1:
             row[1:] = colorize_vr(*row[1:])
-        print '  '.join( r + ' ' * s for r,s in zip(row,spacing) ).rstrip()
+        print('  '.join( r + ' ' * s for r,s in zip(row,spacing) ).rstrip())
 else:
-    print "No package version differences"
+    print("No package version differences")
 

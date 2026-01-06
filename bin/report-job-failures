@@ -36,7 +36,7 @@ def parse_job_log(logfile):
         # The same job can fail multiple times, so for the instance where an error
         # is missing a hostname, we have to keep track of how many times the job has
         # failed to find the corresponding log message with an IP address.
-        if job_id in failed_jobs.keys():
+        if job_id in list(failed_jobs.keys()):
             failed_jobs[job_id] += 1
         else:
             failed_jobs[job_id] = 0
@@ -58,8 +58,8 @@ def parse_job_log(logfile):
                 machine_id = hostname
                 
             event = (job_id, timestamp)
-            if messages.has_key(message):
-                if messages[message].has_key(machine_id):
+            if message in messages:
+                if machine_id in messages[message]:
                     messages[message][machine_id].append(event)
                 else:
                     messages[message][machine_id] = [event]
@@ -75,7 +75,7 @@ indicate a broken libvirt, dnsmasq, firewall, or other hypervisor configuration 
 The counts are total exceptions per hostname.
 '''
         
-    for message, failures in messages.items():
+    for message, failures in list(messages.items()):
         body += "\nFailure: %s\n" % message
         for hostname in failures:
             times = 'times'
