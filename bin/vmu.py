@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 '''A collection of functions that are used across the various VMU automated test
 scripts'''
