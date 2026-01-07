@@ -191,7 +191,7 @@ def nvrmap(output):
         m = re.search(r'\*\*\*\*\* All RPMs\n(.*?)\n\n', txt, re.S)
         if m:
             txt = m.group(1)
-            return dict(list(map(rpm_qa2na_vr, txt.split())))
+            return dict(map(rpm_qa2na_vr, txt.split()))
         else:
             raise RuntimeError("No RPMs found in profiler output '%s'" % log)
     elif ' ' in txt:
@@ -202,11 +202,11 @@ def nvrmap(output):
         return scrape_installed_packages(txt)
     else:
         # at most 1-word per line; assume this is 'rpm -qa' output
-        return dict(list(map(rpm_qa2na_vr, txt.split())))
+        return dict(map(rpm_qa2na_vr, txt.split()))
 
 def print_table(header, table):
     table = [header] + table
-    widths = [ max(list(map(len,col))) for col in zip(*table) ]
+    widths = [ max(map(len,col)) for col in zip(*table) ]
     table[1:1] = [[ '-' * n for n in map(len,header) ]]
     for i,row in enumerate(table):
         spacing = [ w-len(x) for x,w in zip(row,widths) ]
@@ -296,7 +296,7 @@ def get_run_output_dirs(rundir):
 
 # run a function call in a background coprocess, return callable result
 def bgcall(func, *a, **kw):
-    r,w = itertools.starmap(os.fdopen, list(zip(os.pipe(), "rw")))
+    r,w = itertools.starmap(os.fdopen, zip(os.pipe(), "rw"))
 
     if os.fork():  # parent
         w.close()

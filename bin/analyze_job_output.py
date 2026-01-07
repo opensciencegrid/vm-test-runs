@@ -22,7 +22,7 @@ def run_command(command, shell=False):
     # Run and return command
     p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=shell)
     (stdout, stderr) = p.communicate()
-    return (p.returncode, stdout.decode() if stdout else '', stderr.decode() if stderr else '')
+    return (p.returncode, stdout.decode(errors="replace") if stdout else '', stderr.decode(errors="replace") if stderr else '')
 
 def read_file(path):
     data_file = open(path, 'r')
@@ -84,10 +84,10 @@ def write_yaml_value(value):
 def write_yaml_mapping(data, key):
     if key in data:
         if key in ('job_serial', 'job_id'):
-            print(('  %s: \'%s\'' % (key, data[key])))
+            print('  %s: \'%s\'' % (key, data[key]))
         else:
             value = data[key]
-            print(('  %s:%s' % (key, write_yaml_value(value))))
+            print('  %s:%s' % (key, write_yaml_value(value)))
 
 def write_yaml(data):
     print('-')
@@ -168,7 +168,7 @@ def parse_log(osg_test_log, test_exceptions, components):
 if __name__ == '__main__':
     # Process command-line arguments
     if len(sys.argv) != 3:
-        print(('usage: %s SERIAL JOBID' % os.path.basename(sys.argv[0])))
+        print('usage: %s SERIAL JOBID' % os.path.basename(sys.argv[0]))
         sys.exit(1)
     job_serial = sys.argv[1]
     job_id = sys.argv[2]

@@ -64,7 +64,7 @@ def tally_run_results(container, key, status):
 
 def print_tallied_results(container, key_label):
     key_column_width = max(12, len(key_label))
-    for key in list(container.keys()):
+    for key in container:
         if len(key) > key_column_width:
             key_column_width = len(key)
 

@@ -77,7 +77,7 @@ indicate a broken libvirt, dnsmasq, firewall, or other hypervisor configuration 
 The counts are total exceptions per hostname.
 '''
         
-    for message, failures in list(messages.items()):
+    for message, failures in messages.items():
         body += "\nFailure: %s\n" % message
         for hostname in failures:
             times = 'times'

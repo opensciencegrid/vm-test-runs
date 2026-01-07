@@ -123,7 +123,7 @@ def nvrmap(output):
         m = re.search(r'\*\*\*\*\* All RPMs\n(.*?)\n\n', txt, re.S)
         if m:
             txt = m.group(1)
-            return dict(list(map(rpm_qa2na_vr, txt.split())))
+            return dict(map(rpm_qa2na_vr, txt.split()))
         else:
             print("No RPMs found in profiler output '%s'" % log, file=sys.stderr)
             sys.exit(1)
@@ -139,7 +139,7 @@ def nvrmap(output):
         return dict(nvrgen(items))
     else:
         # at most 1-word per line; assume this is 'rpm -qa' output
-        return dict(list(map(rpm_qa2na_vr, txt.split())))
+        return dict(map(rpm_qa2na_vr, txt.split()))
 
 rpms1,rpms2 = list(map(nvrmap,dirs))
 
@@ -186,7 +186,7 @@ for pkg in sorted(all_rpms if show_all or show_miss else all_match_rpms):
 titles = list(map(pkgpath_tidy, dirs))
 if pkg_diffs:
     pkg_diffs[:0] = [["Package"] + titles]
-    widths = [ max(list(map(len,col))) for col in zip(*pkg_diffs) ]
+    widths = [ max(map(len,col)) for col in zip(*pkg_diffs) ]
     pkg_diffs[1:1] = [[ '-' * n for n in widths ]]
     for i,row in enumerate(pkg_diffs):
         spacing = [ w-len(x) for x,w in zip(row,widths) ]
