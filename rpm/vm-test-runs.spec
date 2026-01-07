@@ -1,6 +1,6 @@
 Summary: OSG VMU test scripts
 Name: vm-test-runs
-Version: 1.3
+Version: 1.4
 Release: 1%{?dist}
 Source0: %{name}-%{version}.tar.gz
 License: Apache 2.0
@@ -10,6 +10,7 @@ Url: https://github.com/opensciencegrid/vm-test-runs/
 %{?systemd_requires}
 
 Requires: libguestfs-tools
+Requires: guestfs-tools
 Requires: git
 
 %description
@@ -68,6 +69,9 @@ install -D vmu.css %{buildroot}/%{_localstatedir}/www/html/vmu.css
 %attr(0644,root,root) %{_localstatedir}/www/html/vmu.css
 
 %changelog
+* Wed Jan 07 2026 Matt Westphall <westphall@wisc.edu> 1.4-1
+- EL7 to EL9 migration
+
 * Thu Oct 12 2023 Mátyás Selmeci <matyas@cs.wisc.edu> 1.3-1
 - Add local changes from osg-sw-submit; decrease number of old test runs kept
 
