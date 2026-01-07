@@ -22,7 +22,7 @@ def run_command(command, shell=False):
     # Run and return command
     p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=shell)
     (stdout, stderr) = p.communicate()
-    return (p.returncode, stdout.decode(), stderr.decode())
+    return (p.returncode, stdout.decode() if stdout else '', stderr.decode() if stderr else '')
 
 def read_file(path):
     data_file = open(path, 'r')
