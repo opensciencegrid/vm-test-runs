@@ -7,6 +7,10 @@ import sys
 
 import vmu
 
+import socket
+
+HOSTNAME = socket.gethostname()
+
 # E-mail recipient list constructed from select Software and Release Team members:
 # https://opensciencegrid.github.io/technology/
 RECIPIENTS = (
@@ -23,7 +27,7 @@ RUN_LABEL = vmu.run_label()
 
 # Adapted from Mat's aggregator/emailer.py script
 def mail_message(subject, message, recipients):
-    from_addr = 'OSG Tests <condor@osg-sw-submit.chtc.wisc.edu>'
+    from_addr = f'OSG Tests <condor@{HOSTNAME}.chtc.wisc.edu>'
     payload = 'Subject: %s\r\n' % (subject)
     payload += 'From: %s\r\n' % (from_addr)
     payload += 'Reply-To: technology-team@opensciencegrid.org\r\n'
@@ -49,11 +53,11 @@ def file_contents(path, as_single_string=False):
 my_directory = os.path.basename(vmu.RUN_DIR)
 my_timestamp = re.sub(r'^run-', '', my_directory)
 
-message = '''OSG VMU tests: %s
-https://osg-sw-submit.chtc.wisc.edu/tests/%s/results.html
-https://osg-sw-submit.chtc.wisc.edu/tests/%s/packages.html
+message = f'''OSG VMU tests: {RUN_LABEL}
+https://{HOSTNAME}.chtc.wisc.edu/tests/{my_timestamp}/results.html
+https://{HOSTNAME}.chtc.wisc.edu/tests/{my_timestamp}/packages.html
 
-''' % (RUN_LABEL, my_timestamp, my_timestamp)
+'''
 
 if not os.path.exists(ANALYSIS_FILENAME):
     subject = 'OSG VMU test results: FAIL: no %s' % (ANALYSIS_FILENAME)

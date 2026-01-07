@@ -4,13 +4,15 @@ import re
 import smtplib
 import time
 import os
+import socket
 
+HOSTNAME = socket.gethostname()
 RECIPIENTS = ('Brian Lin <blin@cs.wisc.edu>',
               'HTCondor Infrastructure <htcondor-inf@cs.wisc.edu>')
 
 # Adapted from Tim's email-analysis script, which was adapted from Mat's aggregator/emailer.py script
 def mail_message(subject, message, recipients):
-    from_addr = 'OSG Tests <condor@osg-sw-submit.chtc.wisc.edu>'
+    from_addr = f'OSG Tests <condor@{HOSTNAME}.chtc.wisc.edu>'
     payload = 'Subject: %s\r\n' % (subject)
     payload += 'From: %s\r\n' % (from_addr)
     payload += 'To: %s\r\n' % (', '.join(recipients))
