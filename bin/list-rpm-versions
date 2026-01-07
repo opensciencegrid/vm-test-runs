@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 """
 Usage:
@@ -66,8 +66,8 @@ dist_pat = r'((\.osg(\d+)?)?\.[es]l[5-9](_[\d.]+)?(\.centos)?|\.osg|\.fc\d+)$'
 
 def usage(msg=None):
     if msg:
-        print "***", msg, "***"
-    print __doc__ % {"script": os.path.basename(__file__)}
+        print("***", msg, "***")
+    print(__doc__ % {"script": os.path.basename(__file__)})
     sys.exit()
 
 def parseargs():
@@ -117,7 +117,7 @@ def dist_strip(evr):
 
 def group_adjacent(a,k):
     ''' group_adjacent([1,2,3,4,5,6], 3) -> [(1,2,3), (4,5,6)] '''
-    return zip(*([iter(a)] * k))
+    return list(zip(*([iter(a)] * k)))
 
 def parse_nevra(item):
     nevr,a = item.rsplit('.',1)
@@ -128,7 +128,7 @@ def parse_nevra(item):
 
 def get_nv_evr_list(items):
     if re.search(r'[._]el[89][._]', items[-1]):
-        return map(parse_nevra, items)
+        return list(map(parse_nevra, items))
     else:
         return group_adjacent(items, 2)
 
@@ -210,14 +210,14 @@ def print_table(header, table):
     table[1:1] = [[ '-' * n for n in map(len,header) ]]
     for i,row in enumerate(table):
         spacing = [ w-len(x) for x,w in zip(row,widths) ]
-        print '  '.join( r + ' ' * s for r,s in zip(row,spacing) ).rstrip()
+        print('  '.join( r + ' ' * s for r,s in zip(row,spacing) ).rstrip())
 
 def single_output_pkg_vrs(output, want_pkgs):
     try:
         have_rpms = nvrmap(output)
     except RuntimeError as e:
-        print >>sys.stderr, "WARNING:", e
-        print >>sys.stderr
+        print("WARNING:", e, file=sys.stderr)
+        print(file=sys.stderr)
         return []
 
     # arch-stripped rpm names
@@ -354,7 +354,7 @@ if __name__ == '__main__':
     try:
         main()
     except RuntimeError as e:
-        print >>sys.stderr, "Error: %s" % e
+        print("Error: %s" % e, file=sys.stderr)
         sys.exit(1)
     except getopt.GetoptError as e:
         usage(e)

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 '''A collection of functions that are used across the various VMU automated test
 scripts'''
@@ -58,7 +58,7 @@ def flatten_run_params(params_list):
     'sources', and 'package_sets' sections. Sorts the 'package_sets' section, leaving the others unsorted. '''
     result = {'platforms': [], 'sources': [], 'package_sets': []}
     for param_file_contents in params_list:
-        for section in param_file_contents.keys():
+        for section in param_file_contents:
             section_contents = param_file_contents[section]
             for item in section_contents:
                 if item in result[section]:

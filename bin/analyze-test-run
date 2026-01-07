@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import os
 import re
@@ -64,28 +64,28 @@ def tally_run_results(container, key, status):
 
 def print_tallied_results(container, key_label):
     key_column_width = max(12, len(key_label))
-    for key in container.keys():
+    for key in container:
         if len(key) > key_column_width:
             key_column_width = len(key)
 
-    print '%-*s    OK    DIED   FAIL   CLEAN  IGNORE   TIMEOUT' % (key_column_width, key_label.upper())
-    print '%s   ----   ----   ----    ----   ----     ----' % ('-' * key_column_width)
+    print('%-*s    OK    DIED   FAIL   CLEAN  IGNORE   TIMEOUT' % (key_column_width, key_label.upper()))
+    print('%s   ----   ----   ----    ----   ----     ----' % ('-' * key_column_width))
     for key in sorted(container.keys()):
-        print '%-*s   %4d   %4d   %4d    %4d   %4d     %4d' % \
+        print('%-*s   %4d   %4d   %4d    %4d   %4d     %4d' % \
             (key_column_width, key, container[key][0], \
-             container[key][1], container[key][2], container[key][3], container[key][4], container[key][5])
-    print
+             container[key][1], container[key][2], container[key][3], container[key][4], container[key][5]))
+    print()
 
 # ------------------------------------------------------------------------------
 
 # Process command-line arguments
 script_name = os.path.basename(sys.argv[0])
 if len(sys.argv) != 2:
-    print 'usage: %s <VMU OUTPUT DIR>' % (script_name)
+    print('usage: %s <VMU OUTPUT DIR>' % (script_name))
     sys.exit(1)
 output_directory = sys.argv[1]
 if not os.path.exists(output_directory):
-    print '%s: VMU output directory "%s" does not exist' % (script_name, output_directory)
+    print('%s: VMU output directory "%s" does not exist' % (script_name, output_directory))
     sys.exit(1)
 
 # Load test run data from combined YAML file
@@ -119,25 +119,25 @@ print_tallied_results(results_by_src, 'Source(s)')
 
 # Print machines that died
 if len(deaths_by_host) > 0:
-    print >> sys.stderr, '-' * 75
-    print >> sys.stderr
-    print >> sys.stderr, 'To: CHTC Infrastructure <htcondor-inf@cs.wisc.edu>'
-    print >> sys.stderr, 'Subject: VM universe failures for OSG tests on %s' % (time.strftime('%Y-%m-%d'))
-    print >> sys.stderr
+    print('-' * 75, file=sys.stderr)
+    print(file=sys.stderr)
+    print('To: CHTC Infrastructure <htcondor-inf@cs.wisc.edu>', file=sys.stderr)
+    print('Subject: VM universe failures for OSG tests on %s' % (time.strftime('%Y-%m-%d')), file=sys.stderr)
+    print(file=sys.stderr)
 
     paragraph = '''The OSG Software team runs automated tests in VM universe every morning.  The following jobs failed
     today, for the reasons shown below.  The jobs are grouped by hypervisor host.'''
-    print >> sys.stderr, textwrap.fill(paragraph, 75)
-    print >> sys.stderr
+    print(textwrap.fill(paragraph, 75), file=sys.stderr)
+    print(file=sys.stderr)
 
-    print >> sys.stderr, 'Run date: %s' % (time.strftime('%d %B %Y (%A)'))
-    print >> sys.stderr, 'Failures: %d out of %d (%.0f%%)' % (jobs_died, total_jobs, 100.0 * jobs_died / total_jobs)
-    print >> sys.stderr
+    print('Run date: %s' % (time.strftime('%d %B %Y (%A)')), file=sys.stderr)
+    print('Failures: %d out of %d (%.0f%%)' % (jobs_died, total_jobs, 100.0 * jobs_died / total_jobs), file=sys.stderr)
+    print(file=sys.stderr)
 
     for host in sorted(deaths_by_host.keys()):
-        print >> sys.stderr, '-' * 75
-        print >> sys.stderr, host
-        print >> sys.stderr, '-' * 75
-        print >> sys.stderr
-        print >> sys.stderr, '\n'.join(deaths_by_host[host])
-        print >> sys.stderr
+        print('-' * 75, file=sys.stderr)
+        print(host, file=sys.stderr)
+        print('-' * 75, file=sys.stderr)
+        print(file=sys.stderr)
+        print('\n'.join(deaths_by_host[host]), file=sys.stderr)
+        print(file=sys.stderr)

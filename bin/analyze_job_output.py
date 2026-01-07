@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import glob
 import os
@@ -22,7 +22,7 @@ def run_command(command, shell=False):
     # Run and return command
     p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=shell)
     (stdout, stderr) = p.communicate()
-    return (p.returncode, stdout, stderr)
+    return (p.returncode, stdout.decode(errors="replace") if stdout else '', stderr.decode(errors="replace") if stderr else '')
 
 def read_file(path):
     data_file = open(path, 'r')

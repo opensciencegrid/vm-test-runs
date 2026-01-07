@@ -1,6 +1,7 @@
 universe   = local
 executable = $(run_dir)/bin/process-job-output
 arguments = "$(serial)"
+environment = "LIBGUESTFS_BACKEND=direct"
 
 output = process-job-output-$(serial).out
 error  = process-job-output-$(serial).err

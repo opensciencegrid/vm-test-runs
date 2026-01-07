@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 '''A script that takes a VMU test run directory and generates results in HTML'''
 
 import re
@@ -166,7 +166,7 @@ def generate_cell(run):
             '<b>Run Time</b>: ' + str(run['run_time']) + 's'
         if run['osg_test_status'] not in ['install', 'update']:
             formatted_skips = [[]]
-            for tag, skips in run['ok_skips'].iteritems():
+            for tag, skips in run['ok_skips'].items():
                 tag_string = '%s (%s)' % (tag, skips)
                 if len(', '.join(formatted_skips[-1])) + len(tag_string) > 80:
                     formatted_skips.append([tag_string])
