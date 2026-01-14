@@ -82,6 +82,7 @@ esac
 log_command date
 log_command cat /etc/creation_date
 log_command cat /etc/redhat-release
+log_command uname -m
 log_command echo $os_major_version
 log_command ip addr show
 log_command printenv
