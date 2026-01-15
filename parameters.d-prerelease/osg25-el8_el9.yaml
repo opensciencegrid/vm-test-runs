@@ -1,0 +1,68 @@
+---
+platforms:
+  # - rocky_8.aarch64
+  # - alma_8.aarch64
+  - rocky_8.x86_64
+  - alma_8.x86_64
+  - centos_stream_9.aarch64
+  - rocky_9.aarch64
+  - alma_9.aarch64
+  - centos_stream_9.x86_64
+  - rocky_9.x86_64
+  - alma_9.x86_64
+
+sources:
+  - opensciencegrid:master; 25; osg-prerelease
+  - opensciencegrid:master; 25; osg > osg-prerelease
+  - opensciencegrid:master; 25; osg-prerelease, osg-upcoming-prerelease
+  - opensciencegrid:master; 25; osg > osg-prerelease, osg-upcoming-prerelease
+
+package_sets:
+  - label: Compute Entrypoint (Condor)
+    packages:
+      - osg-ce-condor
+      - htcondor-ce-view
+  - label: Compute Entrypoint (Slurm)
+    packages:
+      - osg-ce-slurm
+      - htcondor-ce-view
+      - slurm
+      - slurm-slurmd
+      - slurm-slurmctld
+      - slurm-perlapi
+      - slurm-slurmdbd
+      - mariadb-server
+  - label: Central Collector
+    packages:
+      - htcondor-ce-collector
+      - htcondor-ce-view
+      - fetch-crl
+  - label: Worker Node (privileged)
+    packages:
+      - osg-wn-client
+      - osg-oasis
+      - apptainer-suid
+  - label: Worker Node (privileged, tarball deps)
+    packages:
+      - osg-update-data
+      - osg-wn-client
+  - label: XRootD
+    packages:
+      - osg-xrootd-standalone
+      - xrootd-multiuser
+      - xrootd-client
+      - voms-clients-cpp
+  - label: GlideinwmsFrontend
+    packages:
+      - glideinwms-vofrontend
+  - label: GlideinwmsFactory
+    packages:
+      - glideinwms-factory
+  - label: HTVault-Config
+    packages:
+      - htvault-config
+      - htgettoken
+  - label: OSDF Cache and Origin
+    packages:
+      - osdf-cache
+      - osdf-origin

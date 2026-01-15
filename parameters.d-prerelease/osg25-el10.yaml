@@ -1,9 +1,4 @@
-###################
-# OSG 25 tests for EL9
-# File format documention:
-# https://github.com/opensciencegrid/vm-test-runs#running-osg-test-in-vm-universe
-###################
-
+---
 platforms:
   - centos_stream_10.aarch64
   - rocky_10.aarch64
@@ -13,34 +8,12 @@ platforms:
   - alma_10.x86_64
 
 sources:
-  ###################
-  # Format:
-  # [<Github account>:<osg-test branch>;] <OSG ver>; <REPO 1, REPO 2...REPO N> [> <Update OSG ver>/<Update REPO 1, REPO 2...REPO N>]
-  # Example:
-  # Run osg-test (from 3.2-minefield) with packages from 3.2-release and 3.2-testing that are then upgraded to
-  # 3.3-testing and 3-3-upcoming-testing:
-  # 3.2; osg, osg-testing > 3.3/osg-testing, osg-upcoming-testing
-  ###################
-  - opensciencegrid:master; 25; osg
-  - opensciencegrid:master; 25; osg, epel-testing
-  - opensciencegrid:master; 25; osg-testing
-  - opensciencegrid:master; 25; osg > osg-testing
-  - opensciencegrid:master; 25; osg, osg-upcoming
-  - opensciencegrid:master; 25; osg, osg-upcoming, epel-testing
-  - opensciencegrid:master; 25; osg-testing, osg-upcoming-testing
-  - opensciencegrid:master; 25; osg > osg-testing, osg-upcoming-testing
-  # - opensciencegrid:master; 25; osg-minefield
-  # - opensciencegrid:master; 25; osg > osg-minefield
+  - opensciencegrid:master; 25; osg-prerelease
+  - opensciencegrid:master; 25; osg > osg-prerelease
+  - opensciencegrid:master; 25; osg-prerelease, osg-upcoming-prerelease
+  - opensciencegrid:master; 25; osg > osg-prerelease, osg-upcoming-prerelease
 
 package_sets:
-  #### Required ####
-  # label - used for reporting, should be consistent across param files
-  # packages - list of packages to install in the test run
-  #### Optional ####
-  # selinux - enable SELinux for the package set, otherwise Permissive mode (default: True)
-  # osg_java - Pre-install OSG java packages (default: False)
-  # rng - Install entropy generation package (default: False)
-  ##################
   - label: Compute Entrypoint (Condor) (EL10)
     packages:
       - osg-ce-condor
