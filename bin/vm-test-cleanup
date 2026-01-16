@@ -13,15 +13,6 @@ LOW_WATER_MARK=85
 KEEP_DIRS=5
 
 
-fail () {
-    set +exu
-    local ret="${1}"
-    shift
-    echo -e "${@}" >&2
-    exit "${ret}"
-}
-
-
 usage_pct() {
     # usage_pct <path>
     df -P "$1" | tail -1 | awk '{print $5}' | tr -d '%'
@@ -66,6 +57,7 @@ clean_directory() {
     # Delete oldest timestamped directories until usage drops below the low water mark
     while [ "$cur" -ge $LOW_WATER_MARK ]; do
         # note: do not quote $pattern below
+        # shellcheck disable=SC2012,SC2086
         dirs=$(ls -1d ${pattern} 2>/dev/null | sort)
         dir_count=$(wc -l <<<"${dirs}")
         if [[ ${dir_count} -le ${KEEP_DIRS} ]]
