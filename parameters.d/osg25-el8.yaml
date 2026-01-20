@@ -28,7 +28,7 @@ sources:
   - opensciencegrid:master; 25; osg, osg-upcoming, epel-testing
   - opensciencegrid:master; 25; osg-testing, osg-upcoming-testing
   - opensciencegrid:master; 25; osg > osg-testing, osg-upcoming-testing
-  # - opensciencegrid:master; 24; osg, osg-upcoming > 24/osg-minefield
+  # - opensciencegrid:master; 24; osg, osg-upcoming > 25/osg-minefield
   # - opensciencegrid:master; 25; osg-minefield
   # - opensciencegrid:master; 25; osg > osg-minefield
 
