@@ -63,12 +63,13 @@ package_sets:
       - xrootd-multiuser
       - xrootd-client
       - voms-clients-cpp
-  - label: GlideinwmsFrontend
-    packages:
-      - glideinwms-vofrontend
-  - label: GlideinwmsFactory
-    packages:
-      - glideinwms-factory
+# python3-m3crypto is not available in el10
+  # - label: GlideinwmsFrontend
+  #   packages:
+  #     - glideinwms-vofrontend
+  # - label: GlideinwmsFactory
+  #   packages:
+  #     - glideinwms-factory
   - label: HTVault-Config
     packages:
       - htvault-config
