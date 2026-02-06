@@ -93,7 +93,7 @@ combined_yaml_path = os.path.join(output_directory, 'combined-analysis.yaml')
 yaml_file = open(combined_yaml_path)
 yaml_contents = yaml_file.read()
 yaml_file.close()
-runs = yaml.load(yaml_contents)
+runs = yaml.safe_load(yaml_contents)
 run_params = vmu.load_run_params(vmu.PARAM_DIR)
 PACKAGE_MAPPING = vmu.package_mapping(vmu.flatten_run_params(run_params))
 
