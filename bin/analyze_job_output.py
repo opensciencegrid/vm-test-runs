@@ -32,7 +32,7 @@ def read_file(path):
 
 def load_yaml(filename):
     yaml_file = read_file(filename)
-    return yaml.load(yaml_file)
+    return yaml.safe_load(yaml_file)
 
 def re_extract(regexp, data, flags=0, default=None, group=None):
     m = re.search(regexp, data, flags)

@@ -41,7 +41,7 @@ def load_run_params(param_dir):
         with open(param_file, 'r') as yaml_file:
             yaml_contents = yaml_file.read()
         try:
-            param_contents = yaml.load(yaml_contents)
+            param_contents = yaml.safe_load(yaml_contents)
         except (yaml.scanner.ScannerError, yaml.reader.ReaderError):
             # skip non-yaml files
             pass
