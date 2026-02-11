@@ -1,19 +1,98 @@
 #!/bin/bash
+#
+# Delete old VMU test runs from `/var/www/html` and `/osgtest/runs` based on
+# free disk space on their respective filesystems.  Each directory is watched
+# and cleaned separately.  When deleting a directory from `/var/www/html`, do
+# not delete the corresponding directory from `/osgtest/runs`.
+#
 
-RUNS_TO_KEEP=80
+SUMMARIES_DIRECTORY=/var/www/html
+RUNS_DIRECTORY=/osgtest/runs
+HIGH_WATER_MARK=65
+LOW_WATER_MARK=60
+KEEP_DIRS=30
 
-year='20[1-9][0-9]'
-month='[01][0-9]'
-day='[0-3][0-9]'
-hour='[012][0-9]'
-minute='[0-5][0-9]'
 
-cd /osgtest/runs/
-/bin/ls -d run-${year}${month}${day}-${hour}${minute} | head -n -${RUNS_TO_KEEP} | while read rundir; do
-    rm -rf "$rundir"
-done
+usage_pct() {
+    # usage_pct <path>
+    df -P "$1" | tail -1 | awk '{print $5}' | tr -d '%'
+}
 
-cd /var/www/html/
-/bin/ls -d ${year}${month}${day}-${hour}${minute} | head -n -${RUNS_TO_KEEP} | while read rundir; do
-    rm -rf "$rundir"
-done
+
+set -u
+
+# Timestamp pattern: %Y%m%d-%H%M (e.g. 20250101-1230)
+ts_pattern='20[0-9][0-9][01][0-9][0-3][0-9]-[0-2][0-9][0-5][0-9]'
+
+count=0
+
+# Function to clean a single directory until its filesystem usage drops
+clean_directory() {
+    local dir_path="$1"
+    local prefix="$2"
+    local pattern="${prefix}${ts_pattern}"
+
+    # Check current usage of the filesystem containing dir_path
+    local cur
+    cur=$(usage_pct "$dir_path")
+    if [[ -z $cur ]]
+    then
+        echo "Could not determine usage for ${dir_path}" >&2
+        return 2
+    fi
+
+    # Only start deleting if usage is above the high water mark
+    if [ "$cur" -lt $HIGH_WATER_MARK ]; then
+        echo "No cleanup necessary for ${dir_path}: usage is ${cur}%"
+        return 0
+    fi
+
+    if ! cd "${dir_path}"
+    then
+        echo "Could not enter $dir_path" >&2
+        return 4
+    fi
+
+    local dirs dir_count oldest
+    # Delete oldest timestamped directories until usage drops below the low water mark
+    while [ "$cur" -ge $LOW_WATER_MARK ]; do
+        # note: do not quote $pattern below
+        # shellcheck disable=SC2012,SC2086
+        dirs=$(ls -1d ${pattern} 2>/dev/null | sort)
+        dir_count=$(wc -l <<<"${dirs}")
+        if [[ ${dir_count} -le ${KEEP_DIRS} ]]
+        then
+            echo "Exiting early for ${dir_path} because only ${dir_count} directories remain" >&2
+            return 1
+        fi
+        oldest=$(head -n 1 <<<"${dirs}")
+
+        # Ensure it's a directory before removing
+        if [ -d "$oldest" ]; then
+            echo "Deleting ${oldest}"
+            rm -rf -- "$oldest"
+            count=$((count + 1))
+        fi
+
+        # Recompute usage for this directory's filesystem
+        cur=$(usage_pct "$dir_path")
+        if [ -z "$cur" ]; then
+            break
+        fi
+    done
+    return 0
+}
+
+ret=0
+
+# Clean the test summaries directory
+clean_directory "$SUMMARIES_DIRECTORY" ""
+ret=$(( ret | $? ))
+
+# Clean the test runs directory
+clean_directory "$RUNS_DIRECTORY" "run-"
+ret=$(( ret | $? ))
+
+echo "${count} directories deleted"
+
+exit "${ret}"
