@@ -38,8 +38,6 @@ package_sets:
   # packages - list of packages to install in the test run
   #### Optional ####
   # selinux - enable SELinux for the package set, otherwise Permissive mode (default: True)
-  # osg_java - Pre-install OSG java packages (default: False)
-  # rng - Install entropy generation package (default: False)
   ##################
   - label: Compute Entrypoint (Condor) (EL10)
     packages:
