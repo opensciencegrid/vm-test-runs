@@ -1,0 +1,30 @@
+###################
+# OSG 24 tests for EL8
+# File format documention:
+# https://github.com/opensciencegrid/vm-test-runs#running-osg-test-in-vm-universe
+###################
+
+platforms:
+  - rocky_8.x86_64
+  - alma_8.x86_64
+
+sources:
+  - opensciencegrid:master; 23; osg, osg-upcoming > 24/osg-upcoming-minefield
+  - opensciencegrid:master; 24; osg-upcoming-minefield
+  - opensciencegrid:master; 24; osg > osg-upcoming-minefield
+
+package_sets:
+  - label: Compute Entrypoint (Condor)
+    packages:
+      - osg-ce-condor
+      - htcondor-ce-view
+  - label: Compute Entrypoint (Slurm)
+    packages:
+      - osg-ce-slurm
+      - htcondor-ce-view
+      - slurm
+      - slurm-slurmd
+      - slurm-slurmctld
+      - slurm-perlapi
+      - slurm-slurmdbd
+      - mariadb-server
