@@ -12,7 +12,7 @@ safe_run()
 
 print_help()
 {
-    echo "help: $0 [-g ACCOUNT:BRANCH] [-n] [-P|-p YYYYMMDD-HHMM] <label>"
+    echo "help: $0 [-g ACCOUNT:BRANCH] [-n] [-P|-p YYYYMMDD-HHMM|-T <package-name>] <label>"
     echo "Options:"
     echo "    -g"
     echo "       Specify a GitHub ACCOUNT:BRANCH for the 'vm-test-runs' repository (default: opensciencegrid:master)"
@@ -22,6 +22,8 @@ print_help()
     echo "       Use yaml parameters for testing the prerelease repos"
     echo "    -p YYYYMMDD-HHMM"
     echo "       Use yaml parameters from a previous run with given timestamp"
+    echo "    -T <package-name>"
+    echo "       Use predefined yaml parameters for promoting the given package"
     echo '    -h, -help, --help'
     echo "       Print this dialogue"
 
@@ -30,6 +32,7 @@ print_help()
 TEST_HOME=/osgtest/runs
 NIGHTLY=0
 PRERELEASE=0
+PROMOTION_BASE=""
 PARAMETERS_BASE=""
 GH_ACCOUNT=opensciencegrid
 GH_BRANCH=master
@@ -66,7 +69,7 @@ set_github_info()
 }
 
 # Parse options and required label arg
-while getopts :g:nhPp: opt; do
+while getopts :g:nhPp:T: opt; do
     case $opt in
         g)
             set_github_info "$OPTARG"
@@ -80,6 +83,8 @@ while getopts :g:nhPp: opt; do
             ;;
         P)  PRERELEASE=1
             ;;
+	T)  PROMOTION_BASE="$OPTARG"
+	    ;;
         p)
             set_parameters_base "$OPTARG"
             ;;
@@ -122,6 +127,12 @@ if [ -n "$PARAMETERS_BASE" ]; then
     rm -f $RUN_DIRECTORY/parameters.d/*.yaml
     safe_run cp "$PARAMETERS_BASE"/*.yaml $RUN_DIRECTORY/parameters.d/
 fi
+
+if [ -n "$PROMOTION_BASE" ]; then
+    echo "Copying run parameters from $PROMOTION_BASE"
+    rm -f $RUN_DIRECTORY/parameters.d/*.yaml
+    safe_run cp "$RUN_DIRECTORY"/parameters.d-promotion/$PROMOTION_BASE/*.yaml $RUN_DIRECTORY/parameters.d/
+fi 
 
 cp /osgtest/rpms/osg-test-*.rpm $RUN_DIRECTORY/ 2> /dev/null
 cd $RUN_DIRECTORY
