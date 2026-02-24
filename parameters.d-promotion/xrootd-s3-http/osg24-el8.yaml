@@ -14,7 +14,16 @@ sources:
   - opensciencegrid:master; 24; osg > osg-minefield
 
 package_sets:
-  - label: OSDF Cache and Origin
+  - label: XRootD + XRootD-S3-HTTP
+    packages:
+      - osg-xrootd-standalone
+      - xrootd-multiuser
+      - xrootd-client
+      - voms-clients-cpp
+      - xrootd-s3-http
+  - label: OSDF Cache and Origin + XRootD-S3-HTTP
     packages:
       - osdf-cache
       - osdf-origin
+      - xrootd-s3-http
+

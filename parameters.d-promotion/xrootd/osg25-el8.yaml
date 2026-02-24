@@ -20,3 +20,7 @@ package_sets:
       - xrootd-multiuser
       - xrootd-client
       - voms-clients-cpp
+  - label: OSDF Cache and Origin
+    packages:
+      - osdf-cache
+      - osdf-origin
