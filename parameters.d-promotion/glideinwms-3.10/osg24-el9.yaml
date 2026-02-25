@@ -1,0 +1,23 @@
+###################
+# OSG 24 tests for EL9
+# File format documention:
+# https://github.com/opensciencegrid/vm-test-runs#running-osg-test-in-vm-universe
+###################
+
+platforms:
+  - centos_stream_9.x86_64
+  - rocky_9.x86_64
+  - alma_9.x86_64
+
+sources:
+  - opensciencegrid:master; 23; osg, osg-upcoming > 24/osg-minefield
+  - opensciencegrid:master; 24; osg-minefield
+  - opensciencegrid:master; 24; osg > osg-minefield
+
+package_sets:
+  - label: GlideinwmsFrontend
+    packages:
+      - glideinwms-vofrontend
+  - label: GlideinwmsFactory
+    packages:
+      - glideinwms-factory

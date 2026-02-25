@@ -1,0 +1,41 @@
+###################
+# OSG 24 tests for EL9
+# File format documention:
+# https://github.com/opensciencegrid/vm-test-runs#running-osg-test-in-vm-universe
+###################
+
+platforms:
+  - centos_stream_9.aarch64
+  - rocky_9.aarch64
+  - alma_9.aarch64
+
+sources:
+  - opensciencegrid:master; 23; osg, osg-upcoming > 24/osg-minefield
+  - opensciencegrid:master; 24; osg-minefield
+  - opensciencegrid:master; 24; osg > osg-minefield
+
+package_sets:
+  - label: Compute Entrypoint (Condor)
+    packages:
+      - osg-ce-condor
+      - htcondor-ce-view
+  - label: Compute Entrypoint (Slurm)
+    packages:
+      - osg-ce-slurm
+      - htcondor-ce-view
+      - slurm
+      - slurm-slurmd
+      - slurm-slurmctld
+      - slurm-perlapi
+      - slurm-slurmdbd
+      - mariadb-server
+  - label: Compute Entrypoint (Torque)
+    packages:
+      - osg-ce-pbs
+      - htcondor-ce-view
+      - torque
+      - torque-server
+      - torque-mom
+      - torque-client
+      - torque-scheduler
+      - mariadb-server

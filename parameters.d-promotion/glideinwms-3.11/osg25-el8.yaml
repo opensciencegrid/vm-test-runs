@@ -1,0 +1,22 @@
+###################
+# OSG 25 tests for EL8
+# File format documention:
+# https://github.com/opensciencegrid/vm-test-runs#running-osg-test-in-vm-universe
+###################
+
+platforms:
+  - rocky_8.x86_64
+  - alma_8.x86_64
+
+sources:
+  - opensciencegrid:master; 24; osg, osg-upcoming > 25/osg-upcoming-minefield
+  - opensciencegrid:master; 25; osg-upcoming-minefield
+  - opensciencegrid:master; 25; osg > osg-upcoming-minefield
+
+package_sets:
+  - label: GlideinwmsFrontend
+    packages:
+      - glideinwms-vofrontend
+  - label: GlideinwmsFactory
+    packages:
+      - glideinwms-factory
