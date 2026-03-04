@@ -116,23 +116,28 @@ echo "Run directory: $RUN_DIRECTORY"
 # Prepare the run directory
 safe_run git clone --quiet --depth 1 --branch "$GH_BRANCH" https://github.com/"$GH_ACCOUNT"/vm-test-runs.git $RUN_DIRECTORY
 
-if [ $PRERELEASE -eq 1 ]; then
+if [ $PRERELEASE -eq 1 ] && [ -n "$RUN_DIRECTORY" ]; then
     echo "Using parameters for prerelease tests"
-    rm -f $RUN_DIRECTORY/parameters.d/*.yaml
+    # Non-destructively replace the original yaml set with new yaml
+    # Avoid running rm -f programmatically
+    mkdir -p $RUN_DIRECTORY/parameters.d-orig/
+    safe_run mv $RUN_DIRECTORY/parameters.d/*.yaml $RUN_DIRECTORY/parameters.d-orig/
     safe_run cp -r $RUN_DIRECTORY/parameters.d-prerelease/*.yaml $RUN_DIRECTORY/parameters.d
 fi
 
-if [ -n "$PARAMETERS_BASE" ]; then
+if [ -n "$PARAMETERS_BASE" ] && [ -n "$RUN_DIRECTORY" ]; then
     echo "Copying run parameters from $PARAMETERS_BASE"
-    rm -f $RUN_DIRECTORY/parameters.d/*.yaml
+    mkdir -p $RUN_DIRECTORY/parameters.d-orig/
+    safe_run mv $RUN_DIRECTORY/parameters.d/*.yaml $RUN_DIRECTORY/parameters.d-orig/
     safe_run cp "$PARAMETERS_BASE"/*.yaml $RUN_DIRECTORY/parameters.d/
 fi
 
-if [ -n "$PROMOTION_BASE" ]; then
+if [ -n "$PROMOTION_BASE" ] && [ -n "$RUN_DIRECTORY" ] ; then
     echo "Copying run parameters from $PROMOTION_BASE"
-    rm -f $RUN_DIRECTORY/parameters.d/*.yaml
+    mkdir -p $RUN_DIRECTORY/parameters.d-orig/
+    safe_run mv $RUN_DIRECTORY/parameters.d/*.yaml $RUN_DIRECTORY/parameters.d-orig/
     safe_run cp "$RUN_DIRECTORY"/parameters.d-promotion/$PROMOTION_BASE/*.yaml $RUN_DIRECTORY/parameters.d/
-fi 
+fi
 
 cp /osgtest/rpms/osg-test-*.rpm $RUN_DIRECTORY/ 2> /dev/null
 cd $RUN_DIRECTORY
