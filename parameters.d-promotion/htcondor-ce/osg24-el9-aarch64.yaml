@@ -13,6 +13,7 @@ sources:
   - opensciencegrid:master; 23; osg, osg-upcoming > 24/osg-minefield
   - opensciencegrid:master; 24; osg-minefield
   - opensciencegrid:master; 24; osg > osg-minefield
+  - opensciencegrid:master; 24; osg > osg-upcoming-minefield
 
 package_sets:
   - label: Compute Entrypoint (Condor)

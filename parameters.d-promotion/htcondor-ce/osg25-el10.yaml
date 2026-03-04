@@ -15,6 +15,7 @@ platforms:
 sources:
   - opensciencegrid:master; 25; osg-minefield
   - opensciencegrid:master; 25; osg > osg-minefield
+  - opensciencegrid:master; 24; osg > osg-upcoming-minefield
 
 package_sets:
   - label: Compute Entrypoint (Condor) (EL10)
