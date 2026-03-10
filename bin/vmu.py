@@ -132,8 +132,6 @@ class PackageSet(object):
     label: string describing the package set, used for reporting
     packages: list of packages as strings
     selinux: boolean to turn on/off SELinux enforcing mode (default: False)
-    java: boolean to pre-install OSG java packages (default: True)
-    rng: boolean to pre-install entropy-generation package (for random numbers) (default: False)
 
     PackageSets are equal if their 'packages' lists are the same. If 'packages'
     lists are equal but 'label' is not, ParamError is raised.
@@ -142,27 +140,20 @@ class PackageSet(object):
     are sorted alphanumerically after the known labels.
     """
 
-    OSG_JAVA_DEFAULT = False
     SELINUX_DEFAULT = True
-    RNG_DEFAULT = False
     LABEL_ORDER = ['All', 'All + GRAM', 'All + GRAM (3.2)', 'HTCondor', 'GridFTP', 'BeStMan', 'VOMS', 'GUMS']
     LABEL_IDX = dict( (v,i) for i,v in enumerate(LABEL_ORDER) )
 
-    def __init__(self, label, packages, selinux=SELINUX_DEFAULT, java=OSG_JAVA_DEFAULT, rng=RNG_DEFAULT):
+    def __init__(self, label, packages, selinux=SELINUX_DEFAULT):
         if not label:
             raise ParamError("PackageSet 'label' field cannot be blank")
         if not packages:
             raise ParamError("PackageSet 'packages' field must be non-empty list")
         self.label = label
         self.selinux = selinux
-        self.java = java
-        self.rng = rng
 
         # FIXME: PackageSet is currently a misnomer since 'packages' are a list rather than a set
-        if self.java:
-            self.packages = ['java-1.7.0-openjdk-devel', 'osg-java7-compat', 'osg-java7-devel-compat'] + packages
-        else:
-            self.packages = packages
+        self.packages = packages
         if self.selinux:
             # Install this by dependency instead of package name because
             # the package name changed between EL 7 and EL 8.
@@ -170,15 +161,13 @@ class PackageSet(object):
             # into the base VM images, but I haven't made new EL 6 images yet.
             # - 2020-07-17 mat
             self.packages.append('/usr/sbin/semanage')
-        if self.rng:
-            self.packages.append('haveged')
 
     def __eq__(self, other):
         if isinstance(other, PackageSet):
             if self.packages == other.packages:
                 if self.label != other.label:
                     raise ParamError("Different package set tags ('%s', '%s') refer to the same set of packages. " %
-                                     (self.label, other.label) + "Check if java attributes are different.")
+                                     (self.label, other.label))
                 return True
             elif self.label == other.label:
                 raise ParamError("Package set label '%s' refers to different sets of packages" % self.label)
@@ -203,16 +192,13 @@ class PackageSet(object):
         return hash(repr(self).replace('%s, ' % self.selinux, ''))
 
     def __repr__(self):
-        return "PackageSet(label=%s, packages=%s, selinux=%s, rng=%s)" % (self.label, self.selinux, self.packages, self.rng)
+        return "PackageSet(label=%s, packages=%s, selinux=%s)" % (self.label, self.selinux, self.packages)
 
     @classmethod
     def from_dict(cls, pkg_set_dict):
-        '''Create a PackageSet object from a dictionary, setting selinux, java,
-        and rng attributes to SELINUX_DEFAULT, OSG_JAVA_DEFAULT, or
-        RNG_DEFAULT, respectively, if they're not defined
+        '''Create a PackageSet object from a dictionary, setting selinux
+        to SELINUX_DEFAULT if it's not defined
         '''
         return cls(pkg_set_dict['label'],
                    pkg_set_dict['packages'],
-                   pkg_set_dict.get('selinux', cls.SELINUX_DEFAULT),
-                   pkg_set_dict.get('osg_java', cls.OSG_JAVA_DEFAULT),
-                   pkg_set_dict.get('rng', cls.RNG_DEFAULT))
+                   pkg_set_dict.get('selinux', cls.SELINUX_DEFAULT))

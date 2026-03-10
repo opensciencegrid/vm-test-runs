@@ -40,19 +40,19 @@ class TestPackageSet(TestVmu):
         self.assertRaises(vmu.ParamError, vmu.PackageSet, 'foo', [])
 
     def test_equality(self):
-        self.assertEqualWithResults(vmu.PackageSet('foo', [1, 2, 3], True, False),
-                                    vmu.PackageSet('foo', [1, 2, 3], True, False),
+        self.assertEqualWithResults(vmu.PackageSet('foo', [1, 2, 3], True),
+                                    vmu.PackageSet('foo', [1, 2, 3], True),
                                     'PackageSet label or packages equality broken')
-        self.assertEqualWithResults(vmu.PackageSet('foo', [1, 2, 3], True, False),
-                                    vmu.PackageSet('foo', [1, 2, 3], False, False),
+        self.assertEqualWithResults(vmu.PackageSet('foo', [1, 2, 3], True),
+                                    vmu.PackageSet('foo', [1, 2, 3], False),
                                     'PackageSet SELinux equality broken')
         # Test mismatched tags
         self.assertRaises(vmu.ParamError, vmu.PackageSet.__eq__,
-                          vmu.PackageSet('foo', [1, 2, 3], True, False),
-                          vmu.PackageSet('bar', [1, 2, 3], False, False))
+                          vmu.PackageSet('foo', [1, 2, 3], True),
+                          vmu.PackageSet('bar', [1, 2, 3], False))
         self.assertRaises(vmu.ParamError, vmu.PackageSet.__eq__,
-                          vmu.PackageSet('foo', [1, 2, 3], True, False),
-                          vmu.PackageSet('foo', [4, 5, 6], False, False))
+                          vmu.PackageSet('foo', [1, 2, 3], True),
+                          vmu.PackageSet('foo', [4, 5, 6], False))
 
     def test_inequality(self):
         self.assertNotEqualWithResults(vmu.PackageSet('foo', [1, 2, 3]),
@@ -61,11 +61,11 @@ class TestPackageSet(TestVmu):
 
         # Test mismatched tags
         self.assertRaises(vmu.ParamError, vmu.PackageSet.__ne__,
-                          vmu.PackageSet('foo', [1, 2, 3], True, False),
-                          vmu.PackageSet('bar', [1, 2, 3], False, False))
+                          vmu.PackageSet('foo', [1, 2, 3], True),
+                          vmu.PackageSet('bar', [1, 2, 3], False))
         self.assertRaises(vmu.ParamError, vmu.PackageSet.__ne__,
-                          vmu.PackageSet('foo', [1, 2, 3], True, False),
-                          vmu.PackageSet('foo', [4, 5, 6], False, False))
+                          vmu.PackageSet('foo', [1, 2, 3], True),
+                          vmu.PackageSet('foo', [4, 5, 6], False))
 
     def test_sorting(self):
         unsorted_pkgs = [vmu.PackageSet('All + GRAM', [1]),
@@ -85,14 +85,12 @@ class TestPackageSet(TestVmu):
     def test_defaults(self):
         pkg_set = vmu.PackageSet('foo', [1, 2, 3])
         self.assertEqual(pkg_set.selinux, vmu.PackageSet.SELINUX_DEFAULT, 'Failed to set SELinux default')
-        self.assertEqual(pkg_set.java, vmu.PackageSet.OSG_JAVA_DEFAULT, 'Failed to set OSG Java default')
-        self.assertEqual(pkg_set.rng, vmu.PackageSet.RNG_DEFAULT, 'Failed to set RNG default')
 
 
     def test_hashable(self):
-        selinux_enabled = vmu.PackageSet('foo', [1, 2, 3], True, True)
-        selinux_disabled = vmu.PackageSet('foo', [1, 2, 3], False, True)
-        different_packages = vmu.PackageSet('bar', [4, 5, 6], True, True)
+        selinux_enabled = vmu.PackageSet('foo', [1, 2, 3], True)
+        selinux_disabled = vmu.PackageSet('foo', [1, 2, 3], False)
+        different_packages = vmu.PackageSet('bar', [4, 5, 6], True)
         self.assert_(set([selinux_enabled]),
                      'PackageSet.__hash__() broken')
         self.assertEqual(selinux_enabled.__hash__(),
@@ -101,9 +99,9 @@ class TestPackageSet(TestVmu):
         self.assertNotEqual(selinux_enabled.__hash__(), different_packages.__hash__(), 'PackageSet hash inequality')
 
     def test_from_dict(self):
-        pkg_set_dict = {'label': 'gums', 'packages': ['osg-gums', 'rsv'], 'selinux': False, 'osg_java': True, 'rng': True}
+        pkg_set_dict = {'label': 'gums', 'packages': ['osg-gums', 'rsv'], 'selinux': False}
         self.assertEqualWithResults(vmu.PackageSet.from_dict(pkg_set_dict),
-                                    vmu.PackageSet('gums', ['osg-gums', 'rsv'], False, True, True),
+                                    vmu.PackageSet('gums', ['osg-gums', 'rsv'], False),
                                     'Manually generated PackageSet differs from one generated from a dict')
 
 class TestLoadRunParams(TestVmu):
@@ -227,8 +225,8 @@ class TestPackageMapping(TestVmu):
     flat_params = {
         'package_sets':
         [
-            vmu.PackageSet('foo', foo_pkg_set, java=False),
-            vmu.PackageSet('bar', bar_pkg_set, java=False)
+            vmu.PackageSet('foo', foo_pkg_set),
+            vmu.PackageSet('bar', bar_pkg_set)
         ]
     }
 

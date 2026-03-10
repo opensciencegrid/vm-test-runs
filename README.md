@@ -61,8 +61,8 @@ The procedure explained in this section replaces [this](https://opensciencegrid.
             # Run osg-test (from 3.2-minefield) with packages from 3.2-release and 3.2-testing that are then upgraded to 3.3-testing and 3-3-upcoming-testing
             3.2; osg, osg-testing > 3.3/osg-testing, osg-upcoming-testing
 
-    3. The `package_sets` section controls the packages that are installed, the label used for reporting, whether or not
-       SELinux is enabled, and whether or not to pre-install the OSG Java packages:
+    3. The `package_sets` section controls the packages that are installed, the label used for reporting,
+       and whether or not SELinux is enabled:
 
             package_sets:
             #### Required ####
@@ -70,7 +70,6 @@ The procedure explained in this section replaces [this](https://opensciencegrid.
             # packages - list of packages to install in the test run
             #### Optional ####
             # selinux - enable SELinux for the package set, otherwise Permissive mode (default: True)
-            # osg_java - Pre-install OSG java packages (default: False)
             ##################
             - label: All
               packages:
