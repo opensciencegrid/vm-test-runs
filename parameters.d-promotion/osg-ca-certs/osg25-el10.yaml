@@ -1,0 +1,85 @@
+###################
+# OSG 25 tests for EL9
+# File format documention:
+# https://github.com/opensciencegrid/vm-test-runs#running-osg-test-in-vm-universe
+###################
+
+platforms:
+  - centos_stream_10.aarch64
+  - rocky_10.aarch64
+  - alma_10.aarch64
+  - centos_stream_10.x86_64
+  - rocky_10.x86_64
+  - alma_10.x86_64
+
+sources:
+  - opensciencegrid:master; 25; osg-minefield
+  - opensciencegrid:master; 25; osg > osg-minefield
+
+package_sets:
+  - label: Compute Entrypoint (Condor) (EL10) (osg-ca-certs)
+    packages:
+      - osg-ca-certs
+      - osg-ce-condor
+  - label: Central Collector (osg-ca-certs)
+    packages:
+      - osg-ca-certs
+      - htcondor-ce-collector
+      - htcondor-ce-view
+      - fetch-crl
+  - label: Worker Node (privileged) (osg-ca-certs)
+    packages:
+      - osg-ca-certs
+      - osg-wn-client
+      - osg-oasis
+      - apptainer-suid
+  - label: XRootD (osg-ca-certs)
+    packages:
+      - osg-ca-certs
+      - osg-xrootd-standalone
+      - xrootd-multiuser
+      - xrootd-client
+      - voms-clients-cpp
+  - label: HTVault-Config (osg-ca-certs)
+    packages:
+      - osg-ca-certs
+      - htvault-config
+      - htgettoken
+  - label: OSDF Cache and Origin (osg-ca-certs)
+    packages:
+      - osg-ca-certs
+      - osdf-cache
+      - osdf-origin
+  - label: Compute Entrypoint (Condor) (EL10) (igtf-ca-certs)
+    packages:
+      - igtf-ca-certs
+      - osg-ce-condor
+  - label: Central Collector (igtf-ca-certs)
+    packages:
+      - igtf-ca-certs
+      - htcondor-ce-collector
+      - htcondor-ce-view
+      - fetch-crl
+  - label: Worker Node (privileged) (igtf-ca-certs)
+    packages:
+      - igtf-ca-certs
+      - osg-wn-client
+      - osg-oasis
+      - apptainer-suid
+  - label: XRootD (igtf-ca-certs)
+    packages:
+      - igtf-ca-certs
+      - osg-xrootd-standalone
+      - xrootd-multiuser
+      - xrootd-client
+      - voms-clients-cpp
+  - label: HTVault-Config (igtf-ca-certs)
+    packages:
+      - igtf-ca-certs
+      - htvault-config
+      - htgettoken
+  - label: OSDF Cache and Origin (igtf-ca-certs)
+    packages:
+      - igtf-ca-certs
+      - osdf-cache
+      - osdf-origin

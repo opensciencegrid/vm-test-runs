@@ -1,0 +1,32 @@
+###################
+# OSG 25 tests for EL9
+# File format documention:
+# https://github.com/opensciencegrid/vm-test-runs#running-osg-test-in-vm-universe
+###################
+
+platforms:
+  - centos_stream_10.aarch64
+  - rocky_10.aarch64
+  - alma_10.aarch64
+  - centos_stream_10.x86_64
+  - rocky_10.x86_64
+  - alma_10.x86_64
+
+sources:
+  - opensciencegrid:master; 25; osg-minefield
+  - opensciencegrid:master; 25; osg > osg-minefield
+
+package_sets:
+  - label: XRootD + XRootD-S3-HTTP
+    packages:
+      - osg-xrootd-standalone
+      - xrootd-multiuser
+      - xrootd-client
+      - voms-clients-cpp
+      - xrootd-s3-http
+  - label: OSDF Cache and Origin + XRootD-S3-HTTP
+    packages:
+      - osdf-cache
+      - osdf-origin
+      - xrootd-s3-http
+

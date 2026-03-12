@@ -1,0 +1,29 @@
+###################
+# OSG 24 tests for EL8
+# File format documention:
+# https://github.com/opensciencegrid/vm-test-runs#running-osg-test-in-vm-universe
+###################
+
+platforms:
+  - rocky_8.x86_64
+  - alma_8.x86_64
+
+sources:
+  - opensciencegrid:master; 23; osg, osg-upcoming > 24/osg-minefield
+  - opensciencegrid:master; 24; osg-minefield
+  - opensciencegrid:master; 24; osg > osg-minefield
+
+package_sets:
+  - label: XRootD + XRootD-S3-HTTP
+    packages:
+      - osg-xrootd-standalone
+      - xrootd-multiuser
+      - xrootd-client
+      - voms-clients-cpp
+      - xrootd-s3-http
+  - label: OSDF Cache and Origin + XRootD-S3-HTTP
+    packages:
+      - osdf-cache
+      - osdf-origin
+      - xrootd-s3-http
+
