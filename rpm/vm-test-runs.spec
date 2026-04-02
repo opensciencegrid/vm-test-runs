@@ -1,6 +1,6 @@
 Summary: OSG VMU test scripts
 Name: vm-test-runs
-Version: 1.4
+Version: 1.5
 Release: 1%{?dist}
 Source0: %{name}-%{version}.tar.gz
 License: Apache 2.0
@@ -69,6 +69,9 @@ install -D vmu.css %{buildroot}/%{_localstatedir}/www/html/vmu.css
 %attr(0644,root,root) %{_localstatedir}/www/html/vmu.css
 
 %changelog
+* Thu Apr 02 2026 Matt Westphall <westphall@wisc.edu> 1.5-1
+- Add set of pre-configured test parameters.d directories
+
 * Wed Jan 07 2026 Matt Westphall <westphall@wisc.edu> 1.4-1
 - EL7 to EL9 migration
 
