@@ -70,7 +70,8 @@ install -D vmu.css %{buildroot}/%{_localstatedir}/www/html/vmu.css
 
 %changelog
 * Thu Apr 02 2026 Matt Westphall <westphall@wisc.edu> 1.5-1
-- Add set of pre-configured test parameters.d directories
+- Add set of pre-configured test parameters.d directories (SOFTWARE-6301)
+- Do space-based VMU test cleanup (SOFTWARE-5719)
 
 * Wed Jan 07 2026 Matt Westphall <westphall@wisc.edu> 1.4-1
 - EL7 to EL9 migration
