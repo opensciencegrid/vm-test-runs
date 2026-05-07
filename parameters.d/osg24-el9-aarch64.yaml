@@ -6,7 +6,7 @@
 
 platforms:
   - centos_stream_9.aarch64
-  - rocky_9.aarch64
+  # - rocky_9.aarch64
   - alma_9.aarch64
 
 sources:
