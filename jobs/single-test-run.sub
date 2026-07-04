@@ -17,13 +17,9 @@ periodic_remove         = ( (JobStatus == 5) && (HoldReasonCode =?= 3) && (NumJo
 request_disk            = 16GB
 # See https://opensciencegrid.atlassian.net/browse/INF-2975 for debugging the machines in this list.
 +BadMachineList         = "\
- e2455.chtc.wisc.edu,\
- e2461.chtc.wisc.edu,\
  e2462.chtc.wisc.edu,\
- e2463.chtc.wisc.edu,\
  e2465.chtc.wisc.edu,\
  e2466.chtc.wisc.edu,\
- e2467.chtc.wisc.edu,\
  e2468.chtc.wisc.edu,\
  e2469.chtc.wisc.edu,\
  e2470.chtc.wisc.edu,\
@@ -35,7 +31,6 @@ request_disk            = 16GB
  e2476.chtc.wisc.edu,\
  e2477.chtc.wisc.edu,\
  e2478.chtc.wisc.edu,\
- e2479.chtc.wisc.edu,\
  e2480.chtc.wisc.edu,\
  e2481.chtc.wisc.edu,\
  e2482.chtc.wisc.edu,\
