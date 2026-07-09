@@ -40,6 +40,50 @@ run_command_with_retries()
     return 1
 }
 
+
+add_addresses_to_etc_hosts()
+{
+    python3 -c '
+import json
+import subprocess as sp
+
+# Load interface info as JSON; this returns an array of interfaces
+ifaces = json.loads(sp.check_output(["ip", "-j", "addr"])  # type: list
+addresses = []
+
+# Go through all the discovered interfaces
+for iface in ifaces:
+    # Skip the loopback interface
+    if iface["link_type"] == "loopback":
+        continue
+
+    # Skip downed interfaces
+    if "UP" not in iface["flags"]:
+        continue
+
+    # Go through all the addresses
+    for addr in addr_info:
+        # "family" helps us determine ipv4, ipv6, or some other type of interface
+        family = addr["family"]
+
+        # "local" is the attribute that contains the ip address
+        ip = addr["local"]
+
+        # skip loopback and link-local addresses
+        if ip.startswith("127.") or ip == "::1" or ip.startswith("fe80"):
+            continue
+
+        # add only ipv4 and ipv6 addresses to the list
+        if family in {"inet", "inet6"}:
+            addresses.append(ip)
+
+with open("/etc/hosts", "a") as hostsfh:
+    # add the gathered addresses to the hosts file
+    for ip in addresses:
+        hostsfh.write("%s osg-test.localdomain osg-test\n" % ip)
+'
+}
+
 # Figure out OSG release series
 osg_series=`grep series $INPUT_DIR/osg-test.conf | sed -e 's/series *= *//'`
 
@@ -90,17 +134,7 @@ log_command mount
 log_command cat /proc/net/dev
 
 # Set a hostname
-if [[ -n `ip addr | grep eth0` ]]; then
-    ip_address=`ip addr show eth0 | awk 'match($0, /inet ([0-9.]+)/, a) { print a[1] }'`
-elif [[ -n `ip addr | grep ens3` ]]; then
-    ip_address=`ip addr show ens3 | awk 'match($0, /inet ([0-9.]+)/, a) { print a[1] }'`
-elif [[ -n `ip addr | grep enp1s0` ]]; then
-    ip_address=`ip addr show enp1s0 | awk 'match($0, /inet ([0-9.]+)/, a) { print a[1] }'`
-else
-    echo 'Could not find IP address'
-    exit 1
-fi
-echo "$ip_address osg-test.localdomain osg-test" >> /etc/hosts
+add_addresses_to_etc_hosts
 log_command cat /etc/hosts
 log_command cat /etc/host.conf
 log_command hostname
