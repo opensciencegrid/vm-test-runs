@@ -104,7 +104,11 @@ echo "$ip_address osg-test.localdomain osg-test" >> /etc/hosts
 log_command cat /etc/hosts
 log_command cat /etc/host.conf
 log_command hostname
-log_command hostname osg-test.localdomain
+if command -v hostnamectl &>/dev/null; then
+    log_command hostnamectl set-hostname osg-test.localdomain
+else
+    log_command hostname osg-test.localdomain
+fi
 log_command hostname
 
 # Do initial check of gethostbyname()
