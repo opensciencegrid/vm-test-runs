@@ -48,7 +48,7 @@ import json
 import subprocess as sp
 
 # Load interface info as JSON; this returns an array of interfaces
-ifaces = json.loads(sp.check_output(["ip", "-j", "addr"])  # type: list
+ifaces = json.loads(sp.check_output(["ip", "-j", "addr"]))  # type: list
 addresses = []
 
 # Go through all the discovered interfaces
@@ -62,7 +62,7 @@ for iface in ifaces:
         continue
 
     # Go through all the addresses
-    for addr in addr_info:
+    for addr in iface["addr_info"]:
         # "family" helps us determine ipv4, ipv6, or some other type of interface
         family = addr["family"]
 
