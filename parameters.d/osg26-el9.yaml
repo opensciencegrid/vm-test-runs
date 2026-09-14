@@ -32,7 +32,7 @@ sources:
   # - opensciencegrid:master; 26; osg > osg-testing, osg-upcoming-testing
   - opensciencegrid:master; 25; osg, osg-upcoming > 26/osg-minefield
   - opensciencegrid:master; 26; osg-minefield
-  - opensciencegrid:master; 26; osg > osg-minefield
+  # - opensciencegrid:master; 26; osg > osg-minefield
 
 package_sets:
   #### Required ####
