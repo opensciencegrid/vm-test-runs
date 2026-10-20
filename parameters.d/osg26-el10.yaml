@@ -41,23 +41,21 @@ package_sets:
   #### Optional ####
   # selinux - enable SELinux for the package set, otherwise Permissive mode (default: True)
   ##################
-  - label: Compute Entrypoint (Condor) (EL10)
+  - label: Compute Entrypoint (Condor)
     packages:
       - osg-ce-condor
-# Ganglia is not available in el10
-      # - htcondor-ce-view
+      - htcondor-ce-view
 
-# Slurm is not built for el10
-  # - label: Compute Entrypoint (Slurm)
-  #   packages:
-  #     - osg-ce-slurm
-  #     - htcondor-ce-view
-  #     - slurm
-  #     - slurm-slurmd
-  #     - slurm-slurmctld
-  #     - slurm-perlapi
-  #     - slurm-slurmdbd
-  #     - mariadb-server
+  - label: Compute Entrypoint (Slurm)
+    packages:
+      - osg-ce-slurm
+      - htcondor-ce-view
+      - slurm
+      - slurm-slurmd
+      - slurm-slurmctld
+      - slurm-perlapi
+      - slurm-slurmdbd
+      - mariadb-server
 
 # Torque is not available in el10
   # - label: Compute Entrypoint (Torque)
@@ -90,13 +88,12 @@ package_sets:
       - xrootd-multiuser
       - xrootd-client
       - voms-clients-cpp
-  ##  python3-m3crypto is not yet available on el10
-  # - label: GlideinwmsFrontend
-  #   packages:
-  #     - glideinwms-vofrontend
-  # - label: GlideinwmsFactory
-  #   packages:
-  #     - glideinwms-factory
+  - label: GlideinwmsFrontend
+    packages:
+      - glideinwms-vofrontend
+  - label: GlideinwmsFactory
+    packages:
+      - glideinwms-factory
   - label: HTVault-Config
     packages:
       - htvault-config
