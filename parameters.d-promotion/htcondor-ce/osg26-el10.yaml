@@ -23,13 +23,14 @@ package_sets:
     packages:
       - osg-ce-condor
       - htcondor-ce-view
-  - label: Compute Entrypoint (Slurm)
-    packages:
-      - osg-ce-slurm
-      - htcondor-ce-view
-      - slurm
-      - slurm-slurmd
-      - slurm-slurmctld
-      - slurm-perlapi
-      - slurm-slurmdbd
-      - mariadb-server
+  ## SLURM is broken/missing on EL10
+  # - label: Compute Entrypoint (Slurm)
+  #   packages:
+  #     - osg-ce-slurm
+  #     - htcondor-ce-view
+  #     - slurm
+  #     - slurm-slurmd
+  #     - slurm-slurmctld
+  #     - slurm-perlapi
+  #     - slurm-slurmdbd
+  #     - mariadb-server
