@@ -19,6 +19,18 @@ sources:
   - opensciencegrid:master; 26; osg > osg-upcoming-minefield
 
 package_sets:
-  - label: Compute Entrypoint (Condor) (EL10)
+  - label: Compute Entrypoint (Condor)
     packages:
       - osg-ce-condor
+      - htcondor-ce-view
+  ## SLURM is broken/missing on EL10
+  # - label: Compute Entrypoint (Slurm)
+  #   packages:
+  #     - osg-ce-slurm
+  #     - htcondor-ce-view
+  #     - slurm
+  #     - slurm-slurmd
+  #     - slurm-slurmctld
+  #     - slurm-perlapi
+  #     - slurm-slurmdbd
+  #     - mariadb-server
