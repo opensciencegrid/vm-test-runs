@@ -56,17 +56,6 @@ package_sets:
   #     - slurm-slurmdbd
   #     - mariadb-server
 
-# Torque is not available in el10
-  # - label: Compute Entrypoint (Torque)
-  #   packages:
-  #     - osg-ce-pbs
-  #     - htcondor-ce-view
-  #     - torque
-  #     - torque-server
-  #     - torque-mom
-  #     - torque-client
-  #     - torque-scheduler
-  #     - mariadb-server
   - label: Central Collector
     packages:
       - htcondor-ce-collector
