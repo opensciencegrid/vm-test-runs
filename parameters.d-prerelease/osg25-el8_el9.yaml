@@ -15,7 +15,7 @@ sources:
   - opensciencegrid:master; 25; osg-prerelease
   - opensciencegrid:master; 25; osg > osg-prerelease
   - opensciencegrid:master; 25; osg-prerelease, osg-upcoming-prerelease
-  - opensciencegrid:master; 25; osg > osg-prerelease, osg-upcoming-prerelease
+  - opensciencegrid:master; 25; osg > osg-upcoming, osg-prerelease, osg-upcoming-prerelease
 
 package_sets:
   - label: Compute Entrypoint (Condor)
